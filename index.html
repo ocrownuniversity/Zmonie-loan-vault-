@@ -3,230 +3,250 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>LoanVault &mdash; Loan Record Management</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<title>LoanVault - Loan Record Management</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --navy:#0f2342;
-  --navy2:#1a3a6b;
-  --gold:#c8973a;
-  --gold2:#e8b84b;
-  --bg:#f4f6fa;
-  --card:#ffffff;
-  --border:#e2e8f0;
-  --text:#1e293b;
-  --muted:#64748b;
-  --green:#16a34a;
-  --red:#dc2626;
-  --amber:#d97706;
-  --blue:#2563eb;
-  --radius:10px;
-  --shadow:0 2px 12px rgba(15,35,66,.10);
+  --navy:#0f2342;--navy2:#1a3a6b;--gold:#c8973a;--gold2:#e8b84b;
+  --bg:#f0f4f9;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#2563eb;
+  --radius:12px;--shadow:0 2px 16px rgba(15,35,66,.09);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-/* ===== LOGIN ===== */
-#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--navy) 0%,var(--navy2) 100%)}
-.login-card{background:#fff;border-radius:16px;padding:48px 40px;width:100%;max-width:400px;box-shadow:0 20px 60px rgba(0,0,0,.3);text-align:center}
-.login-logo{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--navy);margin-bottom:4px}
+#login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--navy),var(--navy2))}
+.login-card{background:#fff;border-radius:20px;padding:44px 36px;width:100%;max-width:400px;box-shadow:0 24px 80px rgba(0,0,0,.3);text-align:center}
+.login-logo{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--navy);margin-bottom:2px}
 .login-logo span{color:var(--gold)}
-.login-sub{color:var(--muted);font-size:.85rem;margin-bottom:32px}
-.pin-dots{display:flex;gap:12px;justify-content:center;margin:24px 0}
+.login-sub{color:var(--muted);font-size:.8rem;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.pin-dots{display:flex;gap:14px;justify-content:center;margin:0 0 20px}
 .pin-dot{width:16px;height:16px;border-radius:50%;background:var(--border);transition:.2s}
-.pin-dot.filled{background:var(--navy)}
-.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}
-.numpad button{padding:14px;border:1px solid var(--border);border-radius:8px;font-size:1.1rem;font-weight:600;background:#fff;cursor:pointer;transition:.15s}
+.pin-dot.filled{background:var(--navy);transform:scale(1.1)}
+.numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:0 0 10px}
+.numpad button{padding:15px;border:1.5px solid var(--border);border-radius:10px;font-size:1.1rem;font-weight:700;background:#fff;cursor:pointer;transition:.15s;font-family:inherit;color:var(--navy)}
 .numpad button:hover{background:var(--bg)}
 .numpad button.del{color:var(--red)}
-.login-err{color:var(--red);font-size:.8rem;margin-top:8px;min-height:1.2em}
-/* ===== APP SHELL ===== */
+.login-err{color:var(--red);font-size:.8rem;min-height:1.2em;font-weight:500;margin-top:4px}
 #app{display:none;min-height:100vh}
-header{background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 24px;height:60px;position:sticky;top:0;z-index:100}
-.header-brand{font-family:'DM Serif Display',serif;font-size:1.3rem}
-.header-brand span{color:var(--gold)}
-.header-right{display:flex;align-items:center;gap:12px}
-.header-right button{background:rgba(255,255,255,.12);border:none;color:#fff;padding:6px 14px;border-radius:6px;cursor:pointer;font-size:.82rem;font-weight:500}
-.header-right button:hover{background:rgba(255,255,255,.22)}
-nav{background:var(--navy2);display:flex;overflow-x:auto;gap:2px;padding:0 12px}
-nav::-webkit-scrollbar{height:3px}
-.nav-btn{background:none;border:none;color:rgba(255,255,255,.7);padding:12px 18px;cursor:pointer;font-size:.82rem;font-weight:500;white-space:nowrap;border-bottom:3px solid transparent;transition:.2s}
-.nav-btn.active,.nav-btn:hover{color:#fff;border-bottom-color:var(--gold)}
-main{padding:24px;max-width:1200px;margin:0 auto}
-/* ===== CARDS / LAYOUT ===== */
-.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:24px;margin-bottom:20px}
-.card-title{font-size:1rem;font-weight:700;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;gap:8px}
-.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:20px}
-.stat-card{background:var(--card);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow);border-left:4px solid var(--gold)}
-.stat-val{font-size:1.7rem;font-weight:700;color:var(--navy)}
-.stat-lbl{font-size:.78rem;color:var(--muted);margin-top:4px}
-/* ===== FORMS ===== */
-.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px}
-.form-group{display:flex;flex-direction:column;gap:5px}
-.form-group label{font-size:.8rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
-.form-group input,.form-group select,.form-group textarea{padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;font-family:inherit;background:#fff;transition:.2s}
-.form-group input:focus,.form-group select:focus,.form-group textarea:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 3px rgba(26,58,107,.1)}
-.form-group textarea{resize:vertical;min-height:72px}
-.section-head{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;color:var(--gold);border-bottom:1px solid var(--border);padding-bottom:8px;margin:20px 0 14px}
-/* ===== BUTTONS ===== */
-.btn{display:inline-flex;align-items:center;gap:6px;padding:9px 18px;border-radius:7px;border:none;font-size:.85rem;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit}
-.btn-primary{background:var(--navy);color:#fff}
-.btn-primary:hover{background:var(--navy2)}
+header{background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
+.hbrand{font-family:'DM Serif Display',serif;font-size:1.3rem}
+.hbrand span{color:var(--gold)}
+.hpill{background:rgba(200,151,58,.25);border:1px solid var(--gold);color:var(--gold2);font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em;margin-left:8px}
+.hright{display:flex;gap:8px;align-items:center}
+.hright button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);color:#fff;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:600;font-family:inherit}
+.hright button:hover{background:rgba(255,255,255,.22)}
+nav{background:var(--navy2);display:flex;overflow-x:auto;padding:0 12px}
+nav::-webkit-scrollbar{height:2px}
+.nb{background:none;border:none;color:rgba(255,255,255,.65);padding:12px 14px;cursor:pointer;font-size:.78rem;font-weight:600;white-space:nowrap;border-bottom:3px solid transparent;transition:.2s;font-family:inherit}
+.nb.active,.nb:hover{color:#fff;border-bottom-color:var(--gold)}
+main{padding:20px;max-width:1280px;margin:0 auto}
+.card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
+.card-title{font-size:.92rem;font-weight:800;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
+.stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin-bottom:18px}
+.stat-card{background:var(--card);border-radius:var(--radius);padding:16px 18px;box-shadow:var(--shadow);border-left:4px solid var(--gold)}
+.stat-val{font-size:1.5rem;font-weight:800;color:var(--navy)}
+.stat-lbl{font-size:.7rem;color:var(--muted);margin-top:4px;text-transform:uppercase;letter-spacing:.04em}
+.form-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}
+.fg{display:flex;flex-direction:column;gap:5px}
+.fg label{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.05em}
+.fg input,.fg select,.fg textarea{padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit;background:#fff;transition:.2s;color:var(--text)}
+.fg input:focus,.fg select:focus,.fg textarea:focus{outline:none;border-color:var(--navy2);box-shadow:0 0 0 3px rgba(26,58,107,.08)}
+.fg input[readonly]{background:var(--bg);font-weight:700;border-color:var(--gold);color:var(--navy)}
+.fg textarea{resize:vertical;min-height:64px}
+.sh{font-size:.7rem;font-weight:800;text-transform:uppercase;letter-spacing:.1em;color:var(--gold);border-bottom:2px solid var(--border);padding-bottom:6px;margin:20px 0 12px}
+.calc-box{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:12px;padding:18px;margin:14px 0;color:#fff}
+.calc-title{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;opacity:.7;margin-bottom:12px}
+.calc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:10px}
+.calc-item{background:rgba(255,255,255,.1);border-radius:8px;padding:10px;text-align:center}
+.calc-item.hl{background:var(--gold)}
+.calc-item .cv{font-size:1.05rem;font-weight:800}
+.calc-item .cl{font-size:.62rem;opacity:.75;margin-top:2px;text-transform:uppercase}
+.calc-row{background:rgba(255,255,255,.08);border-radius:7px;padding:9px 12px;margin-top:10px;display:flex;align-items:center;justify-content:space-between;font-size:.8rem}
+.calc-row span{opacity:.75}
+.calc-row strong{color:var(--gold2);font-size:.9rem}
+.btn{display:inline-flex;align-items:center;gap:5px;padding:8px 16px;border-radius:8px;border:none;font-size:.81rem;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+.btn:active{transform:scale(.97)}
+.btn-navy{background:var(--navy);color:#fff}
+.btn-navy:hover{background:var(--navy2)}
 .btn-gold{background:var(--gold);color:#fff}
 .btn-gold:hover{background:var(--gold2)}
 .btn-green{background:var(--green);color:#fff}
+.btn-green:hover{background:#15803d}
 .btn-red{background:var(--red);color:#fff}
-.btn-outline{background:transparent;color:var(--navy);border:1px solid var(--border)}
-.btn-outline:hover{background:var(--bg)}
-.btn-sm{padding:5px 12px;font-size:.78rem}
-.btn-row{display:flex;flex-wrap:wrap;gap:10px;margin-top:20px}
-/* ===== TABLE ===== */
-.tbl-wrap{overflow-x:auto}
-table{width:100%;border-collapse:collapse;font-size:.85rem}
-thead th{background:var(--bg);color:var(--muted);font-size:.72rem;text-transform:uppercase;letter-spacing:.06em;padding:10px 12px;text-align:left;border-bottom:1px solid var(--border)}
-tbody td{padding:11px 12px;border-bottom:1px solid var(--border);color:var(--text)}
-tbody tr:hover{background:var(--bg)}
-/* ===== BADGES ===== */
-.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:.72rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em}
-.badge-pending{background:#fef3c7;color:#92400e}
-.badge-approved{background:#dcfce7;color:#166534}
-.badge-rejected{background:#fee2e2;color:#991b1b}
-.badge-completed{background:#dbeafe;color:#1e40af}
-/* ===== SEARCH ===== */
-.search-bar{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap}
-.search-bar input{flex:1;min-width:200px;padding:9px 14px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;font-family:inherit}
-.search-bar input:focus{outline:none;border-color:var(--navy2)}
-/* ===== PROFILE ===== */
-.profile-header{display:flex;gap:20px;align-items:flex-start;flex-wrap:wrap}
-.profile-photo{width:90px;height:90px;border-radius:10px;object-fit:cover;border:3px solid var(--gold);background:var(--bg)}
-.profile-meta h2{font-size:1.2rem;font-weight:700;color:var(--navy)}
-.profile-meta p{font-size:.85rem;color:var(--muted);margin-top:2px}
-.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
-.info-item label{font-size:.72rem;text-transform:uppercase;color:var(--muted);font-weight:600}
-.info-item p{font-size:.9rem;font-weight:500;margin-top:2px}
-.guarantor-card{background:var(--bg);border-radius:8px;padding:16px;border:1px solid var(--border)}
-.g-header{display:flex;gap:14px;align-items:center;margin-bottom:12px}
-.g-photo{width:56px;height:56px;border-radius:8px;object-fit:cover;border:2px solid var(--gold);background:#ddd}
-/* ===== REPAYMENT ===== */
-.repay-summary{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:16px}
-.repay-stat{background:var(--bg);border-radius:8px;padding:14px;text-align:center}
-.repay-stat .val{font-size:1.1rem;font-weight:700;color:var(--navy)}
-.repay-stat .lbl{font-size:.72rem;color:var(--muted);margin-top:2px}
-progress{width:100%;height:10px;border-radius:6px;appearance:none;border:none;background:var(--border);margin:8px 0}
-progress::-webkit-progress-bar{background:var(--border);border-radius:6px}
-progress::-webkit-progress-value{background:var(--green);border-radius:6px}
-/* ===== MODAL ===== */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;padding:16px}
+.btn-red:hover{background:#b91c1c}
+.btn-amber{background:var(--amber);color:#fff}
+.btn-out{background:transparent;color:var(--navy);border:1.5px solid var(--border)}
+.btn-out:hover{background:var(--bg)}
+.btn-sm{padding:5px 10px;font-size:.74rem}
+.btn-row{display:flex;flex-wrap:wrap;gap:8px;margin-top:18px;align-items:center}
+.tbl-wrap{overflow-x:auto;border-radius:8px;border:1px solid var(--border)}
+table{width:100%;border-collapse:collapse;font-size:.81rem}
+thead th{background:var(--bg);color:var(--muted);font-size:.66rem;text-transform:uppercase;letter-spacing:.07em;padding:9px 12px;text-align:left;border-bottom:1px solid var(--border);font-weight:700;white-space:nowrap}
+tbody td{padding:10px 12px;border-bottom:1px solid var(--border);color:var(--text);vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr:hover{background:#f8fafc}
+.badge{display:inline-block;padding:3px 9px;border-radius:20px;font-size:.67rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;white-space:nowrap}
+.b-pending{background:#fef3c7;color:#92400e}
+.b-approved{background:#dcfce7;color:#166534}
+.b-rejected{background:#fee2e2;color:#991b1b}
+.b-completed{background:#dbeafe;color:#1e40af}
+.b-overdue{background:#fce7f3;color:#9d174d}
+.search-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.search-row input,.search-row select{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit}
+.search-row input{flex:1;min-width:180px}
+.search-row input:focus,.search-row select:focus{outline:none;border-color:var(--navy2)}
+.pbar-wrap{background:var(--border);border-radius:20px;height:8px;overflow:hidden;margin:4px 0}
+.pbar-fill{height:100%;border-radius:20px;transition:.4s;background:linear-gradient(90deg,var(--green),#22c55e)}
+.pbar-fill.warn{background:linear-gradient(90deg,var(--amber),#f59e0b)}
+.pbar-fill.dng{background:linear-gradient(90deg,var(--red),#ef4444)}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:200;align-items:center;justify-content:center;padding:14px;backdrop-filter:blur(3px)}
 .overlay.show{display:flex}
-.modal{background:#fff;border-radius:14px;width:100%;max-width:700px;max-height:90vh;overflow-y:auto;padding:28px}
-.modal-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
-.modal-head h3{font-size:1rem;font-weight:700;color:var(--navy)}
-.modal-close{background:none;border:none;font-size:1.4rem;cursor:pointer;color:var(--muted)}
-/* ===== PHOTO UPLOAD ===== */
-.photo-upload{border:2px dashed var(--border);border-radius:8px;padding:16px;text-align:center;cursor:pointer;transition:.2s}
-.photo-upload:hover{border-color:var(--navy2);background:var(--bg)}
-.photo-upload img{width:80px;height:80px;object-fit:cover;border-radius:6px;margin-bottom:8px}
-.photo-upload p{font-size:.78rem;color:var(--muted)}
-/* ===== PRINT ===== */
-@media print{
-  header,nav,.no-print{display:none!important}
-  #app{display:block!important}
-  .page-section{display:block!important}
-  body{background:#fff}
-  .card{box-shadow:none;border:1px solid #ccc}
-  .print-only{display:block!important}
-}
-.print-only{display:none}
-/* ===== TOAST ===== */
-#toast{position:fixed;bottom:24px;right:24px;background:var(--navy);color:#fff;padding:12px 20px;border-radius:8px;font-size:.85rem;font-weight:500;z-index:999;opacity:0;transform:translateY(20px);transition:.3s;pointer-events:none}
-#toast.show{opacity:1;transform:translateY(0)}
-/* ===== TABS ===== */
-.tabs{display:flex;gap:4px;border-bottom:2px solid var(--border);margin-bottom:20px}
-.tab-btn{background:none;border:none;padding:9px 16px;font-size:.85rem;font-weight:600;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s}
-.tab-btn.active{color:var(--navy);border-bottom-color:var(--navy)}
-/* ===== RESPONSIVE ===== */
-@media(max-width:600px){
-  main{padding:14px}
-  .card{padding:16px}
-  .stat-val{font-size:1.3rem}
-  .btn{padding:8px 14px}
-  .modal{padding:18px}
-}
-/* ===== PAGES ===== */
+.modal{background:#fff;border-radius:16px;width:100%;max-width:700px;max-height:92vh;overflow-y:auto;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.mhead{display:flex;justify-content:space-between;align-items:center;padding:18px 22px;border-bottom:1px solid var(--border);position:sticky;top:0;background:#fff;z-index:1}
+.mhead h3{font-size:.92rem;font-weight:800;color:var(--navy)}
+.mbody{padding:18px 22px 22px}
+.mclose{background:var(--bg);border:none;width:30px;height:30px;border-radius:50%;font-size:1.1rem;cursor:pointer;color:var(--muted);display:flex;align-items:center;justify-content:center}
+.mclose:hover{background:var(--border)}
+.photo-up{border:2px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg)}
+.photo-up:hover{border-color:var(--navy2);background:#f0f4ff}
+.photo-up img{width:68px;height:68px;object-fit:cover;border-radius:8px;margin-bottom:6px;border:2px solid var(--border)}
+.photo-up p{font-size:.72rem;color:var(--muted)}
+.tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:16px;overflow-x:auto}
+.tabbtn{background:none;border:none;padding:8px 14px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap;font-family:inherit}
+.tabbtn.active{color:var(--navy);border-bottom-color:var(--navy)}
 .page-section{display:none}
 .page-section.active{display:block}
-/* ===== FILE LIST ===== */
-.file-list{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
-.file-chip{background:var(--bg);border:1px solid var(--border);border-radius:6px;padding:5px 10px;font-size:.75rem;color:var(--navy);display:flex;align-items:center;gap:6px}
-.file-chip a{color:var(--navy);text-decoration:none}
+.flist{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.fchip{background:var(--bg);border:1px solid var(--border);border-radius:5px;padding:3px 9px;font-size:.72rem;color:var(--navy)}
+.fchip a{color:var(--navy);text-decoration:none}
+.info-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:10px}
+.iitem{padding:9px;background:var(--bg);border-radius:8px;border:1px solid var(--border)}
+.iitem label{font-size:.63rem;text-transform:uppercase;color:var(--muted);font-weight:700;letter-spacing:.04em}
+.iitem p{font-size:.83rem;font-weight:600;margin-top:2px;color:var(--navy)}
+.gcard{background:var(--bg);border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:10px}
+.ghd{display:flex;gap:12px;align-items:center;margin-bottom:10px}
+.gphoto{width:54px;height:54px;border-radius:8px;object-fit:cover;border:2px solid var(--gold);background:#ddd;flex-shrink:0}
+.repay-sum{display:grid;grid-template-columns:repeat(auto-fit,minmax(100px,1fr));gap:8px;margin-bottom:14px}
+.rs{background:var(--bg);border-radius:8px;padding:10px;text-align:center;border:1px solid var(--border)}
+.rs .rv{font-size:.95rem;font-weight:800;color:var(--navy)}
+.rs .rl{font-size:.62rem;color:var(--muted);margin-top:2px;text-transform:uppercase}
+.prof-hd{background:linear-gradient(135deg,var(--navy),var(--navy2));border-radius:12px;padding:18px;margin-bottom:16px;color:#fff;display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.prof-photo{width:80px;height:80px;border-radius:10px;object-fit:cover;border:3px solid var(--gold);flex-shrink:0}
+.act-item{display:flex;gap:10px;padding:9px 0;border-bottom:1px solid var(--border)}
+.act-item:last-child{border-bottom:none}
+.act-dot{width:9px;height:9px;border-radius:50%;flex-shrink:0;margin-top:4px}
+.act-txt{font-size:.8rem}
+.act-txt span{color:var(--muted);font-size:.73rem;display:block;margin-top:1px}
+.ndot{width:7px;height:7px;background:var(--red);border-radius:50%;display:inline-block;margin-left:3px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+.alert-card{border-radius:10px;padding:12px 15px;margin-bottom:8px;display:flex;gap:10px;align-items:center}
+.alert-red{background:#fff1f2;border:1px solid #fca5a5}
+.alert-amber{background:#fffbeb;border:1px solid #fcd34d}
+.alert-green{background:#f0fdf4;border:1px solid #86efac}
+.quick-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:10px;margin-bottom:16px}
+.qcard{background:var(--card);border-radius:var(--radius);padding:14px;box-shadow:var(--shadow);text-align:center;cursor:pointer;transition:.2s;border:1.5px solid transparent}
+.qcard:hover{border-color:var(--navy2);transform:translateY(-2px)}
+.qcard .qi{font-size:1.7rem;margin-bottom:6px}
+.qcard p{font-size:.72rem;font-weight:700;color:var(--navy)}
+#toast{position:fixed;bottom:22px;right:22px;padding:11px 18px;border-radius:10px;font-size:.81rem;font-weight:700;z-index:9999;opacity:0;transform:translateY(16px);transition:.3s;pointer-events:none;max-width:300px;box-shadow:var(--shadow)}
+#toast.show{opacity:1;transform:translateY(0)}
+#toast.s{background:var(--navy);color:#fff}
+#toast.e{background:var(--red);color:#fff}
+#toast.w{background:var(--amber);color:#fff}
+@media(max-width:600px){main{padding:10px}.card{padding:14px}.modal{max-height:96vh}.mbody{padding:14px}}
+@media print{header,nav,.no-print{display:none!important}#app{display:block!important}.page-section{display:block!important}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}}
 </style>
 </head>
 <body>
 
-<!-- LOGIN -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">Loan<span>Vault</span></div>
-    <div class="login-sub">Loan Record Management System</div>
-    <div class="pin-dots" id="pin-dots">
-      <div class="pin-dot" id="d0"></div>
-      <div class="pin-dot" id="d1"></div>
-      <div class="pin-dot" id="d2"></div>
-      <div class="pin-dot" id="d3"></div>
-    </div>
+    <div class="login-sub">Professional Loan Management System<br/>Enter your PIN to continue</div>
+    <div class="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div></div>
     <div class="numpad">
-      <button onclick="pinPress('1')">1</button><button onclick="pinPress('2')">2</button><button onclick="pinPress('3')">3</button>
-      <button onclick="pinPress('4')">4</button><button onclick="pinPress('5')">5</button><button onclick="pinPress('6')">6</button>
-      <button onclick="pinPress('7')">7</button><button onclick="pinPress('8')">8</button><button onclick="pinPress('9')">9</button>
-      <button onclick="pinPress('0')" style="grid-column:2">0</button>
-      <button class="del" onclick="pinDel()">&#9003;</button>
+      <button onclick="pp('1')">1</button><button onclick="pp('2')">2</button><button onclick="pp('3')">3</button>
+      <button onclick="pp('4')">4</button><button onclick="pp('5')">5</button><button onclick="pp('6')">6</button>
+      <button onclick="pp('7')">7</button><button onclick="pp('8')">8</button><button onclick="pp('9')">9</button>
+      <button onclick="pp('0')" style="grid-column:2">0</button>
+      <button class="del" onclick="pd()">&#9003;</button>
     </div>
-    <div class="login-err" id="login-err"></div>
+    <div class="login-err" id="lerr"></div>
+    <div style="font-size:.68rem;color:var(--muted);margin-top:12px">LoanVault v2.0 &bull; 24% Fixed Interest Rate</div>
   </div>
 </div>
 
-<!-- APP -->
 <div id="app">
   <header>
-    <div class="header-brand">Loan<span>Vault</span></div>
-    <div class="header-right">
-      <span id="hdr-date" style="font-size:.78rem;opacity:.7"></span>
-      <button onclick="logout()">&#128274; Logout</button>
+    <div style="display:flex;align-items:center">
+      <div class="hbrand">Loan<span>Vault</span></div>
+      <div class="hpill">PRO</div>
+    </div>
+    <div class="hright">
+      <span id="hdr-date" style="font-size:.73rem;opacity:.65"></span>
+      <button onclick="showPage('notifications')" id="notif-btn">&#128276; Alerts</button>
+      <button onclick="doLogout()">&#128274; Logout</button>
     </div>
   </header>
   <nav>
-    <button class="nav-btn active" onclick="showPage('dashboard')">&#128202; Dashboard</button>
-    <button class="nav-btn" onclick="showPage('applicants')">&#128101; Applicants</button>
-    <button class="nav-btn" onclick="showPage('new-application')">&#43; New Application</button>
-    <button class="nav-btn" onclick="showPage('repayments')">&#128176; Repayments</button>
-    <button class="nav-btn" onclick="showPage('reports')">&#128196; Reports</button>
-    <button class="nav-btn" onclick="showPage('settings')">&#9881; Settings</button>
+    <button class="nb active" onclick="showPage('dashboard')">&#128202; Dashboard</button>
+    <button class="nb" onclick="showPage('applicants')">&#128101; Borrowers</button>
+    <button class="nb" onclick="showPage('new-application')">&#43; New Loan</button>
+    <button class="nb" onclick="showPage('repayments')">&#128176; Repayments</button>
+    <button class="nb" onclick="showPage('calculator')">&#129518; Calculator</button>
+    <button class="nb" onclick="showPage('reports')">&#128196; Reports</button>
+    <button class="nb" onclick="showPage('notifications')">&#128276; Alerts</button>
+    <button class="nb" onclick="showPage('settings')">&#9881; Settings</button>
   </nav>
   <main>
 
     <!-- DASHBOARD -->
     <div class="page-section active" id="page-dashboard">
       <div class="stat-grid" id="stat-grid"></div>
+      <div class="quick-grid">
+        <div class="qcard" onclick="showPage('new-application')"><div class="qi">&#128203;</div><p>New Application</p></div>
+        <div class="qcard" onclick="showPage('repayments')"><div class="qi">&#128176;</div><p>Record Payment</p></div>
+        <div class="qcard" onclick="showPage('calculator')"><div class="qi">&#129518;</div><p>Calculator</p></div>
+        <div class="qcard" onclick="exportExcel()"><div class="qi">&#128190;</div><p>Export Excel</p></div>
+        <div class="qcard" onclick="showPage('reports')"><div class="qi">&#128196;</div><p>Reports</p></div>
+        <div class="qcard" onclick="showPage('notifications')"><div class="qi">&#128276;</div><p>Alerts</p></div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">&#128200; Status Breakdown</div>
+          <div id="status-breakdown"></div>
+        </div>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">&#128680; Overdue Loans</div>
+          <div id="overdue-list"></div>
+        </div>
+      </div>
       <div class="card">
-        <div class="card-title">&#128202; Recent Applications</div>
-        <div class="tbl-wrap"><table id="recent-table">
-          <thead><tr><th>Loan ID</th><th>Applicant</th><th>Amount</th><th>Date</th><th>Status</th><th>Action</th></tr></thead>
-          <tbody id="recent-tbody"></tbody>
-        </table></div>
+        <div class="card-title">&#9203; Recent Payment Activity</div>
+        <div id="activity-feed"></div>
       </div>
     </div>
 
-    <!-- APPLICANTS LIST -->
+    <!-- BORROWERS -->
     <div class="page-section" id="page-applicants">
       <div class="card">
-        <div class="card-title">&#128101; All Applicants</div>
-        <div class="search-bar">
-          <input type="text" id="search-input" placeholder="Search by name, phone or loan ID..." oninput="searchApplicants()"/>
-          <button class="btn btn-gold" onclick="exportExcel()">&#128190; Export Excel</button>
-          <button class="btn btn-primary" onclick="showPage('new-application')">&#43; New Application</button>
+        <div class="card-title">
+          <span>&#128101; All Borrowers</span>
+          <div style="display:flex;gap:6px">
+            <button class="btn btn-gold btn-sm no-print" onclick="exportExcel()">&#128190; Excel</button>
+            <button class="btn btn-navy btn-sm" onclick="showPage('new-application')">&#43; New Loan</button>
+          </div>
+        </div>
+        <div class="search-row">
+          <input type="text" id="srch" placeholder="Search name, phone, loan ID..." oninput="searchApplicants()"/>
+          <select id="fstt" onchange="searchApplicants()">
+            <option value="">All Status</option>
+            <option>Pending</option><option>Approved</option><option>Rejected</option><option>Completed</option>
+          </select>
         </div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Loan ID</th><th>Full Name</th><th>Phone</th><th>Loan Amount</th><th>Duration</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
-          <tbody id="applicants-tbody"></tbody>
+          <thead><tr><th>Loan ID</th><th>Name</th><th>Phone</th><th>Principal</th><th>Total Repayable</th><th>Balance</th><th>Plan</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="app-tbody"></tbody>
         </table></div>
       </div>
     </div>
@@ -235,163 +255,154 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
     <div class="page-section" id="page-new-application">
       <div class="card">
         <div class="card-title">&#128203; New Loan Application</div>
-        <form id="loan-form" onsubmit="submitLoanForm(event)">
-
-          <div class="section-head">Personal Information</div>
+        <form id="loan-form" onsubmit="submitForm(event)">
+          <div class="sh">&#128100; Personal Information</div>
           <div class="form-grid">
-            <div class="form-group"><label>Full Name *</label><input required id="f-name" placeholder="Applicant full name"/></div>
-            <div class="form-group"><label>Date of Birth *</label>
+            <div class="fg"><label>Full Name *</label><input required id="f-name" placeholder="Applicant full name"/></div>
+            <div class="fg"><label>Date of Birth *</label>
               <div style="display:flex;gap:6px">
-                <select id="f-dob-day" required style="flex:1;padding:9px 6px;border:1px solid var(--border);border-radius:7px;font-size:.88rem;font-family:inherit">
-                  <option value="">Day</option>
-                </select>
-                <select id="f-dob-month" required style="flex:1.4;padding:9px 6px;border:1px solid var(--border);border-radius:7px;font-size:.88rem;font-family:inherit">
+                <select id="dob-d" required style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit"><option value="">Day</option></select>
+                <select id="dob-m" required style="flex:1.5;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit">
                   <option value="">Month</option>
                   <option value="01">January</option><option value="02">February</option><option value="03">March</option>
                   <option value="04">April</option><option value="05">May</option><option value="06">June</option>
                   <option value="07">July</option><option value="08">August</option><option value="09">September</option>
                   <option value="10">October</option><option value="11">November</option><option value="12">December</option>
                 </select>
-                <select id="f-dob-year" required style="flex:1.2;padding:9px 6px;border:1px solid var(--border);border-radius:7px;font-size:.88rem;font-family:inherit">
-                  <option value="">Year</option>
-                </select>
+                <select id="dob-y" required style="flex:1.2;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit"><option value="">Year</option></select>
               </div>
               <input type="hidden" id="f-dob"/>
             </div>
-            <div class="form-group"><label>Phone Number *</label><input required id="f-phone" placeholder="08XXXXXXXXX"/></div>
-            <div class="form-group"><label>Address *</label><input required id="f-address" placeholder="Full residential address"/></div>
-            <div class="form-group"><label>Occupation / Business</label><input id="f-occupation" placeholder="Job title or business name"/></div>
-            <div class="form-group"><label>Monthly Income (&#8358;)</label><input type="number" id="f-income" placeholder="0"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="f-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Address *</label><input required id="f-address" placeholder="Full residential address"/></div>
+            <div class="fg"><label>Occupation / Business</label><input id="f-occ" placeholder="Job title or business name"/></div>
+            <div class="fg"><label>Monthly Income (&#8358;)</label><input type="number" id="f-income" placeholder="0"/></div>
           </div>
-
-          <div class="section-head">Bank &amp; ID Details</div>
+          <div class="sh">&#127981; Bank &amp; ID Details</div>
           <div class="form-grid">
-            <div class="form-group"><label>Bank Name</label><input id="f-bank" placeholder="Bank name"/></div>
-            <div class="form-group"><label>Account Number</label><input id="f-account" placeholder="Account number"/></div>
-            <div class="form-group"><label>Account Name</label><input id="f-acctname" placeholder="Account name"/></div>
-            <div class="form-group"><label>ID Type</label>
+            <div class="fg"><label>Bank Name</label><input id="f-bank" placeholder="Bank name"/></div>
+            <div class="fg"><label>Account Number</label><input id="f-acct" placeholder="Account number"/></div>
+            <div class="fg"><label>Account Name</label><input id="f-acctname" placeholder="Account name"/></div>
+            <div class="fg"><label>ID Type</label>
               <select id="f-idtype">
                 <option value="">Select ID type</option>
-                <option>National ID (NIN)</option>
-                <option>Voter's Card</option>
-                <option>Driver's Licence</option>
-                <option>International Passport</option>
+                <option>National ID (NIN)</option><option>Voter's Card</option>
+                <option>Driver's Licence</option><option>International Passport</option>
               </select>
             </div>
-            <div class="form-group"><label>ID Number</label><input id="f-idnum" placeholder="ID number"/></div>
+            <div class="fg"><label>ID Number</label><input id="f-idnum" placeholder="ID number"/></div>
           </div>
-
-          <div class="section-head">Loan Details</div>
+          <div class="sh">&#128181; Loan Details</div>
           <div class="form-grid">
-            <div class="form-group"><label>Loan Amount (&#8358;) *</label><input required type="number" id="f-amount" placeholder="0"/></div>
-            <div class="form-group"><label>Loan Purpose *</label><input required id="f-purpose" placeholder="Purpose of loan"/></div>
-            <div class="form-group"><label>Loan Duration</label><input id="f-duration" placeholder="e.g. 6 months"/></div>
-            <div class="form-group"><label>Repayment Plan</label>
-              <select id="f-repayplan">
+            <div class="fg"><label>Loan Amount (&#8358;) *</label><input required type="number" id="f-amount" placeholder="0" oninput="liveCalc()"/></div>
+            <div class="fg"><label>Interest Rate</label><input id="f-interest" value="24%" readonly/></div>
+            <div class="fg"><label>Loan Purpose *</label><input required id="f-purpose" placeholder="Purpose of loan"/></div>
+            <div class="fg"><label>Repayment Plan *</label>
+              <select id="f-plan" required onchange="liveCalc()">
                 <option value="">Select plan</option>
-                <option>Daily</option>
-                <option>Weekly</option>
-                <option>Bi-weekly</option>
-                <option>Monthly</option>
-                <option>Lump Sum</option>
+                <option>Daily</option><option>Weekly</option><option>Bi-weekly</option>
+                <option>Monthly</option><option>Lump Sum</option>
               </select>
             </div>
-            <div class="form-group"><label>Interest Rate (%)</label><input type="number" id="f-interest" placeholder="e.g. 5"/></div>
-            <div class="form-group"><label>Application Date *</label><input required type="date" id="f-appdate"/></div>
-            <div class="form-group"><label>Loan Status</label>
+            <div class="fg"><label>Duration *</label>
+              <div style="display:flex;gap:6px">
+                <input type="number" id="f-dur-n" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="liveCalc()"/>
+                <select id="f-dur-u" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="liveCalc()">
+                  <option value="days">Days</option><option value="weeks">Weeks</option><option value="months" selected>Months</option>
+                </select>
+              </div>
+              <input type="hidden" id="f-duration"/>
+            </div>
+            <div class="fg"><label>Application Date *</label><input required type="date" id="f-appdate" onchange="liveCalc()"/></div>
+            <div class="fg"><label>Loan Status</label>
               <select id="f-status">
-                <option value="Pending">Pending</option>
-                <option value="Approved">Approved</option>
-                <option value="Rejected">Rejected</option>
-                <option value="Completed">Completed</option>
+                <option value="Pending">Pending</option><option value="Approved">Approved</option>
+                <option value="Rejected">Rejected</option><option value="Completed">Completed</option>
               </select>
             </div>
           </div>
-
-          <div class="section-head">Applicant Photo &amp; Documents</div>
+          <!-- LIVE CALC BOX -->
+          <div class="calc-box" id="calc-box" style="display:none">
+            <div class="calc-title">&#129518; Live Calculation &mdash; 24% Fixed Interest</div>
+            <div class="calc-grid">
+              <div class="calc-item"><div class="cv" id="c-p">&#8358;0</div><div class="cl">Principal</div></div>
+              <div class="calc-item"><div class="cv" id="c-i">&#8358;0</div><div class="cl">Interest (24%)</div></div>
+              <div class="calc-item hl"><div class="cv" id="c-t">&#8358;0</div><div class="cl">Total Repayable</div></div>
+              <div class="calc-item"><div class="cv" id="c-md">&#8212;</div><div class="cl">Maturity Date</div></div>
+            </div>
+            <div class="calc-row"><span id="c-il">Installment</span><strong id="c-iv">&#8212;</strong></div>
+          </div>
+          <div class="sh">&#128247; Applicant Photo &amp; Documents</div>
           <div class="form-grid">
-            <div class="form-group">
+            <div class="fg">
               <label>Passport Photo</label>
-              <div class="photo-upload" onclick="document.getElementById('f-photo').click()">
-                <img id="f-photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E&#128100;%3C/text%3E%3C/svg%3E" alt=""/>
-                <p>Click to upload photo</p>
+              <div class="photo-up" onclick="document.getElementById('f-photo').click()">
+                <img id="f-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload passport photo</p>
               </div>
-              <input type="file" id="f-photo" accept="image/*" style="display:none" onchange="previewPhoto(this,'f-photo-preview','f-photo-data')"/>
+              <input type="file" id="f-photo" accept="image/*" style="display:none" onchange="prevPhoto(this,'f-photo-prev','f-photo-data')"/>
               <input type="hidden" id="f-photo-data"/>
             </div>
-            <div class="form-group">
-              <label>Upload Documents (ID, Proof, etc.)</label>
-              <input type="file" id="f-docs" multiple accept="image/*,.pdf" onchange="handleDocsUpload(this,'f-docs-list','f-docs-data')"/>
-              <div id="f-docs-list" class="file-list"></div>
+            <div class="fg">
+              <label>Upload Documents (ID, Proof of Address, etc.)</label>
+              <input type="file" id="f-docs" multiple accept="image/*,.pdf" onchange="docsUpload(this,'f-docs-list','f-docs-data')"/>
+              <div id="f-docs-list" class="flist"></div>
               <input type="hidden" id="f-docs-data" value="[]"/>
             </div>
           </div>
-
-          <!-- GUARANTOR 1 -->
-          <div class="section-head">Guarantor 1</div>
+          <div class="sh">&#128101; Guarantor 1</div>
           <div class="form-grid">
-            <div class="form-group"><label>Full Name *</label><input required id="g1-name" placeholder="Guarantor full name"/></div>
-            <div class="form-group"><label>Phone Number *</label><input required id="g1-phone" placeholder="08XXXXXXXXX"/></div>
-            <div class="form-group"><label>Address</label><input id="g1-address" placeholder="Guarantor address"/></div>
-            <div class="form-group"><label>Occupation</label><input id="g1-occupation" placeholder="Occupation"/></div>
-            <div class="form-group"><label>Relationship with Applicant</label><input id="g1-relationship" placeholder="e.g. Brother, Colleague"/></div>
-            <div class="form-group"><label>ID Type</label>
+            <div class="fg"><label>Full Name *</label><input required id="g1-name" placeholder="Guarantor full name"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="g1-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Address</label><input id="g1-addr" placeholder="Guarantor address"/></div>
+            <div class="fg"><label>Occupation</label><input id="g1-occ" placeholder="Occupation"/></div>
+            <div class="fg"><label>Relationship with Applicant</label><input id="g1-rel" placeholder="e.g. Brother, Colleague"/></div>
+            <div class="fg"><label>ID Type</label>
               <select id="g1-idtype">
                 <option value="">Select</option>
-                <option>National ID (NIN)</option>
-                <option>Voter's Card</option>
-                <option>Driver's Licence</option>
-                <option>International Passport</option>
+                <option>National ID (NIN)</option><option>Voter's Card</option>
+                <option>Driver's Licence</option><option>International Passport</option>
               </select>
             </div>
-            <div class="form-group"><label>ID Number</label><input id="g1-idnum" placeholder="ID number"/></div>
+            <div class="fg"><label>ID Number</label><input id="g1-idnum" placeholder="ID number"/></div>
           </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Guarantor 1 Passport Photo</label>
-              <div class="photo-upload" onclick="document.getElementById('g1-photo').click()">
-                <img id="g1-photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E&#128100;%3C/text%3E%3C/svg%3E" alt=""/>
-                <p>Click to upload passport photo</p>
-              </div>
-              <input type="file" id="g1-photo" accept="image/*" style="display:none" onchange="previewPhoto(this,'g1-photo-preview','g1-photo-data')"/>
-              <input type="hidden" id="g1-photo-data"/>
+          <div class="fg" style="margin-top:10px">
+            <label>Guarantor 1 Passport Photo</label>
+            <div class="photo-up" onclick="document.getElementById('g1-photo').click()" style="max-width:200px">
+              <img id="g1-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+              <p>Click to upload</p>
             </div>
+            <input type="file" id="g1-photo" accept="image/*" style="display:none" onchange="prevPhoto(this,'g1-photo-prev','g1-photo-data')"/>
+            <input type="hidden" id="g1-photo-data"/>
           </div>
-
-          <!-- GUARANTOR 2 -->
-          <div class="section-head">Guarantor 2</div>
+          <div class="sh">&#128101; Guarantor 2</div>
           <div class="form-grid">
-            <div class="form-group"><label>Full Name *</label><input required id="g2-name" placeholder="Guarantor full name"/></div>
-            <div class="form-group"><label>Phone Number *</label><input required id="g2-phone" placeholder="08XXXXXXXXX"/></div>
-            <div class="form-group"><label>Address</label><input id="g2-address" placeholder="Guarantor address"/></div>
-            <div class="form-group"><label>Occupation</label><input id="g2-occupation" placeholder="Occupation"/></div>
-            <div class="form-group"><label>Relationship with Applicant</label><input id="g2-relationship" placeholder="e.g. Sister, Employer"/></div>
-            <div class="form-group"><label>ID Type</label>
+            <div class="fg"><label>Full Name *</label><input required id="g2-name" placeholder="Guarantor full name"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="g2-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Address</label><input id="g2-addr" placeholder="Guarantor address"/></div>
+            <div class="fg"><label>Occupation</label><input id="g2-occ" placeholder="Occupation"/></div>
+            <div class="fg"><label>Relationship with Applicant</label><input id="g2-rel" placeholder="e.g. Sister, Employer"/></div>
+            <div class="fg"><label>ID Type</label>
               <select id="g2-idtype">
                 <option value="">Select</option>
-                <option>National ID (NIN)</option>
-                <option>Voter's Card</option>
-                <option>Driver's Licence</option>
-                <option>International Passport</option>
+                <option>National ID (NIN)</option><option>Voter's Card</option>
+                <option>Driver's Licence</option><option>International Passport</option>
               </select>
             </div>
-            <div class="form-group"><label>ID Number</label><input id="g2-idnum" placeholder="ID number"/></div>
+            <div class="fg"><label>ID Number</label><input id="g2-idnum" placeholder="ID number"/></div>
           </div>
-          <div class="form-grid">
-            <div class="form-group">
-              <label>Guarantor 2 Passport Photo</label>
-              <div class="photo-upload" onclick="document.getElementById('g2-photo').click()">
-                <img id="g2-photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E&#128100;%3C/text%3E%3C/svg%3E" alt=""/>
-                <p>Click to upload passport photo</p>
-              </div>
-              <input type="file" id="g2-photo" accept="image/*" style="display:none" onchange="previewPhoto(this,'g2-photo-preview','g2-photo-data')"/>
-              <input type="hidden" id="g2-photo-data"/>
+          <div class="fg" style="margin-top:10px">
+            <label>Guarantor 2 Passport Photo</label>
+            <div class="photo-up" onclick="document.getElementById('g2-photo').click()" style="max-width:200px">
+              <img id="g2-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+              <p>Click to upload</p>
             </div>
+            <input type="file" id="g2-photo" accept="image/*" style="display:none" onchange="prevPhoto(this,'g2-photo-prev','g2-photo-data')"/>
+            <input type="hidden" id="g2-photo-data"/>
           </div>
-
           <div class="btn-row">
-            <button type="submit" class="btn btn-primary">&#128190; Save Application</button>
-            <button type="button" class="btn btn-outline" onclick="resetForm()">&#8635; Reset</button>
+            <button type="submit" class="btn btn-navy">&#128190; Save Application</button>
+            <button type="button" class="btn btn-out" onclick="resetForm()">&#8635; Reset</button>
           </div>
         </form>
       </div>
@@ -401,62 +412,108 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
     <div class="page-section" id="page-repayments">
       <div class="card">
         <div class="card-title">&#128176; Repayment Tracker</div>
-        <div class="search-bar">
-          <input type="text" id="repay-search" placeholder="Search by name, phone or loan ID..." oninput="searchRepayments()"/>
+        <div class="search-row">
+          <input type="text" id="rep-srch" placeholder="Search name, phone, loan ID..." oninput="searchRep()"/>
+          <select id="rep-flt" onchange="searchRep()">
+            <option value="">All</option><option value="overdue">Overdue</option>
+            <option value="Approved">Approved</option><option value="Pending">Pending</option><option value="Completed">Completed</option>
+          </select>
         </div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Loan ID</th><th>Applicant</th><th>Phone</th><th>Plan</th><th>Principal</th><th>Total Repayable</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Status</th><th>Action</th></tr></thead>
-          <tbody id="repay-tbody"></tbody>
+          <thead><tr><th>Loan ID</th><th>Borrower</th><th>Phone</th><th>Plan</th><th>Principal</th><th>Total Repayable</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+          <tbody id="rep-tbody"></tbody>
         </table></div>
+      </div>
+    </div>
+
+    <!-- STANDALONE CALCULATOR -->
+    <div class="page-section" id="page-calculator">
+      <div class="card" style="max-width:580px;margin:0 auto">
+        <div class="card-title">&#129518; Loan Calculator &mdash; 24% Fixed Interest</div>
+        <div class="form-grid">
+          <div class="fg"><label>Loan Amount (&#8358;)</label><input type="number" id="sc-amt" placeholder="Enter amount" oninput="scCalc()"/></div>
+          <div class="fg"><label>Repayment Plan</label>
+            <select id="sc-plan" onchange="scCalc()">
+              <option value="">Select plan</option>
+              <option>Daily</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option><option>Lump Sum</option>
+            </select>
+          </div>
+          <div class="fg"><label>Duration</label>
+            <div style="display:flex;gap:6px">
+              <input type="number" id="sc-dn" placeholder="e.g. 6" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="scCalc()"/>
+              <select id="sc-du" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="scCalc()">
+                <option value="days">Days</option><option value="weeks">Weeks</option><option value="months" selected>Months</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div id="sc-result" style="margin-top:14px"></div>
+        <div id="sc-schedule"></div>
       </div>
     </div>
 
     <!-- REPORTS -->
     <div class="page-section" id="page-reports">
       <div class="card">
-        <div class="card-title">&#128196; Reports &amp; Export</div>
-        <div class="form-grid" style="margin-bottom:16px">
-          <div class="form-group"><label>Filter by Status</label>
-            <select id="rpt-status" onchange="renderReports()">
-              <option value="">All</option>
-              <option>Pending</option>
-              <option>Approved</option>
-              <option>Rejected</option>
-              <option>Completed</option>
+        <div class="card-title">
+          <span>&#128196; Reports</span>
+          <div style="display:flex;gap:6px" class="no-print">
+            <button class="btn btn-gold btn-sm" onclick="exportExcel()">&#128190; Excel</button>
+            <button class="btn btn-navy btn-sm" onclick="window.print()">&#128424; Print</button>
+          </div>
+        </div>
+        <div class="form-grid" style="margin-bottom:14px">
+          <div class="fg"><label>Status</label>
+            <select id="rpt-st" onchange="renderReports()">
+              <option value="">All</option><option>Pending</option><option>Approved</option><option>Rejected</option><option>Completed</option>
             </select>
           </div>
-          <div class="form-group"><label>From Date</label><input type="date" id="rpt-from" onchange="renderReports()"/></div>
-          <div class="form-group"><label>To Date</label><input type="date" id="rpt-to" onchange="renderReports()"/></div>
+          <div class="fg"><label>From Date</label><input type="date" id="rpt-from" onchange="renderReports()"/></div>
+          <div class="fg"><label>To Date</label><input type="date" id="rpt-to" onchange="renderReports()"/></div>
         </div>
-        <div class="btn-row no-print">
-          <button class="btn btn-gold" onclick="exportExcel()">&#128190; Export Excel</button>
-          <button class="btn btn-primary" onclick="window.print()">&#128424; Print Report</button>
-        </div>
-        <div class="tbl-wrap" style="margin-top:16px"><table id="rpt-table">
-          <thead><tr><th>Loan ID</th><th>Name</th><th>Phone</th><th>Amount</th><th>Purpose</th><th>Duration</th><th>Status</th><th>Date</th></tr></thead>
+        <div class="stat-grid" id="rpt-stats" style="margin-bottom:14px"></div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Loan ID</th><th>Name</th><th>Phone</th><th>Principal</th><th>Interest</th><th>Total Repayable</th><th>Paid</th><th>Balance</th><th>Plan</th><th>Status</th><th>App Date</th><th>Maturity</th></tr></thead>
           <tbody id="rpt-tbody"></tbody>
         </table></div>
       </div>
     </div>
 
+    <!-- NOTIFICATIONS -->
+    <div class="page-section" id="page-notifications">
+      <div class="card">
+        <div class="card-title">&#128276; Alerts &amp; Notifications</div>
+        <div id="notif-body"></div>
+      </div>
+    </div>
+
     <!-- SETTINGS -->
     <div class="page-section" id="page-settings">
-      <div class="card">
-        <div class="card-title">&#9881; Settings</div>
-        <div class="section-head">Change Admin PIN</div>
-        <div class="form-grid" style="max-width:400px">
-          <div class="form-group"><label>Current PIN</label><input type="password" id="s-old-pin" maxlength="6" placeholder="Current PIN"/></div>
-          <div class="form-group"><label>New PIN</label><input type="password" id="s-new-pin" maxlength="6" placeholder="New PIN (4-6 digits)"/></div>
-          <div class="form-group"><label>Confirm New PIN</label><input type="password" id="s-confirm-pin" maxlength="6" placeholder="Confirm new PIN"/></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:14px">
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">&#128274; Change Admin PIN</div>
+          <div class="fg" style="margin-bottom:10px"><label>Current PIN</label><input type="password" id="s-old" maxlength="6" placeholder="Current PIN"/></div>
+          <div class="fg" style="margin-bottom:10px"><label>New PIN</label><input type="password" id="s-new" maxlength="6" placeholder="New PIN (4-6 digits)"/></div>
+          <div class="fg" style="margin-bottom:14px"><label>Confirm New PIN</label><input type="password" id="s-conf" maxlength="6" placeholder="Confirm new PIN"/></div>
+          <button class="btn btn-navy" onclick="changePin()">&#128274; Update PIN</button>
         </div>
-        <div class="btn-row">
-          <button class="btn btn-primary" onclick="changePin()">&#128274; Update PIN</button>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">&#128190; Backup &amp; Restore</div>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">Download all loan records as a JSON backup file. Restore from backup at any time.</p>
+          <div class="btn-row" style="margin-top:0">
+            <button class="btn btn-gold" onclick="backupData()">&#128190; Download Backup</button>
+            <button class="btn btn-out" onclick="document.getElementById('rst-file').click()">&#128228; Restore</button>
+            <input type="file" id="rst-file" accept=".json" style="display:none" onchange="restoreData(this)"/>
+          </div>
         </div>
-        <div class="section-head" style="margin-top:24px">Data Backup</div>
-        <div class="btn-row">
-          <button class="btn btn-gold" onclick="backupData()">&#128190; Download Backup (JSON)</button>
-          <button class="btn btn-outline" onclick="document.getElementById('restore-file').click()">&#128228; Restore from Backup</button>
-          <input type="file" id="restore-file" accept=".json" style="display:none" onchange="restoreData(this)"/>
+        <div class="card" style="margin-bottom:0">
+          <div class="card-title">&#8505; System Information</div>
+          <div class="info-grid" style="margin-top:0">
+            <div class="iitem"><label>System</label><p>LoanVault v2.0</p></div>
+            <div class="iitem"><label>Interest Rate</label><p>24% Fixed</p></div>
+            <div class="iitem"><label>Total Borrowers</label><p id="si-total">&#8212;</p></div>
+            <div class="iitem"><label>Database</label><p>Firebase Firestore</p></div>
+          </div>
         </div>
       </div>
     </div>
@@ -466,908 +523,523 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
 
 <!-- PROFILE MODAL -->
 <div class="overlay" id="profile-modal">
-  <div class="modal" id="profile-content">
-    <div class="modal-head">
-      <h3>Loan Application Profile</h3>
-      <div style="display:flex;gap:8px;align-items:center">
-        <button class="btn btn-primary btn-sm no-print" onclick="printProfile()">&#128424; Print</button>
-        <button class="modal-close no-print" onclick="closeModal('profile-modal')">&times;</button>
+  <div class="modal">
+    <div class="mhead">
+      <h3 id="pm-title">Loan Profile</h3>
+      <div style="display:flex;gap:8px">
+        <button class="btn btn-navy btn-sm no-print" onclick="printProfile()">&#128424; Print</button>
+        <button class="mclose no-print" onclick="closeModal('profile-modal')">&times;</button>
       </div>
     </div>
-    <div id="profile-body"></div>
+    <div class="mbody" id="pm-body"></div>
   </div>
 </div>
 
 <!-- REPAYMENT MODAL -->
 <div class="overlay" id="repay-modal">
-  <div class="modal">
-    <div class="modal-head">
-      <h3 id="repay-modal-title">Record Payment</h3>
-      <button class="modal-close" onclick="closeModal('repay-modal')">&times;</button>
+  <div class="modal" style="max-width:580px">
+    <div class="mhead">
+      <h3 id="rm-title">Record Payment</h3>
+      <button class="mclose" onclick="closeModal('repay-modal')">&times;</button>
     </div>
-    <div id="repay-modal-body"></div>
+    <div class="mbody" id="rm-body"></div>
   </div>
 </div>
 
-<!-- EDIT STATUS MODAL -->
+<!-- STATUS MODAL -->
 <div class="overlay" id="status-modal">
-  <div class="modal" style="max-width:360px">
-    <div class="modal-head">
-      <h3>Update Loan Status</h3>
-      <button class="modal-close" onclick="closeModal('status-modal')">&times;</button>
-    </div>
-    <div class="form-group" style="margin-bottom:16px">
-      <label>New Status</label>
-      <select id="status-select">
-        <option value="Pending">Pending</option>
-        <option value="Approved">Approved</option>
-        <option value="Rejected">Rejected</option>
-        <option value="Completed">Completed</option>
-      </select>
-    </div>
-    <div class="btn-row">
-      <button class="btn btn-primary" onclick="saveStatus()">Save</button>
-      <button class="btn btn-outline" onclick="closeModal('status-modal')">Cancel</button>
+  <div class="modal" style="max-width:340px">
+    <div class="mhead"><h3>Update Status</h3><button class="mclose" onclick="closeModal('status-modal')">&times;</button></div>
+    <div class="mbody">
+      <div class="fg" style="margin-bottom:14px"><label>New Status</label>
+        <select id="st-sel">
+          <option value="Pending">Pending</option><option value="Approved">Approved</option>
+          <option value="Rejected">Rejected</option><option value="Completed">Completed</option>
+        </select>
+      </div>
+      <div class="btn-row" style="margin-top:0">
+        <button class="btn btn-navy" onclick="saveStatus()">Save</button>
+        <button class="btn btn-out" onclick="closeModal('status-modal')">Cancel</button>
+      </div>
     </div>
   </div>
 </div>
 
 <div id="toast"></div>
 
-<!-- Firebase Compat SDK -->
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-
-<!-- SheetJS for Excel export -->
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-
 <script>
-// ===== FIREBASE INIT =====
-const firebaseConfig = {
-  apiKey: "AIzaSyCeRhmHoGTXJ_-PCr81x9YAeeVjzX6gxlo",
-  authDomain: "benimtradeco.firebaseapp.com",
-  projectId: "benimtradeco",
-  storageBucket: "benimtradeco.firebasestorage.app",
-  messagingSenderId: "575385253084",
-  appId: "1:575385253084:web:541468de4cdfe529ca7019"
-};
-firebase.initializeApp(firebaseConfig);
-const db = firebase.firestore();
+firebase.initializeApp({
+  apiKey:"AIzaSyCeRhmHoGTXJ_-PCr81x9YAeeVjzX6gxlo",
+  authDomain:"benimtradeco.firebaseapp.com",
+  projectId:"benimtradeco",
+  storageBucket:"benimtradeco.firebasestorage.app",
+  messagingSenderId:"575385253084",
+  appId:"1:575385253084:web:541468de4cdfe529ca7019"
+});
+const db=firebase.firestore();
 
-// ===== STATE =====
-let PIN = localStorage.getItem('lv_pin') || '1990';
-let pinBuffer = '';
-let allLoans = [];
-let currentEditId = null;
-let editingStatusId = null;
+let PIN=localStorage.getItem('lv_pin')||'1990';
+let pinBuf='',allLoans=[],curId=null,stId=null;
 
-// ===== LOGIN =====
-function pinPress(d){
-  if(pinBuffer.length>=6) return;
-  pinBuffer += d;
-  updateDots();
-  if(pinBuffer.length===PIN.length) setTimeout(checkPin,200);
+// HELPERS
+const fmt=n=>Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+const td=()=>new Date().toISOString().slice(0,10);
+const v=id=>document.getElementById(id)?.value||'';
+const sj=id=>{try{return JSON.parse(document.getElementById(id).value||'[]')}catch{return[]}};
+const sjd=s=>{try{return JSON.parse(s||'[]')}catch{return[]}};
+
+function bdg(s){
+  const m={Pending:'b-pending',Approved:'b-approved',Rejected:'b-rejected',Completed:'b-completed',Overdue:'b-overdue'};
+  return `<span class="badge ${m[s]||'b-pending'}">${s||'Pending'}</span>`;
 }
-function pinDel(){
-  pinBuffer = pinBuffer.slice(0,-1);
-  updateDots();
+function toast(msg,t='s'){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className='show '+t;
+  clearTimeout(el._t);el._t=setTimeout(()=>el.className='',3200);
 }
-function updateDots(){
-  for(let i=0;i<4;i++){
-    const dot = document.getElementById('d'+i);
-    if(dot) dot.classList.toggle('filled', i < pinBuffer.length);
-  }
+function showModal(id){document.getElementById(id).classList.add('show')}
+function closeModal(id){document.getElementById(id).classList.remove('show')}
+
+// LOAN MATH
+function getTR(l){const p=parseFloat(l.amount)||0;return p+(p*24/100)}
+function getBal(l){return Math.max(0,getTR(l)-getPaid(l))}
+function getPaid(l){return(l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0)}
+function isOverdue(l){
+  if(l.status==='Completed'||l.status==='Rejected'||!l.maturityDate) return false;
+  return new Date(l.maturityDate)<new Date()&&getBal(l)>0;
 }
-function checkPin(){
-  if(pinBuffer===PIN){
+function getInstall(total,plan,dn,du){
+  const n=parseInt(dn)||1;
+  if(!total||!plan||!dn) return null;
+  if(plan==='Lump Sum') return{amt:total,lbl:'Full repayment (lump sum)'};
+  let periods,lbl;
+  if(plan==='Daily'){periods=du==='days'?n:du==='weeks'?n*7:n*30;lbl=`Per day (${periods} days)`}
+  else if(plan==='Weekly'){periods=du==='days'?Math.ceil(n/7):du==='weeks'?n:n*4;lbl=`Per week (${periods} weeks)`}
+  else if(plan==='Bi-weekly'){periods=du==='months'?n*2:du==='weeks'?Math.ceil(n/2):Math.ceil(n/14);lbl=`Bi-weekly (${periods} payments)`}
+  else if(plan==='Monthly'){periods=du==='months'?n:du==='weeks'?Math.ceil(n/4):Math.ceil(n/30);lbl=`Per month (${periods} months)`}
+  if(!periods) return null;
+  return{amt:total/periods,lbl};
+}
+function getMaturity(appdate,dn,du){
+  if(!appdate||!dn) return '—';
+  const d=new Date(appdate);const n=parseInt(dn)||0;
+  if(du==='days')d.setDate(d.getDate()+n);
+  else if(du==='weeks')d.setDate(d.getDate()+n*7);
+  else d.setMonth(d.getMonth()+n);
+  return d.toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'});
+}
+function getMaturityISO(appdate,dn,du){
+  if(!appdate||!dn) return '';
+  const d=new Date(appdate);const n=parseInt(dn)||0;
+  if(du==='days')d.setDate(d.getDate()+n);
+  else if(du==='weeks')d.setDate(d.getDate()+n*7);
+  else d.setMonth(d.getMonth()+n);
+  return d.toISOString().slice(0,10);
+}
+
+// PIN LOGIN
+function pp(d){if(pinBuf.length>=6)return;pinBuf+=d;updDots();if(pinBuf.length===PIN.length)setTimeout(chkPin,200)}
+function pd(){pinBuf=pinBuf.slice(0,-1);updDots()}
+function updDots(){for(let i=0;i<4;i++){const el=document.getElementById('d'+i);if(el)el.classList.toggle('filled',i<pinBuf.length)}}
+function chkPin(){
+  if(pinBuf===PIN){
     document.getElementById('login-screen').style.display='none';
     document.getElementById('app').style.display='block';
-    document.getElementById('login-err').textContent='';
-    document.getElementById('hdr-date').textContent = new Date().toLocaleDateString('en-NG',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+    document.getElementById('lerr').textContent='';
+    document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-NG',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
     loadLoans();
   } else {
-    document.getElementById('login-err').textContent='Incorrect PIN. Try again.';
-    pinBuffer='';
-    updateDots();
+    document.getElementById('lerr').textContent='Incorrect PIN. Try again.';
+    pinBuf='';updDots();
   }
 }
-function logout(){
+function doLogout(){
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
-  pinBuffer='';
-  updateDots();
+  pinBuf='';updDots();
 }
 
-// ===== NAVIGATION =====
+// NAV
 function showPage(id){
   document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
-  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
-  const sec = document.getElementById('page-'+id);
-  if(sec) sec.classList.add('active');
-  const btns = document.querySelectorAll('.nav-btn');
-  btns.forEach(b=>{ if(b.getAttribute('onclick') && b.getAttribute('onclick').includes("'"+id+"'")) b.classList.add('active'); });
-  if(id==='dashboard') renderDashboard();
-  if(id==='applicants') renderApplicants(allLoans);
-  if(id==='repayments') renderRepayments(allLoans);
-  if(id==='reports') renderReports();
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
+  const sec=document.getElementById('page-'+id);if(sec)sec.classList.add('active');
+  document.querySelectorAll('.nb').forEach(b=>{
+    if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))b.classList.add('active');
+  });
+  if(id==='dashboard')renderDash();
+  if(id==='applicants')renderApp(allLoans);
+  if(id==='repayments')renderRep(allLoans);
+  if(id==='reports')renderReports();
+  if(id==='notifications')renderNotif();
+  if(id==='settings')document.getElementById('si-total').textContent=allLoans.length;
 }
 
-// ===== LOAD DATA =====
+// LOAD DATA
 function loadLoans(){
   db.collection('loans').get().then(snap=>{
-    allLoans = snap.docs.map(d=>({id:d.id,...d.data()}));
-    renderDashboard();
-    renderApplicants(allLoans);
-    renderRepayments(allLoans);
-    renderReports();
-  }).catch(e=>{ toast('Error loading data: '+e.message); });
+    allLoans=snap.docs.map(d=>({id:d.id,...d.data()}));
+    renderDash();
+    chkNotifBadge();
+  }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
-// ===== LOAN ID =====
-function genLoanId(){
-  return 'LV-'+Date.now().toString().slice(-6);
-}
+function genId(){return'LV-'+Date.now().toString().slice(-7)}
 
-// ===== DASHBOARD =====
-function renderDashboard(){
-  const total = allLoans.length;
-  const totalAmt = allLoans.reduce((s,l)=>s+(parseFloat(l.amount)||0),0);
-  const pending = allLoans.filter(l=>l.status==='Pending').length;
-  const approved = allLoans.filter(l=>l.status==='Approved').length;
-  const outstanding = allLoans.reduce((s,l)=>{
-    const paid = (l.payments||[]).reduce((x,p)=>x+(parseFloat(p.amount)||0),0);
-    const principal = parseFloat(l.amount)||0;
-    const interestRate = parseFloat(l.interest)||0;
-    const totalRepay = principal + (principal * interestRate / 100);
-    const bal = totalRepay - paid;
-    return s + (bal>0?bal:0);
-  },0);
+// DASHBOARD
+function renderDash(){
+  const total=allLoans.length;
+  const disbursed=allLoans.reduce((s,l)=>s+(parseFloat(l.amount)||0),0);
+  const totalRep=allLoans.reduce((s,l)=>s+getTR(l),0);
+  const totalPaid=allLoans.reduce((s,l)=>s+getPaid(l),0);
+  const outstanding=allLoans.reduce((s,l)=>s+getBal(l),0);
+  const pending=allLoans.filter(l=>l.status==='Pending').length;
+  const approved=allLoans.filter(l=>l.status==='Approved').length;
+  const overdueCnt=allLoans.filter(l=>isOverdue(l)).length;
 
-  const sg = document.getElementById('stat-grid');
-  sg.innerHTML = `
+  document.getElementById('stat-grid').innerHTML=`
     <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Total Borrowers</div></div>
-    <div class="stat-card" style="border-color:#2563eb"><div class="stat-val">${fmt(totalAmt)}</div><div class="stat-lbl">Total Loans (&#8358;)</div></div>
-    <div class="stat-card" style="border-color:#d97706"><div class="stat-val">${pending}</div><div class="stat-lbl">Pending Applications</div></div>
-    <div class="stat-card" style="border-color:#16a34a"><div class="stat-val">${approved}</div><div class="stat-lbl">Approved Loans</div></div>
-    <div class="stat-card" style="border-color:#dc2626"><div class="stat-val">${fmt(outstanding)}</div><div class="stat-lbl">Outstanding Balance (&#8358;)</div></div>
-  `;
+    <div class="stat-card" style="border-color:var(--blue)"><div class="stat-val">&#8358;${fmt(disbursed)}</div><div class="stat-lbl">Total Disbursed</div></div>
+    <div class="stat-card" style="border-color:var(--navy2)"><div class="stat-val">&#8358;${fmt(totalRep)}</div><div class="stat-lbl">Total Repayable</div></div>
+    <div class="stat-card" style="border-color:var(--green)"><div class="stat-val">&#8358;${fmt(totalPaid)}</div><div class="stat-lbl">Total Collected</div></div>
+    <div class="stat-card" style="border-color:var(--red)"><div class="stat-val">&#8358;${fmt(outstanding)}</div><div class="stat-lbl">Outstanding</div></div>
+    <div class="stat-card" style="border-color:var(--amber)"><div class="stat-val">${pending}</div><div class="stat-lbl">Pending</div></div>
+    <div class="stat-card" style="border-color:var(--green)"><div class="stat-val">${approved}</div><div class="stat-lbl">Approved</div></div>
+    <div class="stat-card" style="border-color:var(--red)"><div class="stat-val">${overdueCnt}</div><div class="stat-lbl">Overdue</div></div>`;
 
-  const recent = [...allLoans].sort((a,b)=>(b.appdate||'').localeCompare(a.appdate||'')).slice(0,10);
-  const tb = document.getElementById('recent-tbody');
-  tb.innerHTML = recent.map(l=>`
-    <tr>
-      <td>${l.loanId||l.id}</td>
-      <td>${l.name||''}</td>
-      <td>&#8358;${fmt(l.amount)}</td>
-      <td>${l.appdate||''}</td>
-      <td>${badge(l.status)}</td>
-      <td><button class="btn btn-outline btn-sm" onclick="viewProfile('${l.id}')">View</button></td>
-    </tr>
-  `).join('');
+  // Status breakdown
+  const sts=[{n:'Approved',c:'var(--green)'},{n:'Pending',c:'var(--amber)'},{n:'Completed',c:'var(--blue)'},{n:'Rejected',c:'var(--red)'}];
+  document.getElementById('status-breakdown').innerHTML=sts.map(s=>{
+    const cnt=allLoans.filter(l=>l.status===s.n).length;
+    const pct=total>0?Math.round(cnt/total*100):0;
+    return `<div style="margin-bottom:10px">
+      <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:3px">
+        <span style="font-weight:700">${s.n}</span><span style="color:var(--muted)">${cnt} (${pct}%)</span>
+      </div>
+      <div class="pbar-wrap"><div class="pbar-fill" style="width:${pct}%;background:${s.c}"></div></div>
+    </div>`;
+  }).join('');
+
+  // Overdue
+  const od=allLoans.filter(l=>isOverdue(l)).slice(0,5);
+  document.getElementById('overdue-list').innerHTML=od.length===0
+    ?'<p style="color:var(--muted);font-size:.8rem;text-align:center;padding:14px">No overdue loans.</p>'
+    :od.map(l=>`<div class="act-item">
+      <div class="act-dot" style="background:var(--red)"></div>
+      <div class="act-txt"><strong>${l.name}</strong> &mdash; &#8358;${fmt(getBal(l))} balance
+        <span>Due: ${l.maturityDate||'N/A'} &bull; ${l.phone}</span>
+      </div>
+    </div>`).join('');
+
+  // Activity
+  const acts=[];
+  allLoans.forEach(l=>(l.payments||[]).forEach(p=>acts.push({name:l.name,amt:p.amount,date:p.date,lid:l.loanId||l.id})));
+  acts.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+  const feed=document.getElementById('activity-feed');
+  if(feed) feed.innerHTML=acts.length===0
+    ?'<p style="color:var(--muted);font-size:.8rem;text-align:center;padding:14px">No recent activity.</p>'
+    :acts.slice(0,8).map(a=>`<div class="act-item">
+      <div class="act-dot" style="background:var(--green)"></div>
+      <div class="act-txt"><strong>${a.name}</strong> paid &#8358;${fmt(a.amt)}
+        <span>${a.date} &bull; ${a.lid}</span>
+      </div>
+    </div>`).join('');
 }
 
-// ===== APPLICANTS =====
-function renderApplicants(list){
-  const tb = document.getElementById('applicants-tbody');
-  if(!tb) return;
-  tb.innerHTML = list.map(l=>`
-    <tr>
-      <td>${l.loanId||l.id}</td>
-      <td>${l.name||''}</td>
+// APPLICANTS
+function renderApp(list){
+  const tb=document.getElementById('app-tbody');if(!tb)return;
+  tb.innerHTML=list.map(l=>{
+    const tr=getTR(l),bal=getBal(l),od=isOverdue(l);
+    return `<tr ${od?'style="background:#fff5f5"':''}>
+      <td><strong>${l.loanId||l.id}</strong></td>
+      <td>${l.photo?`<img src="${l.photo}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:5px;border:1px solid var(--gold)" alt=""/>`:''}${l.name||''}${od?'<span class="ndot"></span>':''}</td>
       <td>${l.phone||''}</td>
       <td>&#8358;${fmt(l.amount)}</td>
-      <td>${l.duration||''}</td>
-      <td>${badge(l.status)}</td>
+      <td style="font-weight:700">&#8358;${fmt(tr)}</td>
+      <td style="color:${bal>0?'var(--red)':'var(--green)'};font-weight:700">&#8358;${fmt(bal)}</td>
+      <td><span style="font-size:.72rem;background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)">${l.repayplan||'—'}</span></td>
+      <td>${bdg(od?'Overdue':l.status)}</td>
       <td>${l.appdate||''}</td>
-      <td style="display:flex;gap:6px;flex-wrap:wrap">
-        <button class="btn btn-outline btn-sm" onclick="viewProfile('${l.id}')">&#128100; Profile</button>
-        <button class="btn btn-green btn-sm" onclick="openRepayModal('${l.id}')">&#128176; Payment</button>
-        <button class="btn btn-gold btn-sm" onclick="editStatus('${l.id}')">&#9998; Status</button>
-        <button class="btn btn-red btn-sm" onclick="deleteApplicant('${l.id}')">&#128465;</button>
-      </td>
-    </tr>
-  `).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No applicants found.</td></tr>';
-}
-
-function searchApplicants(){
-  const q = document.getElementById('search-input').value.toLowerCase();
-  const filtered = allLoans.filter(l=>
-    (l.name||'').toLowerCase().includes(q)||
-    (l.phone||'').includes(q)||
-    (l.loanId||l.id||'').toLowerCase().includes(q)
-  );
-  renderApplicants(filtered);
-}
-
-// ===== REPAYMENTS =====
-function renderRepayments(list){
-  const q = (document.getElementById('repay-search')||{}).value||'';
-  const filtered = q ? list.filter(l=>
-    (l.name||'').toLowerCase().includes(q.toLowerCase())||
-    (l.phone||'').includes(q)||
-    (l.loanId||l.id||'').toLowerCase().includes(q.toLowerCase())
-  ) : list;
-  const tb = document.getElementById('repay-tbody');
-  if(!tb) return;
-  tb.innerHTML = filtered.map(l=>{
-    const principal = parseFloat(l.amount)||0;
-    const interestRate = parseFloat(l.interest)||0;
-    const interestAmt = principal * interestRate / 100;
-    const totalRepay = principal + interestAmt;
-    const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-    const bal = Math.max(0, totalRepay - paid);
-    const pct = totalRepay>0 ? Math.min(100,Math.round(paid/totalRepay*100)) : 0;
-    return `<tr>
-      <td>${l.loanId||l.id}</td>
-      <td><strong>${l.name||''}</strong></td>
-      <td>${l.phone||''}</td>
-      <td><span style="font-size:.75rem;background:var(--bg);padding:2px 8px;border-radius:4px;border:1px solid var(--border)">${l.repayplan||'&mdash;'}</span></td>
-      <td>&#8358;${fmt(principal)}<br/><span style="font-size:.7rem;color:var(--muted)">+&#8358;${fmt(interestAmt)} interest</span></td>
-      <td style="color:var(--navy);font-weight:700">&#8358;${fmt(totalRepay)}</td>
-      <td style="color:var(--green);font-weight:600">&#8358;${fmt(paid)}</td>
-      <td style="color:${bal>0?'var(--red)':'var(--green)'};font-weight:600">&#8358;${fmt(bal)}</td>
-      <td style="min-width:100px"><progress value="${pct}" max="100"></progress><div style="font-size:.72rem;color:var(--muted)">${pct}%</div></td>
-      <td>${badge(l.status)}</td>
-      <td>
-        <button class="btn btn-green btn-sm" onclick="openRepayModal('${l.id}')" style="white-space:nowrap">
-          &#128176; Record Payment
-        </button>
-      </td>
+      <td><div style="display:flex;gap:4px;flex-wrap:wrap">
+        <button class="btn btn-out btn-sm" onclick="viewProfile('${l.id}')">&#128100;</button>
+        <button class="btn btn-green btn-sm" onclick="openRepayModal('${l.id}')">&#128176;</button>
+        <button class="btn btn-amber btn-sm" onclick="editStatus('${l.id}')">&#9998;</button>
+        <button class="btn btn-red btn-sm" onclick="delApp('${l.id}')">&#128465;</button>
+      </div></td>
     </tr>`;
-  }).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No borrowers found.</td></tr>';
+  }).join('')||'<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No applicants found.</td></tr>';
+}
+function searchApplicants(){
+  const q=v('srch').toLowerCase(),st=v('fstt');
+  let list=allLoans.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.phone||'').includes(q)||(l.loanId||l.id||'').toLowerCase().includes(q));
+  if(st)list=list.filter(l=>l.status===st);
+  renderApp(list);
 }
 
-function searchRepayments(){
-  renderRepayments(allLoans);
+// REPAYMENTS
+function renderRep(list){
+  const q=(document.getElementById('rep-srch')||{}).value||'';
+  const flt=(document.getElementById('rep-flt')||{}).value||'';
+  let fil=list.filter(l=>!q||(l.name||'').toLowerCase().includes(q.toLowerCase())||(l.phone||'').includes(q)||(l.loanId||l.id||'').toLowerCase().includes(q.toLowerCase()));
+  if(flt==='overdue')fil=fil.filter(l=>isOverdue(l));
+  else if(flt)fil=fil.filter(l=>l.status===flt);
+  const tb=document.getElementById('rep-tbody');if(!tb)return;
+  tb.innerHTML=fil.map(l=>{
+    const pr=parseFloat(l.amount)||0,ir=pr*24/100,tr=pr+ir;
+    const paid=getPaid(l),bal=Math.max(0,tr-paid),od=isOverdue(l);
+    const pct=tr>0?Math.min(100,Math.round(paid/tr*100)):0;
+    const cls=pct<30?'dng':pct<70?'warn':'';
+    return `<tr ${od?'style="background:#fff5f5"':''}>
+      <td><strong>${l.loanId||l.id}</strong></td>
+      <td>${l.name||''}${od?'<span class="ndot"></span>':''}</td>
+      <td>${l.phone||''}</td>
+      <td><span style="font-size:.72rem;background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)">${l.repayplan||'—'}</span></td>
+      <td>&#8358;${fmt(pr)}</td>
+      <td style="font-weight:800;color:var(--navy)">&#8358;${fmt(tr)}</td>
+      <td style="color:var(--green);font-weight:700">&#8358;${fmt(paid)}</td>
+      <td style="color:${bal>0?'var(--red)':'var(--green)'};font-weight:700">&#8358;${fmt(bal)}</td>
+      <td style="min-width:80px"><div class="pbar-wrap"><div class="pbar-fill ${cls}" style="width:${pct}%"></div></div><span style="font-size:.65rem;color:var(--muted)">${pct}%</span></td>
+      <td style="font-size:.76rem;color:${od?'var(--red)':'var(--text)'}">${l.maturityDate||'—'}</td>
+      <td>${bdg(od?'Overdue':l.status)}</td>
+      <td><button class="btn btn-green btn-sm" onclick="openRepayModal('${l.id}')">&#128176; Pay</button></td>
+    </tr>`;
+  }).join('')||'<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:20px">No records.</td></tr>';
 }
+function searchRep(){renderRep(allLoans)}
 
-// ===== REPAYMENT MODAL =====
+// REPAYMENT MODAL
 function openRepayModal(id){
-  const l = allLoans.find(x=>x.id===id);
-  if(!l) return;
-  currentEditId = id;
-  const principal = parseFloat(l.amount)||0;
-  const interestRate = parseFloat(l.interest)||0;
-  const interestAmt = principal * interestRate / 100;
-  const totalRepay = principal + interestAmt;
-  const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-  const bal = Math.max(0, totalRepay - paid);
-  const pct = totalRepay>0 ? Math.min(100,Math.round(paid/totalRepay*100)) : 0;
-
-  document.getElementById('repay-modal-title').textContent = 'Record Payment — '+l.name;
-  document.getElementById('repay-modal-body').innerHTML = `
-    <div class="repay-summary">
-      <div class="repay-stat"><div class="val">&#8358;${fmt(principal)}</div><div class="lbl">Principal</div></div>
-      <div class="repay-stat"><div class="val" style="color:var(--amber)">&#8358;${fmt(interestAmt)}</div><div class="lbl">Interest (${interestRate}%)</div></div>
-      <div class="repay-stat"><div class="val" style="color:var(--navy)">&#8358;${fmt(totalRepay)}</div><div class="lbl">Total Repayable</div></div>
-      <div class="repay-stat"><div class="val" style="color:var(--green)">&#8358;${fmt(paid)}</div><div class="lbl">Total Paid</div></div>
-      <div class="repay-stat"><div class="val" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="lbl">Balance Left</div></div>
+  const l=allLoans.find(x=>x.id===id);if(!l)return;
+  curId=id;
+  const pr=parseFloat(l.amount)||0,ir=pr*24/100,tr=pr+ir;
+  const paid=getPaid(l),bal=Math.max(0,tr-paid);
+  const pct=tr>0?Math.min(100,Math.round(paid/tr*100)):0;
+  const cls=pct<30?'dng':pct<70?'warn':'';
+  const inst=getInstall(tr,l.repayplan,l.durationNum,l.durationUnit);
+  document.getElementById('rm-title').textContent='Record Payment — '+l.name;
+  document.getElementById('rm-body').innerHTML=`
+    <div class="repay-sum">
+      <div class="rs"><div class="rv">&#8358;${fmt(pr)}</div><div class="rl">Principal</div></div>
+      <div class="rs"><div class="rv" style="color:var(--amber)">&#8358;${fmt(ir)}</div><div class="rl">Interest 24%</div></div>
+      <div class="rs"><div class="rv" style="color:var(--navy)">&#8358;${fmt(tr)}</div><div class="rl">Total Repayable</div></div>
+      <div class="rs"><div class="rv" style="color:var(--green)">&#8358;${fmt(paid)}</div><div class="rl">Total Paid</div></div>
+      <div class="rs"><div class="rv" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="rl">Balance</div></div>
     </div>
-    <progress value="${pct}" max="100" style="margin-bottom:4px"></progress>
-    <div style="font-size:.75rem;color:var(--muted);margin-bottom:16px">${pct}% repaid &bull; Plan: <strong>${l.repayplan||'N/A'}</strong></div>
-
-    ${bal<=0?`<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:12px;text-align:center;color:#166534;font-weight:600;margin-bottom:16px">&#10003; Loan fully repaid!</div>`:`
-    <div style="background:var(--bg);border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid var(--border)">
-      <div style="font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:12px">&#128176; New Payment Entry</div>
-      <div class="form-group" style="margin-bottom:10px"><label>Amount Paid (&#8358;) *</label><input type="number" id="pay-amount" placeholder="Enter amount paid" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;width:100%;font-family:inherit"/></div>
-      <div class="form-group" style="margin-bottom:10px"><label>Payment Date *</label><input type="date" id="pay-date" value="${today()}" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;width:100%;font-family:inherit"/></div>
-      <div class="form-group" style="margin-bottom:12px"><label>Note / Reference (optional)</label><input id="pay-note" placeholder="e.g. Cash, Bank transfer, ref #123" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;width:100%;font-family:inherit"/></div>
-      <button class="btn btn-green" onclick="savePayment()" style="width:100%;justify-content:center;padding:11px">&#128176; Save Payment</button>
-    </div>`}
-
-    <div class="section-head" style="margin-top:4px">Payment History (${(l.payments||[]).length} records)</div>
+    <div class="pbar-wrap" style="margin-bottom:4px"><div class="pbar-fill ${cls}" style="width:${pct}%"></div></div>
+    <div style="font-size:.73rem;color:var(--muted);margin-bottom:4px">${pct}% repaid &bull; Plan: <strong>${l.repayplan||'N/A'}</strong> &bull; Due: <strong>${l.maturityDate||'N/A'}</strong></div>
+    ${inst?`<div style="background:#fef3c7;border-radius:7px;padding:8px 12px;font-size:.77rem;color:#92400e;margin-bottom:12px">Expected installment: <strong>&#8358;${fmt(inst.amt)}</strong> &mdash; ${inst.lbl}</div>`:''}
+    ${bal<=0
+      ?`<div class="alert-card alert-green" style="justify-content:center;font-weight:700;color:var(--green);font-size:.92rem;margin-bottom:12px">&#10003; Loan Fully Repaid!</div>`
+      :`<div style="background:var(--bg);border-radius:10px;padding:15px;margin-bottom:14px;border:1px solid var(--border)">
+        <div style="font-size:.8rem;font-weight:800;color:var(--navy);margin-bottom:10px">&#128176; New Payment Entry</div>
+        <div class="fg" style="margin-bottom:9px"><label>Amount Paid (&#8358;) *</label>
+          <input type="number" id="pay-amt" placeholder="Enter amount paid" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit"/>
+        </div>
+        <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap">
+          <button class="btn btn-out btn-sm" onclick="document.getElementById('pay-amt').value='${Math.round(bal)}'">Pay Full Balance</button>
+          ${inst?`<button class="btn btn-out btn-sm" onclick="document.getElementById('pay-amt').value='${Math.round(inst.amt)}'">Pay Installment</button>`:''}
+        </div>
+        <div class="fg" style="margin-bottom:9px"><label>Payment Date *</label>
+          <input type="date" id="pay-date" value="${td()}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit"/>
+        </div>
+        <div class="fg" style="margin-bottom:9px"><label>Payment Method</label>
+          <select id="pay-mth" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.86rem;font-family:inherit">
+            <option value="">Select method</option>
+            <option>Cash</option><option>Bank Transfer</option><option>POS</option><option>Cheque</option>
+          </select>
+        </div>
+        <div class="fg" style="margin-bottom:12px"><label>Reference / Note (optional)</label>
+          <input id="pay-note" placeholder="e.g. Bank ref #123" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit"/>
+        </div>
+        <button class="btn btn-green" onclick="savePayment()" style="width:100%;justify-content:center;padding:11px;font-size:.88rem">&#128176; Save Payment</button>
+      </div>`}
+    <div class="sh" style="margin-top:4px">Payment History (${(l.payments||[]).length} records)</div>
     ${(l.payments||[]).length===0
-      ?`<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px">No payments recorded yet.</p>`
+      ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No payments yet.</p>'
       :`<div class="tbl-wrap"><table>
-        <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Note</th><th>Del</th></tr></thead>
+        <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Method</th><th>Note</th><th>Del</th></tr></thead>
         <tbody>${[...(l.payments||[])].reverse().map((p,ri)=>{
-          const i = (l.payments.length-1)-ri;
-          return `<tr>
-            <td>${i+1}</td>
-            <td style="color:var(--green);font-weight:600">&#8358;${fmt(p.amount)}</td>
-            <td>${p.date}</td>
-            <td>${p.note||'&mdash;'}</td>
-            <td><button class="btn btn-red btn-sm" onclick="deletePayment(${i})" title="Delete">&#128465;</button></td>
-          </tr>`;
+          const i=(l.payments.length-1)-ri;
+          return `<tr><td>${i+1}</td><td style="color:var(--green);font-weight:700">&#8358;${fmt(p.amount)}</td><td>${p.date}</td><td>${p.method||'—'}</td><td>${p.note||'—'}</td>
+          <td><button class="btn btn-red btn-sm" onclick="delPayment(${i})">&#128465;</button></td></tr>`;
         }).join('')}</tbody>
-      </table></div>`}
-  `;
+      </table></div>`}`;
   showModal('repay-modal');
 }
-
 function savePayment(){
-  const amt = parseFloat(document.getElementById('pay-amount').value);
-  const date = document.getElementById('pay-date').value;
-  const note = document.getElementById('pay-note').value;
-  if(!amt || amt<=0){ toast('Enter a valid amount'); return; }
-  if(!date){ toast('Select payment date'); return; }
-  const l = allLoans.find(x=>x.id===currentEditId);
-  const payments = [...(l.payments||[]), {amount:amt, date, note}];
-  db.collection('loans').doc(currentEditId).set({payments},{merge:true}).then(()=>{
-    l.payments = payments;
-    renderRepayments(allLoans);
-    renderDashboard();
-    toast('Payment recorded!');
-    openRepayModal(currentEditId);
-  }).catch(e=>toast('Error: '+e.message));
+  const amt=parseFloat(v('pay-amt'));
+  const date=v('pay-date');
+  if(!amt||amt<=0){toast('Enter a valid amount','e');return}
+  if(!date){toast('Select payment date','e');return}
+  const l=allLoans.find(x=>x.id===curId);
+  const payments=[...(l.payments||[]),{amount:amt,date,note:v('pay-note'),method:v('pay-mth')}];
+  const totalPaid=payments.reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
+  const newSt=totalPaid>=getTR(l)?'Completed':l.status;
+  db.collection('loans').doc(curId).set({payments,status:newSt},{merge:true}).then(()=>{
+    l.payments=payments;if(newSt!==l.status)l.status=newSt;
+    renderRep(allLoans);renderDash();
+    toast(newSt==='Completed'?'Payment saved! Loan marked Completed.':'Payment recorded!','s');
+    openRepayModal(curId);
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+function delPayment(idx){
+  if(!confirm('Delete this payment?'))return;
+  const l=allLoans.find(x=>x.id===curId);
+  const payments=(l.payments||[]).filter((_,i)=>i!==idx);
+  db.collection('loans').doc(curId).set({payments},{merge:true}).then(()=>{
+    l.payments=payments;renderRep(allLoans);renderDash();
+    toast('Payment deleted.','w');openRepayModal(curId);
+  }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
-function deletePayment(index){
-  if(!confirm('Delete this payment record?')) return;
-  const l = allLoans.find(x=>x.id===currentEditId);
-  const payments = (l.payments||[]).filter((_,i)=>i!==index);
-  db.collection('loans').doc(currentEditId).set({payments},{merge:true}).then(()=>{
-    l.payments = payments;
-    renderRepayments(allLoans);
-    renderDashboard();
-    toast('Payment deleted.');
-    openRepayModal(currentEditId);
-  }).catch(e=>toast('Error: '+e.message));
-}
-
-// ===== STATUS EDIT =====
-function editStatus(id){
-  editingStatusId = id;
-  const l = allLoans.find(x=>x.id===id);
-  document.getElementById('status-select').value = l.status||'Pending';
-  showModal('status-modal');
-}
+// STATUS
+function editStatus(id){stId=id;document.getElementById('st-sel').value=allLoans.find(x=>x.id===id)?.status||'Pending';showModal('status-modal')}
 function saveStatus(){
-  const st = document.getElementById('status-select').value;
-  db.collection('loans').doc(editingStatusId).set({status:st},{merge:true}).then(()=>{
-    const l = allLoans.find(x=>x.id===editingStatusId);
-    if(l) l.status = st;
-    closeModal('status-modal');
-    renderApplicants(allLoans);
-    renderDashboard();
-    toast('Status updated!');
-  }).catch(e=>toast('Error: '+e.message));
+  const st=v('st-sel');
+  db.collection('loans').doc(stId).set({status:st},{merge:true}).then(()=>{
+    const l=allLoans.find(x=>x.id===stId);if(l)l.status=st;
+    closeModal('status-modal');renderApp(allLoans);renderDash();
+    toast('Status updated to '+st,'s');
+  }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
-// ===== DELETE =====
-function deleteApplicant(id){
-  if(!confirm('Delete this applicant? This cannot be undone.')) return;
+// DELETE
+function delApp(id){
+  if(!confirm('Permanently delete this applicant?'))return;
   db.collection('loans').doc(id).delete().then(()=>{
-    allLoans = allLoans.filter(l=>l.id!==id);
-    renderApplicants(allLoans);
-    renderDashboard();
-    toast('Applicant deleted.');
-  }).catch(e=>toast('Error: '+e.message));
+    allLoans=allLoans.filter(l=>l.id!==id);
+    renderApp(allLoans);renderDash();toast('Applicant deleted.','w');
+  }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
-// ===== FORM SUBMIT =====
-function submitLoanForm(e){
+// LIVE CALC (form)
+function liveCalc(){
+  const amt=parseFloat(v('f-amount'))||0;
+  const plan=v('f-plan'),dn=v('f-dur-n'),du=v('f-dur-u'),appdate=v('f-appdate');
+  const dEl=document.getElementById('f-duration');if(dEl)dEl.value=dn?dn+' '+du:'';
+  const box=document.getElementById('calc-box');
+  if(!amt){if(box)box.style.display='none';return}
+  if(box)box.style.display='block';
+  const pr=amt,ir=pr*24/100,tr=pr+ir;
+  const md=getMaturity(appdate,dn,du);
+  const inst=getInstall(tr,plan,dn,du);
+  document.getElementById('c-p').textContent='&#8358;'+fmt(pr);
+  document.getElementById('c-i').textContent='&#8358;'+fmt(ir);
+  document.getElementById('c-t').textContent='&#8358;'+fmt(tr);
+  document.getElementById('c-md').textContent=md;
+  if(inst){document.getElementById('c-iv').textContent='&#8358;'+fmt(inst.amt);document.getElementById('c-il').textContent=inst.lbl;}
+  else{document.getElementById('c-iv').textContent='—';document.getElementById('c-il').textContent='Select plan & duration';}
+}
+
+// STANDALONE CALC
+function scCalc(){
+  const amt=parseFloat(v('sc-amt'))||0,plan=v('sc-plan'),dn=v('sc-dn'),du=v('sc-du');
+  const res=document.getElementById('sc-result'),sch=document.getElementById('sc-schedule');
+  if(!amt){res.innerHTML='';sch.innerHTML='';return}
+  const pr=amt,ir=pr*24/100,tr=pr+ir;
+  const md=getMaturity(td(),dn,du),inst=getInstall(tr,plan,dn,du);
+  res.innerHTML=`<div class="calc-box">
+    <div class="calc-title">&#129518; Calculation Result &mdash; 24% Fixed Interest</div>
+    <div class="calc-grid">
+      <div class="calc-item"><div class="cv">&#8358;${fmt(pr)}</div><div class="cl">Principal</div></div>
+      <div class="calc-item"><div class="cv">&#8358;${fmt(ir)}</div><div class="cl">Interest (24%)</div></div>
+      <div class="calc-item hl"><div class="cv">&#8358;${fmt(tr)}</div><div class="cl">Total Repayable</div></div>
+      <div class="calc-item"><div class="cv">${md}</div><div class="cl">Maturity Date</div></div>
+    </div>
+    ${inst?`<div class="calc-row"><span>${inst.lbl}</span><strong>&#8358;${fmt(inst.amt)}</strong></div>`:''}
+  </div>`;
+  // Schedule
+  if(inst&&plan!=='Lump Sum'&&dn){
+    const n=parseInt(dn)||1;let periods;
+    if(plan==='Daily')periods=du==='days'?n:du==='weeks'?n*7:n*30;
+    else if(plan==='Weekly')periods=du==='days'?Math.ceil(n/7):du==='weeks'?n:n*4;
+    else if(plan==='Bi-weekly')periods=du==='months'?n*2:du==='weeks'?Math.ceil(n/2):Math.ceil(n/14);
+    else if(plan==='Monthly')periods=du==='months'?n:du==='weeks'?Math.ceil(n/4):Math.ceil(n/30);
+    if(periods&&periods<=60){
+      const iAmt=tr/periods;let bal=tr;const start=new Date();const rows=[];
+      for(let i=1;i<=periods;i++){
+        const d=new Date(start);
+        if(plan==='Daily')d.setDate(d.getDate()+i);
+        else if(plan==='Weekly')d.setDate(d.getDate()+i*7);
+        else if(plan==='Bi-weekly')d.setDate(d.getDate()+i*14);
+        else d.setMonth(d.getMonth()+i);
+        bal=Math.max(0,bal-iAmt);
+        rows.push(`<tr><td>${i}</td><td>${d.toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'})}</td><td style="color:var(--green);font-weight:700">&#8358;${fmt(iAmt)}</td><td>&#8358;${fmt(bal)}</td></tr>`);
+      }
+      sch.innerHTML=`<div class="sh" style="margin-top:16px">Repayment Schedule</div><div class="tbl-wrap"><table><thead><tr><th>#</th><th>Due Date</th><th>Installment</th><th>Balance After</th></tr></thead><tbody>${rows.join('')}</tbody></table></div>`;
+    }
+  } else if(plan==='Lump Sum'){
+    sch.innerHTML=`<div style="background:var(--bg);border-radius:8px;padding:12px;text-align:center;border:1px solid var(--border);font-size:.83rem;margin-top:12px">Full repayment of <strong>&#8358;${fmt(tr)}</strong> due on <strong>${md}</strong></div>`;
+  }
+}
+
+// FORM SUBMIT
+function submitForm(e){
   e.preventDefault();
-  const data = {
-    loanId: genLoanId(),
-    name: v('f-name'), dob: v('f-dob'), phone: v('f-phone'),
-    address: v('f-address'), occupation: v('f-occupation'), income: v('f-income'),
-    bank: v('f-bank'), account: v('f-account'), acctname: v('f-acctname'),
-    idtype: v('f-idtype'), idnum: v('f-idnum'),
-    amount: v('f-amount'), purpose: v('f-purpose'), duration: v('f-duration'),
-    repayplan: v('f-repayplan'), interest: v('f-interest'),
-    appdate: v('f-appdate'), status: v('f-status'),
-    photo: document.getElementById('f-photo-data').value,
-    docs: safeJSON('f-docs-data'),
-    g1:{
-      name:v('g1-name'),phone:v('g1-phone'),address:v('g1-address'),
-      occupation:v('g1-occupation'),relationship:v('g1-relationship'),
-      idtype:v('g1-idtype'),idnum:v('g1-idnum'),
-      photo:document.getElementById('g1-photo-data').value,
-      docs:[]
-    },
-    g2:{
-      name:v('g2-name'),phone:v('g2-phone'),address:v('g2-address'),
-      occupation:v('g2-occupation'),relationship:v('g2-relationship'),
-      idtype:v('g2-idtype'),idnum:v('g2-idnum'),
-      photo:document.getElementById('g2-photo-data').value,
-      docs:[]
-    },
-    payments:[],
-    createdAt: new Date().toISOString()
+  const dn=v('f-dur-n'),du=v('f-dur-u'),appdate=v('f-appdate');
+  const matISO=getMaturityISO(appdate,dn,du);
+  const matStr=getMaturity(appdate,dn,du);
+  const data={
+    loanId:genId(),name:v('f-name'),dob:v('f-dob'),phone:v('f-phone'),
+    address:v('f-address'),occupation:v('f-occ'),income:v('f-income'),
+    bank:v('f-bank'),account:v('f-acct'),acctname:v('f-acctname'),
+    idtype:v('f-idtype'),idnum:v('f-idnum'),
+    amount:v('f-amount'),purpose:v('f-purpose'),
+    duration:dn+' '+du,durationNum:dn,durationUnit:du,
+    repayplan:v('f-plan'),interest:'24',
+    appdate,maturityDate:matISO,maturityDateStr:matStr,
+    status:v('f-status'),
+    photo:document.getElementById('f-photo-data').value,
+    docs:sj('f-docs-data'),
+    g1:{name:v('g1-name'),phone:v('g1-phone'),address:v('g1-addr'),occupation:v('g1-occ'),relationship:v('g1-rel'),idtype:v('g1-idtype'),idnum:v('g1-idnum'),photo:document.getElementById('g1-photo-data').value,docs:[]},
+    g2:{name:v('g2-name'),phone:v('g2-phone'),address:v('g2-addr'),occupation:v('g2-occ'),relationship:v('g2-rel'),idtype:v('g2-idtype'),idnum:v('g2-idnum'),photo:document.getElementById('g2-photo-data').value,docs:[]},
+    payments:[],createdAt:new Date().toISOString()
   };
   db.collection('loans').add(data).then(ref=>{
     allLoans.unshift({id:ref.id,...data});
-    toast('Application saved successfully!');
-    resetForm();
-    showPage('applicants');
-  }).catch(e=>toast('Error saving: '+e.message));
+    toast('Application saved!','s');resetForm();showPage('applicants');
+  }).catch(e=>toast('Error: '+e.message,'e'));
 }
-
-function v(id){ return document.getElementById(id)?.value||''; }
-function safeJSON(id){ try{ return JSON.parse(document.getElementById(id).value||'[]'); }catch{ return []; } }
-
 function resetForm(){
   document.getElementById('loan-form').reset();
-  ['f-photo-data','g1-photo-data','g2-photo-data'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  ['f-docs-data'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='[]'; });
-  ['f-docs-list'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=''; });
-  // Reset DOB dropdowns
-  ['f-dob-day','f-dob-month','f-dob-year'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('f-interest').value='24%';
+  ['f-photo-data','g1-photo-data','g2-photo-data'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
+  document.getElementById('f-docs-data').value='[]';
+  document.getElementById('f-docs-list').innerHTML='';
+  ['dob-d','dob-m','dob-y'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
   document.getElementById('f-dob').value='';
-  // Reset photo previews
-  ['f-photo-preview','g1-photo-preview','g2-photo-preview'].forEach(id=>{
-    const el=document.getElementById(id);
-    if(el) el.src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
-  });
+  const box=document.getElementById('calc-box');if(box)box.style.display='none';
+  const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+  ['f-photo-prev','g1-photo-prev','g2-photo-prev'].forEach(id=>{const el=document.getElementById(id);if(el)el.src=blank});
 }
 
-// ===== PHOTOS / DOCS =====
-function previewPhoto(input, previewId, dataId){
-  const file = input.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e=>{
-    document.getElementById(previewId).src = e.target.result;
-    document.getElementById(dataId).value = e.target.result;
-  };
-  reader.readAsDataURL(file);
+// PHOTOS/DOCS
+function prevPhoto(inp,prevId,dataId){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();r.onload=e=>{document.getElementById(prevId).src=e.target.result;document.getElementById(dataId).value=e.target.result};r.readAsDataURL(f);
 }
-
-function handleDocsUpload(input, listId, dataId){
-  const files = Array.from(input.files);
-  const list = document.getElementById(listId);
-  const existing = safeJSONDirect(document.getElementById(dataId).value);
-  let pending = files.length;
-  if(!pending){ return; }
-  files.forEach(file=>{
-    const reader = new FileReader();
-    reader.onload = e=>{
-      existing.push({name:file.name, data:e.target.result, type:file.type});
-      pending--;
+function docsUpload(inp,listId,dataId){
+  const files=Array.from(inp.files),existing=sjd(document.getElementById(dataId).value);
+  let pending=files.length;if(!pending)return;
+  files.forEach(f=>{
+    const r=new FileReader();r.onload=e=>{
+      existing.push({name:f.name,data:e.target.result,type:f.type});pending--;
       if(pending===0){
-        document.getElementById(dataId).value = JSON.stringify(existing);
-        renderFileList(existing, list);
+        document.getElementById(dataId).value=JSON.stringify(existing);
+        document.getElementById(listId).innerHTML=existing.map(x=>`<div class="fchip"><a href="${x.data}" download="${x.name}">&#128196; ${x.name}</a></div>`).join('');
       }
-    };
-    reader.readAsDataURL(file);
+    };r.readAsDataURL(f);
   });
 }
 
-function safeJSONDirect(str){ try{ return JSON.parse(str||'[]'); }catch{ return []; } }
-
-function renderFileList(files, container){
-  container.innerHTML = files.map((f,i)=>`
-    <div class="file-chip">
-      <a href="${f.data}" download="${f.name}" title="Download ${f.name}">&#128196; ${f.name}</a>
-    </div>
-  `).join('');
-}
-
-// ===== PROFILE VIEW =====
+// PROFILE
 function viewProfile(id){
-  const l = allLoans.find(x=>x.id===id);
-  if(!l) return;
-  const principal = parseFloat(l.amount)||0;
-  const interestRate = parseFloat(l.interest)||0;
-  const interestAmt = principal * interestRate / 100;
-  const totalRepay = principal + interestAmt;
-  const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-  const bal = Math.max(0, totalRepay - paid);
-  const pct = totalRepay>0 ? Math.min(100,Math.round(paid/totalRepay*100)) : 0;
-
-  document.getElementById('profile-body').innerHTML = `
-    <div class="profile-header" style="margin-bottom:20px">
-      ${l.photo?`<img class="profile-photo" src="${l.photo}" alt="Photo"/>`:
-        `<div class="profile-photo" style="display:flex;align-items:center;justify-content:center;font-size:2.5rem;background:var(--bg)">&#128100;</div>`}
-      <div class="profile-meta">
-        <h2>${l.name||''}</h2>
-        <p>Loan ID: <strong>${l.loanId||l.id}</strong></p>
-        <p>Phone: ${l.phone||''}</p>
-        <p style="margin-top:6px">${badge(l.status)}</p>
-      </div>
-    </div>
-
-    <div class="tabs">
-      <button class="tab-btn active" onclick="switchTab(this,'tab-info')">Info</button>
-      <button class="tab-btn" onclick="switchTab(this,'tab-loan')">Loan</button>
-      <button class="tab-btn" onclick="switchTab(this,'tab-guarantors')">Guarantors</button>
-      <button class="tab-btn" onclick="switchTab(this,'tab-repayments')">Repayments</button>
-      <button class="tab-btn" onclick="switchTab(this,'tab-docs')">Documents</button>
-    </div>
-
-    <div id="tab-info">
-      <div class="info-grid">
-        ${infoItem('Date of Birth',l.dob)}
-        ${infoItem('Address',l.address)}
-        ${infoItem('Occupation',l.occupation)}
-        ${infoItem('Monthly Income',l.income?'&#8358;'+fmt(l.income):'N/A')}
-        ${infoItem('Bank',l.bank)}
-        ${infoItem('Account No.',l.account)}
-        ${infoItem('Account Name',l.acctname)}
-        ${infoItem('ID Type',l.idtype)}
-        ${infoItem('ID Number',l.idnum)}
-      </div>
-    </div>
-
-    <div id="tab-loan" style="display:none">
-      <div class="info-grid">
-        ${infoItem('Loan Amount','&#8358;'+fmt(l.amount))}
-        ${infoItem('Purpose',l.purpose)}
-        ${infoItem('Duration',l.duration)}
-        ${infoItem('Repayment Plan',l.repayplan)}
-        ${infoItem('Interest Rate',(l.interest||'0')+'%')}
-        ${infoItem('Total Repayable','&#8358;'+fmt(totalRepay))}
-        ${infoItem('Application Date',l.appdate)}
-        ${infoItem('Status',badge(l.status))}
-      </div>
-    </div>
-
-    <div id="tab-guarantors" style="display:none">
-      <div style="display:grid;gap:16px">
-        ${guarantorCard(l.g1,'Guarantor 1')}
-        ${guarantorCard(l.g2,'Guarantor 2')}
-      </div>
-    </div>
-
-    <div id="tab-repayments" style="display:none">
-      <div class="repay-summary">
-        <div class="repay-stat"><div class="val">&#8358;${fmt(principal)}</div><div class="lbl">Principal</div></div>
-        <div class="repay-stat"><div class="val" style="color:var(--amber)">&#8358;${fmt(interestAmt)}</div><div class="lbl">Interest (${interestRate}%)</div></div>
-        <div class="repay-stat"><div class="val" style="color:var(--navy)">&#8358;${fmt(totalRepay)}</div><div class="lbl">Total Repayable</div></div>
-        <div class="repay-stat"><div class="val" style="color:var(--green)">&#8358;${fmt(paid)}</div><div class="lbl">Total Paid</div></div>
-        <div class="repay-stat"><div class="val" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="lbl">Balance</div></div>
-      </div>
-      <progress value="${pct}" max="100"></progress>
-      <div style="font-size:.78rem;color:var(--muted);margin-bottom:12px">${pct}% repaid</div>
-      <div class="tbl-wrap"><table>
-        <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Note</th></tr></thead>
-        <tbody>${(l.payments||[]).map((p,i)=>`<tr><td>${i+1}</td><td>&#8358;${fmt(p.amount)}</td><td>${p.date}</td><td>${p.note||''}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:14px">No payments yet.</td></tr>'}</tbody>
-      </table></div>
-    </div>
-
-    <div id="tab-docs" style="display:none">
-      <div class="section-head">Applicant Documents</div>
-      <div class="file-list">${(l.docs||[]).map(f=>`<div class="file-chip"><a href="${f.data}" download="${f.name}">&#128196; ${f.name}</a></div>`).join('')||'<span style="color:var(--muted);font-size:.82rem">None uploaded</span>'}</div>
-      <div class="section-head">Guarantor 1 Documents</div>
-      <div class="file-list">${(l.g1?.docs||[]).map(f=>`<div class="file-chip"><a href="${f.data}" download="${f.name}">&#128196; ${f.name}</a></div>`).join('')||'<span style="color:var(--muted);font-size:.82rem">None uploaded</span>'}</div>
-      <div class="section-head">Guarantor 2 Documents</div>
-      <div class="file-list">${(l.g2?.docs||[]).map(f=>`<div class="file-chip"><a href="${f.data}" download="${f.name}">&#128196; ${f.name}</a></div>`).join('')||'<span style="color:var(--muted);font-size:.82rem">None uploaded</span>'}</div>
-    </div>
-  `;
-  showModal('profile-modal');
-}
-
-function guarantorCard(g, title){
-  if(!g||!g.name) return `<div class="guarantor-card"><p style="color:var(--muted);font-size:.85rem">${title}: Not provided</p></div>`;
-  return `<div class="guarantor-card">
-    <div class="g-header">
-      ${g.photo?`<img class="g-photo" src="${g.photo}" alt=""/>`:`<div class="g-photo" style="display:flex;align-items:center;justify-content:center;font-size:1.6rem;background:var(--border)">&#128100;</div>`}
-      <div><strong>${g.name}</strong><br/><span style="font-size:.78rem;color:var(--muted)">${title} &bull; ${g.relationship||''}</span></div>
-    </div>
-    <div class="info-grid">
-      ${infoItem('Phone',g.phone)}
-      ${infoItem('Address',g.address)}
-      ${infoItem('Occupation',g.occupation)}
-      ${infoItem('ID Type',g.idtype)}
-      ${infoItem('ID Number',g.idnum)}
-    </div>
-    <div class="file-list" style="margin-top:10px">${(g.docs||[]).map(f=>`<div class="file-chip"><a href="${f.data}" download="${f.name}">&#128196; ${f.name}</a></div>`).join('')}</div>
-  </div>`;
-}
-
-function infoItem(label,val){
-  return `<div class="info-item"><label>${label}</label><p>${val||'&mdash;'}</p></div>`;
-}
-
-function switchTab(btn, tabId){
-  const modal = btn.closest('.modal');
-  modal.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
-  btn.classList.add('active');
-  const allTabs = ['tab-info','tab-loan','tab-guarantors','tab-repayments','tab-docs'];
-  allTabs.forEach(t=>{ const el=document.getElementById(t); if(el) el.style.display='none'; });
-  const active = document.getElementById(tabId);
-  if(active) active.style.display='block';
-}
-
-// ===== PRINT PROFILE =====
-function printProfile(){
-  const l = allLoans.find(x=>x.id===currentEditId) || allLoans[0];
-  // Find by scanning content
-  const modal = document.getElementById('profile-content');
-  const loanIdEl = modal.querySelector('strong');
-  let lid = '';
-  if(loanIdEl) lid = loanIdEl.textContent;
-  const loan = allLoans.find(x=>(x.loanId===lid||x.id===lid));
-  const target = loan || allLoans[0];
-  if(!target) return;
-  openPrintWindow(target);
-}
-
-function openPrintWindow(l){
-  const total = parseFloat(l.amount)||0;
-  const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-  const bal = Math.max(0,total-paid);
-  const win = window.open('','_blank');
-  win.document.write(`<!DOCTYPE html><html><head><title>Loan Application - ${l.name}</title>
-  <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:Arial,sans-serif;font-size:12px;color:#000;padding:20px}
-    h1{font-size:18px;text-align:center;margin-bottom:4px}
-    .sub{text-align:center;font-size:11px;color:#555;margin-bottom:16px}
-    .section{margin-bottom:14px}
-    .section-title{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.05em;border-bottom:1px solid #000;padding-bottom:4px;margin-bottom:8px}
-    .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
-    .item label{font-size:9px;color:#666;text-transform:uppercase}
-    .item p{font-size:11px;font-weight:600;border-bottom:1px solid #ccc;padding-bottom:2px;min-height:16px}
-    .g-card{border:1px solid #000;padding:10px;margin-bottom:10px;border-radius:4px}
-    .header-row{display:flex;justify-content:space-between;align-items:flex-start}
-    .photo-box{width:80px;height:80px;border:1px solid #000;display:flex;align-items:center;justify-content:center;font-size:9px;overflow:hidden}
-    .photo-box img{width:100%;height:100%;object-fit:cover}
-    table{width:100%;border-collapse:collapse;margin-top:6px;font-size:11px}
-    th,td{border:1px solid #ccc;padding:5px;text-align:left}
-    th{background:#f0f0f0}
-    .sign-row{display:grid;grid-template-columns:1fr 1fr;gap:30px;margin-top:20px}
-    .sign-box{border-top:1px solid #000;padding-top:4px;font-size:10px;color:#333}
-    @media print{body{padding:10px}}
-  </style></head><body>
-  <h1>LoanVault &mdash; Loan Application Form</h1>
-  <div class="sub">Generated on ${new Date().toLocaleDateString('en-NG')} &bull; Loan ID: ${l.loanId||l.id}</div>
-  
-  <div class="section">
-    <div class="section-title">Applicant Information</div>
-    <div class="header-row">
-      <div class="grid" style="flex:1">
-        <div class="item"><label>Full Name</label><p>${l.name||''}</p></div>
-        <div class="item"><label>Date of Birth</label><p>${l.dob||''}</p></div>
-        <div class="item"><label>Phone Number</label><p>${l.phone||''}</p></div>
-        <div class="item"><label>Address</label><p>${l.address||''}</p></div>
-        <div class="item"><label>Occupation</label><p>${l.occupation||''}</p></div>
-        <div class="item"><label>Monthly Income</label><p>${l.income?'N'+fmt(l.income):''}</p></div>
-        <div class="item"><label>Bank</label><p>${l.bank||''}</p></div>
-        <div class="item"><label>Account Number</label><p>${l.account||''}</p></div>
-        <div class="item"><label>Account Name</label><p>${l.acctname||''}</p></div>
-        <div class="item"><label>ID Type</label><p>${l.idtype||''}</p></div>
-        <div class="item"><label>ID Number</label><p>${l.idnum||''}</p></div>
-      </div>
-      <div class="photo-box" style="margin-left:12px">${l.photo?`<img src="${l.photo}" alt="Photo"/>`:'Passport Photo'}</div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Loan Details</div>
-    <div class="grid">
-      <div class="item"><label>Loan Amount</label><p>N${fmt(l.amount)}</p></div>
-      <div class="item"><label>Purpose</label><p>${l.purpose||''}</p></div>
-      <div class="item"><label>Duration</label><p>${l.duration||''}</p></div>
-      <div class="item"><label>Repayment Plan</label><p>${l.repayplan||''}</p></div>
-      <div class="item"><label>Interest Rate</label><p>${l.interest||0}%</p></div>
-      <div class="item"><label>Application Date</label><p>${l.appdate||''}</p></div>
-      <div class="item"><label>Status</label><p>${l.status||''}</p></div>
-      <div class="item"><label>Total Paid</label><p>N${fmt(paid)}</p></div>
-      <div class="item"><label>Balance</label><p>N${fmt(bal)}</p></div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Guarantor 1</div>
-    <div class="g-card">
-      <div class="header-row">
-        <div class="grid" style="flex:1">
-          <div class="item"><label>Full Name</label><p>${l.g1?.name||''}</p></div>
-          <div class="item"><label>Phone</label><p>${l.g1?.phone||''}</p></div>
-          <div class="item"><label>Address</label><p>${l.g1?.address||''}</p></div>
-          <div class="item"><label>Occupation</label><p>${l.g1?.occupation||''}</p></div>
-          <div class="item"><label>Relationship</label><p>${l.g1?.relationship||''}</p></div>
-          <div class="item"><label>ID Number</label><p>${l.g1?.idnum||''}</p></div>
-        </div>
-        <div class="photo-box" style="margin-left:12px">${l.g1?.photo?`<img src="${l.g1.photo}" alt=""/>`:'Photo'}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Guarantor 2</div>
-    <div class="g-card">
-      <div class="header-row">
-        <div class="grid" style="flex:1">
-          <div class="item"><label>Full Name</label><p>${l.g2?.name||''}</p></div>
-          <div class="item"><label>Phone</label><p>${l.g2?.phone||''}</p></div>
-          <div class="item"><label>Address</label><p>${l.g2?.address||''}</p></div>
-          <div class="item"><label>Occupation</label><p>${l.g2?.occupation||''}</p></div>
-          <div class="item"><label>Relationship</label><p>${l.g2?.relationship||''}</p></div>
-          <div class="item"><label>ID Number</label><p>${l.g2?.idnum||''}</p></div>
-        </div>
-        <div class="photo-box" style="margin-left:12px">${l.g2?.photo?`<img src="${l.g2.photo}" alt=""/>`:'Photo'}</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Repayment History</div>
-    <table>
-      <thead><tr><th>#</th><th>Amount (N)</th><th>Date</th><th>Note</th></tr></thead>
-      <tbody>${(l.payments||[]).map((p,i)=>`<tr><td>${i+1}</td><td>${fmt(p.amount)}</td><td>${p.date}</td><td>${p.note||''}</td></tr>`).join('')||'<tr><td colspan="4">No payments recorded.</td></tr>'}</tbody>
-    </table>
-  </div>
-
-  <div class="section">
-    <div class="section-title">Agreement &amp; Signatures</div>
-    <p style="font-size:10px;line-height:1.5;margin-bottom:12px">
-      I, the undersigned applicant, hereby declare that the information provided in this application is true and accurate to the best of my knowledge. I agree to repay the loan amount as per the agreed repayment plan. I understand that failure to repay may result in legal action and that my guarantors may be held liable.
-    </p>
-    <div class="sign-row">
-      <div class="sign-box">Applicant Signature &amp; Date: ___________________________</div>
-      <div class="sign-box">Guarantor 1 Signature &amp; Date: _________________________</div>
-      <div class="sign-box" style="margin-top:20px">Guarantor 2 Signature &amp; Date: _________________________</div>
-      <div class="sign-box" style="margin-top:20px">Loan Officer Signature &amp; Date: ________________________</div>
-    </div>
-  </div>
-
-  <script>window.onload=function(){window.print();}<\/script>
-  </body></html>`);
-  win.document.close();
-}
-
-// Track which profile is open
-document.getElementById('profile-modal').addEventListener('click', function(e){
-  if(e.target===this) closeModal('profile-modal');
-});
-
-// Override viewProfile to track id
-const _origViewProfile = viewProfile;
-window.viewProfile = function(id){
-  currentEditId = id;
-  _origViewProfile(id);
-};
-
-// Update printProfile to use currentEditId
-window.printProfile = function(){
-  const l = allLoans.find(x=>x.id===currentEditId);
-  if(l) openPrintWindow(l);
-};
-
-// ===== REPORTS =====
-function renderReports(){
-  const status = document.getElementById('rpt-status')?.value||'';
-  const from = document.getElementById('rpt-from')?.value||'';
-  const to = document.getElementById('rpt-to')?.value||'';
-  let list = [...allLoans];
-  if(status) list = list.filter(l=>l.status===status);
-  if(from) list = list.filter(l=>(l.appdate||'')>=from);
-  if(to) list = list.filter(l=>(l.appdate||'')<=to);
-  const tb = document.getElementById('rpt-tbody');
-  if(!tb) return;
-  tb.innerHTML = list.map(l=>`
-    <tr>
-      <td>${l.loanId||l.id}</td>
-      <td>${l.name||''}</td>
-      <td>${l.phone||''}</td>
-      <td>&#8358;${fmt(l.amount)}</td>
-      <td>${l.purpose||''}</td>
-      <td>${l.duration||''}</td>
-      <td>${badge(l.status)}</td>
-      <td>${l.appdate||''}</td>
-    </tr>
-  `).join('')||'<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No records.</td></tr>';
-}
-
-// ===== EXCEL EXPORT =====
-function exportExcel(){
-  const rows = allLoans.map(l=>{
-    const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-    return {
-      'Loan ID':l.loanId||l.id, 'Name':l.name, 'Phone':l.phone, 'Address':l.address,
-      'Occupation':l.occupation, 'Income':l.income, 'Bank':l.bank, 'Account No':l.account,
-      'ID Type':l.idtype, 'ID No':l.idnum, 'Loan Amount':l.amount, 'Purpose':l.purpose,
-      'Duration':l.duration, 'Repay Plan':l.repayplan, 'Interest %':l.interest,
-      'App Date':l.appdate, 'Status':l.status, 'Total Paid':paid,
-      'Balance':Math.max(0,(parseFloat(l.amount)||0)-paid),
-      'G1 Name':l.g1?.name, 'G1 Phone':l.g1?.phone,
-      'G2 Name':l.g2?.name, 'G2 Phone':l.g2?.phone
-    };
-  });
-  const ws = XLSX.utils.json_to_sheet(rows);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb,'Loans',ws);
-  XLSX.writeFile(wb,'LoanVault_Export_'+today()+'.xlsx');
-}
-
-// ===== SETTINGS =====
-function changePin(){
-  const oldPin = document.getElementById('s-old-pin').value;
-  const newPin = document.getElementById('s-new-pin').value;
-  const conf = document.getElementById('s-confirm-pin').value;
-  if(oldPin!==PIN){ toast('Current PIN is incorrect.'); return; }
-  if(newPin.length<4){ toast('New PIN must be at least 4 digits.'); return; }
-  if(newPin!==conf){ toast('PINs do not match.'); return; }
-  PIN = newPin;
-  localStorage.setItem('lv_pin', PIN);
-  document.getElementById('s-old-pin').value='';
-  document.getElementById('s-new-pin').value='';
-  document.getElementById('s-confirm-pin').value='';
-  toast('PIN updated successfully!');
-}
-
-function backupData(){
-  const blob = new Blob([JSON.stringify(allLoans,null,2)],{type:'application/json'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href=url; a.download='LoanVault_Backup_'+today()+'.json'; a.click();
-  URL.revokeObjectURL(url);
-}
-
-function restoreData(input){
-  const file = input.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e=>{
-    try{
-      const data = JSON.parse(e.target.result);
-      if(!Array.isArray(data)) throw new Error('Invalid format');
-      if(!confirm(`Restore ${data.length} records? This will add them to existing data.`)) return;
-      let done = 0;
-      data.forEach(loan=>{
-        const {id,...rest} = loan;
-        db.collection('loans').add(rest).then(ref=>{
-          allLoans.push({id:ref.id,...rest});
-          done++;
-          if(done===data.length){
-            toast(`Restored ${done} records.`);
-            renderDashboard();
-          }
-        });
-      });
-    }catch(err){ toast('Invalid backup file.'); }
-  };
-  reader.readAsText(file);
-  input.value='';
-}
-
-// ===== HELPERS =====
-function fmt(n){ return Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2}); }
-function today(){ return new Date().toISOString().slice(0,10); }
-function badge(s){
-  const map={'Pending':'badge-pending','Approved':'badge-approved','Rejected':'badge-rejected','Completed':'badge-completed'};
-  return `<span class="badge ${map[s]||'badge-pending'}">${s||'Pending'}</span>`;
-}
-function showModal(id){ document.getElementById(id).classList.add('show'); }
-function closeModal(id){ document.getElementById(id).classList.remove('show'); }
-function toast(msg){
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
-  setTimeout(()=>t.classList.remove('show'),3000);
-}
-
-// ===== DOB DROPDOWN SETUP =====
-window.addEventListener('DOMContentLoaded',()=>{
-  // Populate day options 1-31
-  const dayEl = document.getElementById('f-dob-day');
-  for(let i=1;i<=31;i++){
-    const o = document.createElement('option');
-    o.value = String(i).padStart(2,'0');
-    o.textContent = i;
-    dayEl.appendChild(o);
-  }
-  // Populate year options (current year down to 1930)
-  const yearEl = document.getElementById('f-dob-year');
-  const curYear = new Date().getFullYear();
-  for(let y=curYear-10; y>=1930; y--){
-    const o = document.createElement('option');
-    o.value = y;
-    o.textContent = y;
-    yearEl.appendChild(o);
-  }
-  // Sync hidden f-dob on any change
-  function syncDob(){
-    const d = document.getElementById('f-dob-day').value;
-    const m = document.getElementById('f-dob-month').value;
-    const y = document.getElementById('f-dob-year').value;
-    document.getElementById('f-dob').value = (y&&m&&d) ? y+'-'+m+'-'+d : '';
-  }
-  document.getElementById('f-dob-day').addEventListener('change', syncDob);
-  document.getElementById('f-dob-month').addEventListener('change', syncDob);
-  document.getElementById('f-dob-year').addEventListener('change', syncDob);
-
-  // Set today as default app date
-  const appd = document.getElementById('f-appdate');
-  if(appd) appd.value = today();
-});
-
-// Close overlays on background click
-document.querySelectorAll('.overlay').forEach(ov=>{
-  ov.addEventListener('click',e=>{ if(e.target===ov) ov.classList.remove('show'); });
-});
-</script>
-</body>
-</html>
+  curId=id;
+  const l=allLoans.find(x=>x.id===id);if(!l)return;
+  const pr=parseFloat(l.amount)||0,ir=pr*24/100,tr=pr+ir;
+  const paid=getPaid(l),bal=getBal(l),pct=tr>0?Math.min(100,Math.round(paid/tr*100)):0;
+  const c
