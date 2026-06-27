@@ -240,7 +240,24 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
           <div class="section-head">Personal Information</div>
           <div class="form-grid">
             <div class="form-group"><label>Full Name *</label><input required id="f-name" placeholder="Applicant full name"/></div>
-            <div class="form-group"><label>Date of Birth *</label><input required type="date" id="f-dob"/></div>
+            <div class="form-group"><label>Date of Birth *</label>
+              <div style="display:flex;gap:6px">
+                <select id="f-dob-day" required style="flex:1;padding:9px 6px;border:1px solid var(--border);border-radius:7px;font-size:.88rem;font-family:inherit">
+                  <option value="">Day</option>
+                </select>
+                <select id="f-dob-month" required style="flex:1.4;padding:9px 6px;border:1px solid var(--border);border-radius:7px;font-size:.88rem;font-family:inherit">
+                  <option value="">Month</option>
+                  <option value="01">January</option><option value="02">February</option><option value="03">March</option>
+                  <option value="04">April</option><option value="05">May</option><option value="06">June</option>
+                  <option value="07">July</option><option value="08">August</option><option value="09">September</option>
+                  <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                </select>
+                <select id="f-dob-year" required style="flex:1.2;padding:9px 6px;border:1px solid var(--border);border-radius:7px;font-size:.88rem;font-family:inherit">
+                  <option value="">Year</option>
+                </select>
+              </div>
+              <input type="hidden" id="f-dob"/>
+            </div>
             <div class="form-group"><label>Phone Number *</label><input required id="f-phone" placeholder="08XXXXXXXXX"/></div>
             <div class="form-group"><label>Address *</label><input required id="f-address" placeholder="Full residential address"/></div>
             <div class="form-group"><label>Occupation / Business</label><input id="f-occupation" placeholder="Job title or business name"/></div>
@@ -330,19 +347,13 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
           </div>
           <div class="form-grid">
             <div class="form-group">
-              <label>Guarantor 1 Photo</label>
+              <label>Guarantor 1 Passport Photo</label>
               <div class="photo-upload" onclick="document.getElementById('g1-photo').click()">
                 <img id="g1-photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E&#128100;%3C/text%3E%3C/svg%3E" alt=""/>
-                <p>Click to upload photo</p>
+                <p>Click to upload passport photo</p>
               </div>
               <input type="file" id="g1-photo" accept="image/*" style="display:none" onchange="previewPhoto(this,'g1-photo-preview','g1-photo-data')"/>
               <input type="hidden" id="g1-photo-data"/>
-            </div>
-            <div class="form-group">
-              <label>Guarantor 1 Documents</label>
-              <input type="file" id="g1-docs" multiple accept="image/*,.pdf" onchange="handleDocsUpload(this,'g1-docs-list','g1-docs-data')"/>
-              <div id="g1-docs-list" class="file-list"></div>
-              <input type="hidden" id="g1-docs-data" value="[]"/>
             </div>
           </div>
 
@@ -367,19 +378,13 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
           </div>
           <div class="form-grid">
             <div class="form-group">
-              <label>Guarantor 2 Photo</label>
+              <label>Guarantor 2 Passport Photo</label>
               <div class="photo-upload" onclick="document.getElementById('g2-photo').click()">
                 <img id="g2-photo-preview" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E&#128100;%3C/text%3E%3C/svg%3E" alt=""/>
-                <p>Click to upload photo</p>
+                <p>Click to upload passport photo</p>
               </div>
               <input type="file" id="g2-photo" accept="image/*" style="display:none" onchange="previewPhoto(this,'g2-photo-preview','g2-photo-data')"/>
               <input type="hidden" id="g2-photo-data"/>
-            </div>
-            <div class="form-group">
-              <label>Guarantor 2 Documents</label>
-              <input type="file" id="g2-docs" multiple accept="image/*,.pdf" onchange="handleDocsUpload(this,'g2-docs-list','g2-docs-data')"/>
-              <div id="g2-docs-list" class="file-list"></div>
-              <input type="hidden" id="g2-docs-data" value="[]"/>
             </div>
           </div>
 
@@ -791,14 +796,14 @@ function submitLoanForm(e){
       occupation:v('g1-occupation'),relationship:v('g1-relationship'),
       idtype:v('g1-idtype'),idnum:v('g1-idnum'),
       photo:document.getElementById('g1-photo-data').value,
-      docs:safeJSON('g1-docs-data')
+      docs:[]
     },
     g2:{
       name:v('g2-name'),phone:v('g2-phone'),address:v('g2-address'),
       occupation:v('g2-occupation'),relationship:v('g2-relationship'),
       idtype:v('g2-idtype'),idnum:v('g2-idnum'),
       photo:document.getElementById('g2-photo-data').value,
-      docs:safeJSON('g2-docs-data')
+      docs:[]
     },
     payments:[],
     createdAt: new Date().toISOString()
@@ -817,8 +822,11 @@ function safeJSON(id){ try{ return JSON.parse(document.getElementById(id).value|
 function resetForm(){
   document.getElementById('loan-form').reset();
   ['f-photo-data','g1-photo-data','g2-photo-data'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
-  ['f-docs-data','g1-docs-data','g2-docs-data'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='[]'; });
-  ['f-docs-list','g1-docs-list','g2-docs-list'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=''; });
+  ['f-docs-data'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value='[]'; });
+  ['f-docs-list'].forEach(id=>{ const el=document.getElementById(id); if(el) el.innerHTML=''; });
+  // Reset DOB dropdowns
+  ['f-dob-day','f-dob-month','f-dob-year'].forEach(id=>{ const el=document.getElementById(id); if(el) el.value=''; });
+  document.getElementById('f-dob').value='';
   // Reset photo previews
   ['f-photo-preview','g1-photo-preview','g2-photo-preview'].forEach(id=>{
     const el=document.getElementById(id);
@@ -1260,10 +1268,39 @@ function toast(msg){
   setTimeout(()=>t.classList.remove('show'),3000);
 }
 
-// Set today as default app date
+// ===== DOB DROPDOWN SETUP =====
 window.addEventListener('DOMContentLoaded',()=>{
-  const d = document.getElementById('f-appdate');
-  if(d) d.value = today();
+  // Populate day options 1-31
+  const dayEl = document.getElementById('f-dob-day');
+  for(let i=1;i<=31;i++){
+    const o = document.createElement('option');
+    o.value = String(i).padStart(2,'0');
+    o.textContent = i;
+    dayEl.appendChild(o);
+  }
+  // Populate year options (current year down to 1930)
+  const yearEl = document.getElementById('f-dob-year');
+  const curYear = new Date().getFullYear();
+  for(let y=curYear-10; y>=1930; y--){
+    const o = document.createElement('option');
+    o.value = y;
+    o.textContent = y;
+    yearEl.appendChild(o);
+  }
+  // Sync hidden f-dob on any change
+  function syncDob(){
+    const d = document.getElementById('f-dob-day').value;
+    const m = document.getElementById('f-dob-month').value;
+    const y = document.getElementById('f-dob-year').value;
+    document.getElementById('f-dob').value = (y&&m&&d) ? y+'-'+m+'-'+d : '';
+  }
+  document.getElementById('f-dob-day').addEventListener('change', syncDob);
+  document.getElementById('f-dob-month').addEventListener('change', syncDob);
+  document.getElementById('f-dob-year').addEventListener('change', syncDob);
+
+  // Set today as default app date
+  const appd = document.getElementById('f-appdate');
+  if(appd) appd.value = today();
 });
 
 // Close overlays on background click
