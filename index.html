@@ -3,22 +3,30 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>LoanVault - Loan Record Management</title>
+<title>LoanVault Pro - Branch Management System</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
 <style>
 :root{
   --navy:#0f2342;--navy2:#1a3a6b;--gold:#c8973a;--gold2:#e8b84b;
   --bg:#f0f4f9;--card:#fff;--border:#e2e8f0;--text:#1e293b;--muted:#64748b;
-  --green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#2563eb;
+  --green:#16a34a;--red:#dc2626;--amber:#d97706;--blue:#2563eb;--purple:#7c3aed;
   --radius:12px;--shadow:0 2px 16px rgba(15,35,66,.09);
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ===== LOGIN ===== */
 #login-screen{display:flex;align-items:center;justify-content:center;min-height:100vh;background:linear-gradient(135deg,var(--navy),var(--navy2))}
-.login-card{background:#fff;border-radius:20px;padding:44px 36px;width:100%;max-width:400px;box-shadow:0 24px 80px rgba(0,0,0,.3);text-align:center}
+.login-card{background:#fff;border-radius:20px;padding:44px 36px;width:100%;max-width:420px;box-shadow:0 24px 80px rgba(0,0,0,.3);text-align:center}
 .login-logo{font-family:'DM Serif Display',serif;font-size:2rem;color:var(--navy);margin-bottom:2px}
 .login-logo span{color:var(--gold)}
-.login-sub{color:var(--muted);font-size:.8rem;margin-bottom:24px;padding-bottom:18px;border-bottom:1px solid var(--border)}
+.login-sub{color:var(--muted);font-size:.8rem;margin-bottom:20px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+.login-tabs{display:flex;gap:4px;background:var(--bg);padding:4px;border-radius:10px;margin-bottom:20px}
+.ltab{flex:1;padding:8px;border:none;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;background:transparent;color:var(--muted);font-family:inherit;transition:.2s}
+.ltab.active{background:#fff;color:var(--navy);box-shadow:0 1px 4px rgba(0,0,0,.1)}
+.staff-login-fields{text-align:left;margin-bottom:14px}
+.staff-login-fields input,.staff-login-fields select{width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit;margin-bottom:8px;color:var(--text)}
+.staff-login-fields input:focus,.staff-login-fields select:focus{outline:none;border-color:var(--navy2)}
 .pin-dots{display:flex;gap:14px;justify-content:center;margin:0 0 20px}
 .pin-dot{width:16px;height:16px;border-radius:50%;background:var(--border);transition:.2s}
 .pin-dot.filled{background:var(--navy);transform:scale(1.1)}
@@ -27,11 +35,14 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 .numpad button:hover{background:var(--bg)}
 .numpad button.del{color:var(--red)}
 .login-err{color:var(--red);font-size:.8rem;min-height:1.2em;font-weight:500;margin-top:4px}
+
+/* ===== APP ===== */
 #app{display:none;min-height:100vh}
 header{background:linear-gradient(90deg,var(--navy),var(--navy2));color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 20px;height:60px;position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.2)}
 .hbrand{font-family:'DM Serif Display',serif;font-size:1.3rem}
 .hbrand span{color:var(--gold)}
 .hpill{background:rgba(200,151,58,.25);border:1px solid var(--gold);color:var(--gold2);font-size:.65rem;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em;margin-left:8px}
+.branch-badge{background:rgba(124,58,237,.3);border:1px solid rgba(167,139,250,.5);color:#c4b5fd;font-size:.63rem;font-weight:700;padding:2px 8px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em;margin-left:6px;max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .hright{display:flex;gap:8px;align-items:center}
 .hright button{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.15);color:#fff;padding:6px 12px;border-radius:7px;cursor:pointer;font-size:.78rem;font-weight:600;font-family:inherit}
 .hright button:hover{background:rgba(255,255,255,.22)}
@@ -39,7 +50,8 @@ nav{background:var(--navy2);display:flex;overflow-x:auto;padding:0 12px}
 nav::-webkit-scrollbar{height:2px}
 .nb{background:none;border:none;color:rgba(255,255,255,.65);padding:12px 14px;cursor:pointer;font-size:.78rem;font-weight:600;white-space:nowrap;border-bottom:3px solid transparent;transition:.2s;font-family:inherit}
 .nb.active,.nb:hover{color:#fff;border-bottom-color:var(--gold)}
-main{padding:20px;max-width:1280px;margin:0 auto}
+.nb.admin-only{display:none}
+main{padding:20px;max-width:1300px;margin:0 auto}
 .card{background:var(--card);border-radius:var(--radius);box-shadow:var(--shadow);padding:22px;margin-bottom:18px}
 .card-title{font-size:.92rem;font-weight:800;color:var(--navy);margin-bottom:16px;display:flex;align-items:center;justify-content:space-between}
 .stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(148px,1fr));gap:12px;margin-bottom:18px}
@@ -75,6 +87,8 @@ main{padding:20px;max-width:1280px;margin:0 auto}
 .btn-red{background:var(--red);color:#fff}
 .btn-red:hover{background:#b91c1c}
 .btn-amber{background:var(--amber);color:#fff}
+.btn-purple{background:var(--purple);color:#fff}
+.btn-purple:hover{background:#6d28d9}
 .btn-out{background:transparent;color:var(--navy);border:1.5px solid var(--border)}
 .btn-out:hover{background:var(--bg)}
 .btn-sm{padding:5px 10px;font-size:.74rem}
@@ -91,6 +105,10 @@ tbody tr:hover{background:#f8fafc}
 .b-rejected{background:#fee2e2;color:#991b1b}
 .b-completed{background:#dbeafe;color:#1e40af}
 .b-overdue{background:#fce7f3;color:#9d174d}
+.b-admin{background:#ede9fe;color:#5b21b6}
+.b-staff{background:#e0f2fe;color:#0369a1}
+.b-active{background:#dcfce7;color:#166534}
+.b-inactive{background:#fee2e2;color:#991b1b}
 .search-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
 .search-row input,.search-row select{padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-size:.85rem;font-family:inherit}
 .search-row input{flex:1;min-width:180px}
@@ -153,34 +171,74 @@ tbody tr:hover{background:#f8fafc}
 #toast.s{background:var(--navy);color:#fff}
 #toast.e{background:var(--red);color:#fff}
 #toast.w{background:var(--amber);color:#fff}
-@media(max-width:600px){main{padding:10px}.card{padding:14px}.modal{max-height:96vh}.mbody{padding:14px}}
+
+/* ===== BRANCH CARDS ===== */
+.branch-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:16px;margin-top:16px}
+.branch-card{background:var(--card);border-radius:var(--radius);padding:18px;box-shadow:var(--shadow);border:2px solid var(--border);cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.branch-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--gold),var(--gold2))}
+.branch-card:hover{border-color:var(--navy2);transform:translateY(-2px)}
+.branch-card h3{font-size:.9rem;font-weight:800;color:var(--navy);margin-bottom:4px}
+.branch-card .branch-code{font-size:.67rem;font-weight:700;color:var(--gold);text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.branch-card .branch-stats{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.branch-stat{background:var(--bg);border-radius:7px;padding:8px;text-align:center}
+.branch-stat .bsv{font-size:.9rem;font-weight:800;color:var(--navy)}
+.branch-stat .bsl{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}
+.branch-card .branch-actions{display:flex;gap:6px;margin-top:12px;flex-wrap:wrap}
+.user-card{background:var(--bg);border-radius:10px;padding:14px;border:1px solid var(--border);margin-bottom:10px;display:flex;align-items:center;gap:12px}
+.user-avatar{width:40px;height:40px;border-radius:50%;background:var(--navy2);color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.9rem;flex-shrink:0}
+.user-info{flex:1}
+.user-info h4{font-size:.84rem;font-weight:700;color:var(--navy)}
+.user-info p{font-size:.72rem;color:var(--muted)}
+.combined-tab{background:#ede9fe;border-left:4px solid var(--purple);padding:10px 14px;border-radius:8px;margin-bottom:14px;font-size:.8rem;color:#5b21b6;font-weight:600}
+
+/* ===== RESPONSIVE ===== */
+@media(max-width:768px){main{padding:10px}.card{padding:14px}.modal{max-height:96vh}.mbody{padding:14px}.branch-grid{grid-template-columns:1fr}}
 @media print{header,nav,.no-print{display:none!important}#app{display:block!important}.page-section{display:block!important}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}}
 </style>
 </head>
 <body>
 
+<!-- ===== LOGIN ===== -->
 <div id="login-screen">
   <div class="login-card">
     <div class="login-logo">Loan<span>Vault</span></div>
-    <div class="login-sub">Professional Loan Management System<br/>Enter your PIN to continue</div>
-    <div class="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div></div>
-    <div class="numpad">
-      <button onclick="pp('1')">1</button><button onclick="pp('2')">2</button><button onclick="pp('3')">3</button>
-      <button onclick="pp('4')">4</button><button onclick="pp('5')">5</button><button onclick="pp('6')">6</button>
-      <button onclick="pp('7')">7</button><button onclick="pp('8')">8</button><button onclick="pp('9')">9</button>
-      <button onclick="pp('0')" style="grid-column:2">0</button>
-      <button class="del" onclick="pd()">&#9003;</button>
+    <div class="login-sub">Branch Management System v3.0<br/>Secure multi-branch loan platform</div>
+    <div class="login-tabs">
+      <button class="ltab active" id="ltab-admin" onclick="switchLoginTab('admin')">&#128081; Admin</button>
+      <button class="ltab" id="ltab-staff" onclick="switchLoginTab('staff')">&#128100; Staff</button>
+    </div>
+    <!-- Admin PIN login -->
+    <div id="admin-login-panel">
+      <div class="pin-dots"><div class="pin-dot" id="d0"></div><div class="pin-dot" id="d1"></div><div class="pin-dot" id="d2"></div><div class="pin-dot" id="d3"></div></div>
+      <div class="numpad">
+        <button onclick="pp('1')">1</button><button onclick="pp('2')">2</button><button onclick="pp('3')">3</button>
+        <button onclick="pp('4')">4</button><button onclick="pp('5')">5</button><button onclick="pp('6')">6</button>
+        <button onclick="pp('7')">7</button><button onclick="pp('8')">8</button><button onclick="pp('9')">9</button>
+        <button onclick="pp('0')" style="grid-column:2">0</button>
+        <button class="del" onclick="pd()">&#9003;</button>
+      </div>
+    </div>
+    <!-- Staff login -->
+    <div id="staff-login-panel" style="display:none">
+      <div class="staff-login-fields">
+        <select id="sl-branch"><option value="">— Select Branch —</option></select>
+        <input type="text" id="sl-username" placeholder="Username"/>
+        <input type="password" id="sl-pass" placeholder="Password" onkeydown="if(event.key==='Enter')staffLogin()"/>
+      </div>
+      <button class="btn btn-navy" onclick="staffLogin()" style="width:100%;justify-content:center;padding:12px">&#128274; Sign In</button>
     </div>
     <div class="login-err" id="lerr"></div>
-    <div style="font-size:.68rem;color:var(--muted);margin-top:12px">LoanVault v2.0 &bull; 24% Fixed Interest Rate</div>
+    <div style="font-size:.68rem;color:var(--muted);margin-top:12px">LoanVault v3.0 &bull; Branch Edition</div>
   </div>
 </div>
 
+<!-- ===== APP ===== -->
 <div id="app">
   <header>
-    <div style="display:flex;align-items:center">
+    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
       <div class="hbrand">Loan<span>Vault</span></div>
-      <div class="hpill">PRO</div>
+      <div class="hpill" id="role-pill">PRO</div>
+      <div class="branch-badge" id="branch-badge" style="display:none"></div>
     </div>
     <div class="hright">
       <span id="hdr-date" style="font-size:.73rem;opacity:.65"></span>
@@ -188,7 +246,7 @@ tbody tr:hover{background:#f8fafc}
       <button onclick="doLogout()">&#128274; Logout</button>
     </div>
   </header>
-  <nav>
+  <nav id="main-nav">
     <button class="nb active" onclick="showPage('dashboard')">&#128202; Dashboard</button>
     <button class="nb" onclick="showPage('applicants')">&#128101; Borrowers</button>
     <button class="nb" onclick="showPage('new-application')">&#43; New Loan</button>
@@ -196,21 +254,17 @@ tbody tr:hover{background:#f8fafc}
     <button class="nb" onclick="showPage('calculator')">&#129518; Calculator</button>
     <button class="nb" onclick="showPage('reports')">&#128196; Reports</button>
     <button class="nb" onclick="showPage('notifications')">&#128276; Alerts</button>
+    <button class="nb admin-only" onclick="showPage('branches')">&#127970; Branches</button>
+    <button class="nb admin-only" onclick="showPage('users')">&#128101; Staff</button>
     <button class="nb" onclick="showPage('settings')">&#9881; Settings</button>
   </nav>
   <main>
 
     <!-- DASHBOARD -->
     <div class="page-section active" id="page-dashboard">
+      <div id="branch-context-bar" style="display:none" class="combined-tab"></div>
       <div class="stat-grid" id="stat-grid"></div>
-      <div class="quick-grid">
-        <div class="qcard" onclick="showPage('new-application')"><div class="qi">&#128203;</div><p>New Application</p></div>
-        <div class="qcard" onclick="showPage('repayments')"><div class="qi">&#128176;</div><p>Record Payment</p></div>
-        <div class="qcard" onclick="showPage('calculator')"><div class="qi">&#129518;</div><p>Calculator</p></div>
-        <div class="qcard" onclick="exportExcel()"><div class="qi">&#128190;</div><p>Export Excel</p></div>
-        <div class="qcard" onclick="showPage('reports')"><div class="qi">&#128196;</div><p>Reports</p></div>
-        <div class="qcard" onclick="showPage('notifications')"><div class="qi">&#128276;</div><p>Alerts</p></div>
-      </div>
+      <div class="quick-grid" id="dash-quick-grid"></div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px">
         <div class="card" style="margin-bottom:0">
           <div class="card-title">&#128200; Status Breakdown</div>
@@ -220,6 +274,11 @@ tbody tr:hover{background:#f8fafc}
           <div class="card-title">&#128680; Overdue Loans</div>
           <div id="overdue-list"></div>
         </div>
+      </div>
+      <!-- Admin: branch summary -->
+      <div class="card admin-only-card" id="branch-summary-card" style="display:none">
+        <div class="card-title">&#127970; Branch Performance Summary</div>
+        <div id="branch-summary-body"></div>
       </div>
       <div class="card">
         <div class="card-title">&#9203; Recent Payment Activity</div>
@@ -231,7 +290,7 @@ tbody tr:hover{background:#f8fafc}
     <div class="page-section" id="page-applicants">
       <div class="card">
         <div class="card-title">
-          <span>&#128101; All Borrowers</span>
+          <span>&#128101; Borrowers</span>
           <div style="display:flex;gap:6px">
             <button class="btn btn-gold btn-sm no-print" onclick="exportExcel()">&#128190; Excel</button>
             <button class="btn btn-navy btn-sm" onclick="showPage('new-application')">&#43; New Loan</button>
@@ -243,9 +302,12 @@ tbody tr:hover{background:#f8fafc}
             <option value="">All Status</option>
             <option>Pending</option><option>Approved</option><option>Rejected</option><option>Completed</option>
           </select>
+          <select id="fbrch" onchange="searchApplicants()" class="admin-only-input" style="display:none">
+            <option value="">All Branches</option>
+          </select>
         </div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Loan ID</th><th>Name</th><th>Phone</th><th>Principal</th><th>Total Repayable</th><th>Balance</th><th>Plan</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <thead><tr><th>Loan ID</th><th>Name</th><th>Phone</th><th>Branch</th><th>Principal</th><th>Total Repayable</th><th>Balance</th><th>Plan</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
           <tbody id="app-tbody"></tbody>
         </table></div>
       </div>
@@ -291,6 +353,19 @@ tbody tr:hover{background:#f8fafc}
               </select>
             </div>
             <div class="fg"><label>ID Number</label><input id="f-idnum" placeholder="ID number"/></div>
+          </div>
+          <div class="sh">&#127970; Branch Assignment</div>
+          <div class="form-grid">
+            <div class="fg"><label>Assign to Branch *</label>
+              <select id="f-branch" required>
+                <option value="">— Select Branch —</option>
+              </select>
+            </div>
+            <div class="fg"><label>Loan Officer / Staff</label>
+              <select id="f-officer">
+                <option value="">— Optional —</option>
+              </select>
+            </div>
           </div>
           <div class="sh">&#128181; Loan Details</div>
           <div class="form-grid">
@@ -358,8 +433,7 @@ tbody tr:hover{background:#f8fafc}
             <div class="fg"><label>Occupation</label><input id="g1-occ" placeholder="Occupation"/></div>
             <div class="fg"><label>Relationship with Applicant</label><input id="g1-rel" placeholder="e.g. Brother, Colleague"/></div>
             <div class="fg"><label>ID Type</label>
-              <select id="g1-idtype">
-                <option value="">Select</option>
+              <select id="g1-idtype"><option value="">Select</option>
                 <option>National ID (NIN)</option><option>Voter's Card</option>
                 <option>Driver's Licence</option><option>International Passport</option>
               </select>
@@ -383,8 +457,7 @@ tbody tr:hover{background:#f8fafc}
             <div class="fg"><label>Occupation</label><input id="g2-occ" placeholder="Occupation"/></div>
             <div class="fg"><label>Relationship with Applicant</label><input id="g2-rel" placeholder="e.g. Sister, Employer"/></div>
             <div class="fg"><label>ID Type</label>
-              <select id="g2-idtype">
-                <option value="">Select</option>
+              <select id="g2-idtype"><option value="">Select</option>
                 <option>National ID (NIN)</option><option>Voter's Card</option>
                 <option>Driver's Licence</option><option>International Passport</option>
               </select>
@@ -420,13 +493,13 @@ tbody tr:hover{background:#f8fafc}
           </select>
         </div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Loan ID</th><th>Borrower</th><th>Phone</th><th>Plan</th><th>Principal</th><th>Total Repayable</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
+          <thead><tr><th>Loan ID</th><th>Borrower</th><th>Phone</th><th>Branch</th><th>Plan</th><th>Principal</th><th>Total Repayable</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Due Date</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="rep-tbody"></tbody>
         </table></div>
       </div>
     </div>
 
-    <!-- STANDALONE CALCULATOR -->
+    <!-- CALCULATOR -->
     <div class="page-section" id="page-calculator">
       <div class="card" style="max-width:580px;margin:0 auto">
         <div class="card-title">&#129518; Loan Calculator &mdash; 24% Fixed Interest</div>
@@ -468,12 +541,15 @@ tbody tr:hover{background:#f8fafc}
               <option value="">All</option><option>Pending</option><option>Approved</option><option>Rejected</option><option>Completed</option>
             </select>
           </div>
+          <div class="fg admin-only-field" style="display:none"><label>Branch</label>
+            <select id="rpt-br" onchange="renderReports()"><option value="">All Branches</option></select>
+          </div>
           <div class="fg"><label>From Date</label><input type="date" id="rpt-from" onchange="renderReports()"/></div>
           <div class="fg"><label>To Date</label><input type="date" id="rpt-to" onchange="renderReports()"/></div>
         </div>
         <div class="stat-grid" id="rpt-stats" style="margin-bottom:14px"></div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Loan ID</th><th>Name</th><th>Phone</th><th>Principal</th><th>Interest</th><th>Total Repayable</th><th>Paid</th><th>Balance</th><th>Plan</th><th>Status</th><th>App Date</th><th>Maturity</th></tr></thead>
+          <thead><tr><th>Loan ID</th><th>Name</th><th>Phone</th><th>Branch</th><th>Principal</th><th>Interest</th><th>Total</th><th>Paid</th><th>Balance</th><th>Plan</th><th>Status</th><th>App Date</th><th>Maturity</th></tr></thead>
           <tbody id="rpt-tbody"></tbody>
         </table></div>
       </div>
@@ -484,6 +560,35 @@ tbody tr:hover{background:#f8fafc}
       <div class="card">
         <div class="card-title">&#128276; Alerts &amp; Notifications</div>
         <div id="notif-body"></div>
+      </div>
+    </div>
+
+    <!-- BRANCHES (Admin Only) -->
+    <div class="page-section" id="page-branches">
+      <div class="card">
+        <div class="card-title">
+          <span>&#127970; Branch Management</span>
+          <button class="btn btn-navy btn-sm" onclick="openBranchModal()">&#43; New Branch</button>
+        </div>
+        <div class="branch-grid" id="branches-grid"></div>
+      </div>
+    </div>
+
+    <!-- STAFF / USERS (Admin Only) -->
+    <div class="page-section" id="page-users">
+      <div class="card">
+        <div class="card-title">
+          <span>&#128101; Staff Management</span>
+          <button class="btn btn-navy btn-sm" onclick="openUserModal()">&#43; New Staff Account</button>
+        </div>
+        <div class="search-row">
+          <input type="text" id="usr-srch" placeholder="Search staff..." oninput="renderUsers()"/>
+          <select id="usr-br" onchange="renderUsers()"><option value="">All Branches</option></select>
+          <select id="usr-role" onchange="renderUsers()">
+            <option value="">All Roles</option><option value="staff">Staff</option><option value="admin">Admin</option>
+          </select>
+        </div>
+        <div id="users-list"></div>
       </div>
     </div>
 
@@ -499,7 +604,7 @@ tbody tr:hover{background:#f8fafc}
         </div>
         <div class="card" style="margin-bottom:0">
           <div class="card-title">&#128190; Backup &amp; Restore</div>
-          <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">Download all loan records as a JSON backup file. Restore from backup at any time.</p>
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">Download all loan records as a JSON backup file.</p>
           <div class="btn-row" style="margin-top:0">
             <button class="btn btn-gold" onclick="backupData()">&#128190; Download Backup</button>
             <button class="btn btn-out" onclick="document.getElementById('rst-file').click()">&#128228; Restore</button>
@@ -509,11 +614,21 @@ tbody tr:hover{background:#f8fafc}
         <div class="card" style="margin-bottom:0">
           <div class="card-title">&#8505; System Information</div>
           <div class="info-grid" style="margin-top:0">
-            <div class="iitem"><label>System</label><p>LoanVault v2.0</p></div>
+            <div class="iitem"><label>System</label><p>LoanVault v3.0</p></div>
             <div class="iitem"><label>Interest Rate</label><p>24% Fixed</p></div>
             <div class="iitem"><label>Total Borrowers</label><p id="si-total">&#8212;</p></div>
+            <div class="iitem"><label>Branches</label><p id="si-branches">&#8212;</p></div>
+            <div class="iitem"><label>Staff Accounts</label><p id="si-staff">&#8212;</p></div>
             <div class="iitem"><label>Database</label><p>Firebase Firestore</p></div>
           </div>
+        </div>
+        <!-- Staff change own password -->
+        <div class="card staff-only-card" style="display:none;margin-bottom:0">
+          <div class="card-title">&#128274; Change My Password</div>
+          <div class="fg" style="margin-bottom:10px"><label>Current Password</label><input type="password" id="pw-old" placeholder="Current password"/></div>
+          <div class="fg" style="margin-bottom:10px"><label>New Password</label><input type="password" id="pw-new" placeholder="New password"/></div>
+          <div class="fg" style="margin-bottom:14px"><label>Confirm Password</label><input type="password" id="pw-conf" placeholder="Confirm password"/></div>
+          <button class="btn btn-navy" onclick="changeStaffPw()">&#128274; Update Password</button>
         </div>
       </div>
     </div>
@@ -521,7 +636,7 @@ tbody tr:hover{background:#f8fafc}
   </main>
 </div>
 
-<!-- PROFILE MODAL -->
+<!-- ===== PROFILE MODAL ===== -->
 <div class="overlay" id="profile-modal">
   <div class="modal">
     <div class="mhead">
@@ -535,7 +650,7 @@ tbody tr:hover{background:#f8fafc}
   </div>
 </div>
 
-<!-- REPAYMENT MODAL -->
+<!-- ===== REPAYMENT MODAL ===== -->
 <div class="overlay" id="repay-modal">
   <div class="modal" style="max-width:580px">
     <div class="mhead">
@@ -546,7 +661,7 @@ tbody tr:hover{background:#f8fafc}
   </div>
 </div>
 
-<!-- STATUS MODAL -->
+<!-- ===== STATUS MODAL ===== -->
 <div class="overlay" id="status-modal">
   <div class="modal" style="max-width:340px">
     <div class="mhead"><h3>Update Status</h3><button class="mclose" onclick="closeModal('status-modal')">&times;</button></div>
@@ -565,12 +680,86 @@ tbody tr:hover{background:#f8fafc}
   </div>
 </div>
 
+<!-- ===== BRANCH MODAL ===== -->
+<div class="overlay" id="branch-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="mhead">
+      <h3 id="bm-title">New Branch</h3>
+      <button class="mclose" onclick="closeModal('branch-modal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="bm-id"/>
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="fg"><label>Branch Name *</label><input id="bm-name" placeholder="e.g. Ikeja Branch"/></div>
+        <div class="fg"><label>Branch Code *</label><input id="bm-code" placeholder="e.g. IKJ" style="text-transform:uppercase" maxlength="6"/></div>
+        <div class="fg"><label>Location / Address</label><input id="bm-location" placeholder="Branch address"/></div>
+        <div class="fg"><label>Branch Manager (optional)</label><input id="bm-manager" placeholder="Manager name"/></div>
+        <div class="fg"><label>Phone</label><input id="bm-phone" placeholder="Branch phone"/></div>
+        <div class="fg"><label>Status</label>
+          <select id="bm-status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-navy" onclick="saveBranch()">&#128190; Save Branch</button>
+        <button class="btn btn-out" onclick="closeModal('branch-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== USER MODAL ===== -->
+<div class="overlay" id="user-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="mhead">
+      <h3 id="um-title">New Staff Account</h3>
+      <button class="mclose" onclick="closeModal('user-modal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <input type="hidden" id="um-id"/>
+      <div class="form-grid" style="grid-template-columns:1fr">
+        <div class="fg"><label>Full Name *</label><input id="um-name" placeholder="Staff full name"/></div>
+        <div class="fg"><label>Username *</label><input id="um-username" placeholder="Login username" autocomplete="off"/></div>
+        <div class="fg" id="um-pass-fg"><label>Password *</label><input type="password" id="um-pass" placeholder="Set a password" autocomplete="new-password"/></div>
+        <div class="fg"><label>Role *</label>
+          <select id="um-role" onchange="toggleBranchField()">
+            <option value="staff">Staff</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        <div class="fg" id="um-branch-fg"><label>Assign to Branch *</label>
+          <select id="um-branch"><option value="">— Select Branch —</option></select>
+        </div>
+        <div class="fg"><label>Phone</label><input id="um-phone" placeholder="Staff phone number"/></div>
+        <div class="fg"><label>Status</label>
+          <select id="um-status"><option value="active">Active</option><option value="inactive">Inactive</option></select>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-navy" onclick="saveUser()">&#128190; Save Account</button>
+        <button class="btn btn-out" onclick="closeModal('user-modal')">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ===== BRANCH DETAIL MODAL ===== -->
+<div class="overlay" id="branch-detail-modal">
+  <div class="modal" style="max-width:760px">
+    <div class="mhead">
+      <h3 id="bdm-title">Branch Details</h3>
+      <button class="mclose" onclick="closeModal('branch-detail-modal')">&times;</button>
+    </div>
+    <div class="mbody" id="bdm-body"></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
+// ===== FIREBASE =====
 firebase.initializeApp({
   apiKey:"AIzaSyCeRhmHoGTXJ_-PCr81x9YAeeVjzX6gxlo",
   authDomain:"benimtradeco.firebaseapp.com",
@@ -579,17 +768,29 @@ firebase.initializeApp({
   messagingSenderId:"575385253084",
   appId:"1:575385253084:web:541468de4cdfe529ca7019"
 });
-const db=firebase.firestore();
+const db = firebase.firestore();
 
-let PIN=localStorage.getItem('lv_pin')||'1990';
-let pinBuf='',allLoans=[],curId=null,stId=null;
+// ===== STATE =====
+let ADMIN_PIN = localStorage.getItem('lv_pin') || '1990';
+let pinBuf = '', allLoans = [], allBranches = [], allUsers = [];
+let curId = null, stId = null, editBranchId = null, editUserId = null;
 
-// HELPERS
-const fmt=n=>Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
-const td=()=>new Date().toISOString().slice(0,10);
-const v=id=>document.getElementById(id)?.value||'';
-const sj=id=>{try{return JSON.parse(document.getElementById(id).value||'[]')}catch{return[]}};
-const sjd=s=>{try{return JSON.parse(s||'[]')}catch{return[]}};
+// Session state
+let currentSession = {
+  role: null,      // 'admin' | 'staff'
+  userId: null,
+  username: null,
+  branchId: null,
+  branchName: null,
+  name: null
+};
+
+// ===== HELPERS =====
+const fmt = n => Number(n||0).toLocaleString('en-NG',{minimumFractionDigits:2,maximumFractionDigits:2});
+const td = () => new Date().toISOString().slice(0,10);
+const v = id => document.getElementById(id)?.value || '';
+const sj = id => {try{return JSON.parse(document.getElementById(id).value||'[]')}catch{return[]}};
+const sjd = s => {try{return JSON.parse(s||'[]')}catch{return[]}};
 
 function bdg(s){
   const m={Pending:'b-pending',Approved:'b-approved',Rejected:'b-rejected',Completed:'b-completed',Overdue:'b-overdue'};
@@ -603,7 +804,13 @@ function toast(msg,t='s'){
 function showModal(id){document.getElementById(id).classList.add('show')}
 function closeModal(id){document.getElementById(id).classList.remove('show')}
 
-// LOAN MATH
+function getBranchName(id){
+  if(!id) return '—';
+  const b = allBranches.find(x=>x.id===id);
+  return b ? b.name : id;
+}
+
+// ===== LOAN MATH =====
 function getTR(l){const p=parseFloat(l.amount)||0;return p+(p*24/100)}
 function getBal(l){return Math.max(0,getTR(l)-getPaid(l))}
 function getPaid(l){return(l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0)}
@@ -640,30 +847,97 @@ function getMaturityISO(appdate,dn,du){
   return d.toISOString().slice(0,10);
 }
 
-// PIN LOGIN
-function pp(d){if(pinBuf.length>=PIN.length)return;pinBuf+=d;updDots();if(pinBuf.length===PIN.length)setTimeout(chkPin,200)}
+// ===== SCOPED LOANS (branch filter) =====
+function getScopedLoans(){
+  if(currentSession.role === 'admin') return allLoans;
+  return allLoans.filter(l => l.branchId === currentSession.branchId);
+}
+
+// ===== LOGIN TABS =====
+function switchLoginTab(tab){
+  document.getElementById('ltab-admin').classList.toggle('active', tab==='admin');
+  document.getElementById('ltab-staff').classList.toggle('active', tab==='staff');
+  document.getElementById('admin-login-panel').style.display = tab==='admin' ? '' : 'none';
+  document.getElementById('staff-login-panel').style.display = tab==='staff' ? '' : 'none';
+  document.getElementById('lerr').textContent = '';
+  pinBuf=''; updDots();
+}
+
+// ===== ADMIN PIN LOGIN =====
+function pp(d){if(pinBuf.length>=ADMIN_PIN.length)return;pinBuf+=d;updDots();if(pinBuf.length===ADMIN_PIN.length)setTimeout(chkPin,200)}
 function pd(){pinBuf=pinBuf.slice(0,-1);updDots()}
 function updDots(){for(let i=0;i<4;i++){const el=document.getElementById('d'+i);if(el)el.classList.toggle('filled',i<pinBuf.length)}}
 function chkPin(){
-  if(pinBuf===PIN){
-    document.getElementById('login-screen').style.display='none';
-    document.getElementById('app').style.display='block';
-    document.getElementById('lerr').textContent='';
-    document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-NG',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
-    loadLoans();
+  if(pinBuf===ADMIN_PIN){
+    currentSession={role:'admin',userId:'admin',username:'admin',branchId:null,branchName:null,name:'Administrator'};
+    startApp();
   } else {
     document.getElementById('lerr').textContent='Incorrect PIN. Try again.';
     pinBuf='';updDots();
   }
 }
+
+// ===== STAFF LOGIN =====
+function staffLogin(){
+  const branchId = v('sl-branch');
+  const username = v('sl-username').trim().toLowerCase();
+  const pass = v('sl-pass');
+  document.getElementById('lerr').textContent='';
+  if(!branchId){document.getElementById('lerr').textContent='Please select a branch.';return}
+  if(!username){document.getElementById('lerr').textContent='Enter your username.';return}
+  if(!pass){document.getElementById('lerr').textContent='Enter your password.';return}
+  const user = allUsers.find(u=>
+    u.username && u.username.toLowerCase()===username &&
+    u.password === pass &&
+    u.branchId === branchId &&
+    u.role === 'staff' &&
+    u.status !== 'inactive'
+  );
+  if(!user){document.getElementById('lerr').textContent='Invalid credentials or access denied.';return}
+  const branch = allBranches.find(b=>b.id===branchId);
+  currentSession={role:'staff',userId:user.id,username:user.username,branchId:user.branchId,branchName:branch?branch.name:'Branch',name:user.name};
+  startApp();
+}
+
+// ===== START APP =====
+function startApp(){
+  document.getElementById('login-screen').style.display='none';
+  document.getElementById('app').style.display='block';
+  document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-NG',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
+
+  // Role UI
+  const isAdmin = currentSession.role === 'admin';
+  document.getElementById('role-pill').textContent = isAdmin ? 'ADMIN' : 'STAFF';
+  const branchBadge = document.getElementById('branch-badge');
+  if(!isAdmin && currentSession.branchName){branchBadge.textContent='&#127970; '+currentSession.branchName;branchBadge.style.display='';}
+  else branchBadge.style.display='none';
+
+  // Show/hide admin-only nav items
+  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.querySelectorAll('.admin-only-card').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.querySelectorAll('.admin-only-input').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.querySelectorAll('.admin-only-field').forEach(el=>el.style.display=isAdmin?'':'none');
+  document.querySelectorAll('.staff-only-card').forEach(el=>el.style.display=!isAdmin?'':'none');
+
+  loadAll();
+}
+
+// ===== LOGOUT =====
 function doLogout(){
   document.getElementById('login-screen').style.display='flex';
   document.getElementById('app').style.display='none';
+  currentSession={role:null,userId:null,username:null,branchId:null,branchName:null,name:null};
   pinBuf='';updDots();
+  switchLoginTab('admin');
+  document.getElementById('sl-branch').value='';
+  document.getElementById('sl-username').value='';
+  document.getElementById('sl-pass').value='';
 }
 
-// NAV
+// ===== NAV =====
 function showPage(id){
+  // Guard: non-admin cannot access admin pages
+  if((id==='branches'||id==='users')&&currentSession.role!=='admin'){toast('Admin access required','e');return}
   document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const sec=document.getElementById('page-'+id);if(sec)sec.classList.add('active');
@@ -671,34 +945,99 @@ function showPage(id){
     if(b.getAttribute('onclick')&&b.getAttribute('onclick').includes("'"+id+"'"))b.classList.add('active');
   });
   if(id==='dashboard')renderDash();
-  if(id==='applicants')renderApp(allLoans);
-  if(id==='repayments')renderRep(allLoans);
-  if(id==='reports')renderReports();
+  if(id==='applicants'){populateBranchFilters();renderApp(getScopedLoans())}
+  if(id==='repayments')renderRep(getScopedLoans());
+  if(id==='reports'){populateReportBranchFilter();renderReports()}
   if(id==='notifications')renderNotif();
-  if(id==='settings')document.getElementById('si-total').textContent=allLoans.length;
+  if(id==='branches')renderBranches();
+  if(id==='users'){populateUserBranchDropdowns();renderUsers()}
+  if(id==='settings'){
+    document.getElementById('si-total').textContent=getScopedLoans().length;
+    document.getElementById('si-branches').textContent=allBranches.length;
+    document.getElementById('si-staff').textContent=allUsers.length;
+  }
 }
 
-// LOAD DATA
-function loadLoans(){
-  db.collection('loans').get().then(snap=>{
-    allLoans=snap.docs.map(d=>({id:d.id,...d.data()}));
+// ===== LOAD ALL DATA =====
+async function loadAll(){
+  try{
+    const [brSnap,usSnap,lnSnap]=await Promise.all([
+      db.collection('branches').get(),
+      db.collection('staff_users').get(),
+      db.collection('loans').get()
+    ]);
+    allBranches=brSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allUsers=usSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allLoans=lnSnap.docs.map(d=>({id:d.id,...d.data()}));
+    populateAllBranchDropdowns();
     renderDash();
     chkNotifBadge();
-  }).catch(e=>toast('Error: '+e.message,'e'));
+    populateLoginBranchSelect();
+  }catch(e){toast('Load error: '+e.message,'e')}
+}
+
+// Populate login staff branch dropdown from cached branches
+function populateLoginBranchSelect(){
+  const sel=document.getElementById('sl-branch');
+  sel.innerHTML='<option value="">— Select Branch —</option>';
+  allBranches.filter(b=>b.status!=='inactive').forEach(b=>{
+    const o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);
+  });
+}
+
+function populateAllBranchDropdowns(){
+  ['f-branch','um-branch','usr-br','rpt-br','fbrch'].forEach(selId=>{
+    const sel=document.getElementById(selId);if(!sel)return;
+    const isFilter=selId==='usr-br'||selId==='rpt-br'||selId==='fbrch';
+    sel.innerHTML=isFilter?'<option value="">All Branches</option>':'<option value="">— Select Branch —</option>';
+    allBranches.forEach(b=>{
+      const o=document.createElement('option');o.value=b.id;o.textContent=b.name+(b.code?` (${b.code})`:'');sel.appendChild(o);
+    });
+  });
+  // Lock branch field for staff
+  const fb=document.getElementById('f-branch');
+  if(fb&&currentSession.role==='staff'){fb.value=currentSession.branchId;fb.disabled=true;}
+  else if(fb) fb.disabled=false;
+}
+
+function populateBranchFilters(){
+  const sel=document.getElementById('fbrch');if(!sel)return;
+  sel.innerHTML='<option value="">All Branches</option>';
+  allBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});
+}
+function populateReportBranchFilter(){
+  const sel=document.getElementById('rpt-br');if(!sel)return;
+  sel.innerHTML='<option value="">All Branches</option>';
+  allBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});
+}
+function populateUserBranchDropdowns(){
+  const sel=document.getElementById('usr-br');if(!sel)return;
+  sel.innerHTML='<option value="">All Branches</option>';
+  allBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});
 }
 
 function genId(){return'LV-'+Date.now().toString().slice(-7)}
 
-// DASHBOARD
+// ===== DASHBOARD =====
 function renderDash(){
-  const total=allLoans.length;
-  const disbursed=allLoans.reduce((s,l)=>s+(parseFloat(l.amount)||0),0);
-  const totalRep=allLoans.reduce((s,l)=>s+getTR(l),0);
-  const totalPaid=allLoans.reduce((s,l)=>s+getPaid(l),0);
-  const outstanding=allLoans.reduce((s,l)=>s+getBal(l),0);
-  const pending=allLoans.filter(l=>l.status==='Pending').length;
-  const approved=allLoans.filter(l=>l.status==='Approved').length;
-  const overdueCnt=allLoans.filter(l=>isOverdue(l)).length;
+  const loans=getScopedLoans();
+  const isAdmin=currentSession.role==='admin';
+
+  // Branch context bar
+  const bar=document.getElementById('branch-context-bar');
+  if(bar){
+    if(isAdmin){bar.textContent='&#127970; Showing combined data from all branches';bar.style.display='block'}
+    else{bar.textContent='&#127970; '+currentSession.branchName+' — You see only your branch data';bar.style.display='block'}
+  }
+
+  const total=loans.length;
+  const disbursed=loans.reduce((s,l)=>s+(parseFloat(l.amount)||0),0);
+  const totalRep=loans.reduce((s,l)=>s+getTR(l),0);
+  const totalPaid=loans.reduce((s,l)=>s+getPaid(l),0);
+  const outstanding=loans.reduce((s,l)=>s+getBal(l),0);
+  const pending=loans.filter(l=>l.status==='Pending').length;
+  const approved=loans.filter(l=>l.status==='Approved').length;
+  const overdueCnt=loans.filter(l=>isOverdue(l)).length;
 
   document.getElementById('stat-grid').innerHTML=`
     <div class="stat-card"><div class="stat-val">${total}</div><div class="stat-lbl">Total Borrowers</div></div>
@@ -710,10 +1049,23 @@ function renderDash(){
     <div class="stat-card" style="border-color:var(--green)"><div class="stat-val">${approved}</div><div class="stat-lbl">Approved</div></div>
     <div class="stat-card" style="border-color:var(--red)"><div class="stat-val">${overdueCnt}</div><div class="stat-lbl">Overdue</div></div>`;
 
+  // Quick grid
+  let quickHTML=`
+    <div class="qcard" onclick="showPage('new-application')"><div class="qi">&#128203;</div><p>New Application</p></div>
+    <div class="qcard" onclick="showPage('repayments')"><div class="qi">&#128176;</div><p>Record Payment</p></div>
+    <div class="qcard" onclick="showPage('calculator')"><div class="qi">&#129518;</div><p>Calculator</p></div>
+    <div class="qcard" onclick="exportExcel()"><div class="qi">&#128190;</div><p>Export Excel</p></div>
+    <div class="qcard" onclick="showPage('reports')"><div class="qi">&#128196;</div><p>Reports</p></div>
+    <div class="qcard" onclick="showPage('notifications')"><div class="qi">&#128276;</div><p>Alerts</p></div>`;
+  if(isAdmin) quickHTML+=`
+    <div class="qcard" onclick="showPage('branches')"><div class="qi">&#127970;</div><p>Branches</p></div>
+    <div class="qcard" onclick="showPage('users')"><div class="qi">&#128101;</div><p>Staff</p></div>`;
+  document.getElementById('dash-quick-grid').innerHTML=quickHTML;
+
   // Status breakdown
   const sts=[{n:'Approved',c:'var(--green)'},{n:'Pending',c:'var(--amber)'},{n:'Completed',c:'var(--blue)'},{n:'Rejected',c:'var(--red)'}];
   document.getElementById('status-breakdown').innerHTML=sts.map(s=>{
-    const cnt=allLoans.filter(l=>l.status===s.n).length;
+    const cnt=loans.filter(l=>l.status===s.n).length;
     const pct=total>0?Math.round(cnt/total*100):0;
     return `<div style="margin-bottom:10px">
       <div style="display:flex;justify-content:space-between;font-size:.76rem;margin-bottom:3px">
@@ -724,19 +1076,48 @@ function renderDash(){
   }).join('');
 
   // Overdue
-  const od=allLoans.filter(l=>isOverdue(l)).slice(0,5);
+  const od=loans.filter(l=>isOverdue(l)).slice(0,5);
   document.getElementById('overdue-list').innerHTML=od.length===0
     ?'<p style="color:var(--muted);font-size:.8rem;text-align:center;padding:14px">No overdue loans.</p>'
     :od.map(l=>`<div class="act-item">
       <div class="act-dot" style="background:var(--red)"></div>
       <div class="act-txt"><strong>${l.name}</strong> &mdash; &#8358;${fmt(getBal(l))} balance
-        <span>Due: ${l.maturityDate||'N/A'} &bull; ${l.phone}</span>
+        <span>Due: ${l.maturityDate||'N/A'} &bull; ${l.phone} &bull; ${getBranchName(l.branchId)}</span>
       </div>
     </div>`).join('');
 
-  // Activity
+  // Branch summary (admin only)
+  const bsCard=document.getElementById('branch-summary-card');
+  if(bsCard&&isAdmin){
+    bsCard.style.display='';
+    const bsBody=document.getElementById('branch-summary-body');
+    if(allBranches.length===0){bsBody.innerHTML='<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No branches created yet.</p>';return}
+    const rows=allBranches.map(b=>{
+      const bLoans=allLoans.filter(l=>l.branchId===b.id);
+      const bDisbursed=bLoans.reduce((s,l)=>s+(parseFloat(l.amount)||0),0);
+      const bPaid=bLoans.reduce((s,l)=>s+getPaid(l),0);
+      const bOutstanding=bLoans.reduce((s,l)=>s+getBal(l),0);
+      const bOverdue=bLoans.filter(l=>isOverdue(l)).length;
+      return `<tr>
+        <td><strong>${b.name}</strong><br/><span style="font-size:.68rem;color:var(--muted)">${b.code||''} ${b.location?'&bull; '+b.location:''}</span></td>
+        <td>${bLoans.length}</td>
+        <td>&#8358;${fmt(bDisbursed)}</td>
+        <td style="color:var(--green);font-weight:700">&#8358;${fmt(bPaid)}</td>
+        <td style="color:${bOutstanding>0?'var(--red)':'var(--green)'};font-weight:700">&#8358;${fmt(bOutstanding)}</td>
+        <td>${bOverdue>0?`<span style="color:var(--red);font-weight:700">${bOverdue}</span>`:0}</td>
+        <td><button class="btn btn-out btn-sm" onclick="viewBranchDetail('${b.id}')">&#128196; View</button></td>
+      </tr>`;
+    }).join('');
+    bsBody.innerHTML=`<div class="tbl-wrap"><table>
+      <thead><tr><th>Branch</th><th>Loans</th><th>Disbursed</th><th>Collected</th><th>Outstanding</th><th>Overdue</th><th>Action</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table></div>`;
+  }
+
+  // Activity feed
+  const scopedLoans=getScopedLoans();
   const acts=[];
-  allLoans.forEach(l=>(l.payments||[]).forEach(p=>acts.push({name:l.name,amt:p.amount,date:p.date,lid:l.loanId||l.id})));
+  scopedLoans.forEach(l=>(l.payments||[]).forEach(p=>acts.push({name:l.name,amt:p.amount,date:p.date,lid:l.loanId||l.id,branch:getBranchName(l.branchId)})));
   acts.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
   const feed=document.getElementById('activity-feed');
   if(feed) feed.innerHTML=acts.length===0
@@ -744,12 +1125,61 @@ function renderDash(){
     :acts.slice(0,8).map(a=>`<div class="act-item">
       <div class="act-dot" style="background:var(--green)"></div>
       <div class="act-txt"><strong>${a.name}</strong> paid &#8358;${fmt(a.amt)}
-        <span>${a.date} &bull; ${a.lid}</span>
+        <span>${a.date} &bull; ${a.lid} &bull; ${a.branch}</span>
       </div>
     </div>`).join('');
 }
 
-// APPLICANTS
+// ===== BRANCH DETAIL =====
+function viewBranchDetail(branchId){
+  const b=allBranches.find(x=>x.id===branchId);
+  if(!b)return;
+  const bLoans=allLoans.filter(l=>l.branchId===branchId);
+  const bUsers=allUsers.filter(u=>u.branchId===branchId);
+  const disbursed=bLoans.reduce((s,l)=>s+(parseFloat(l.amount)||0),0);
+  const paid=bLoans.reduce((s,l)=>s+getPaid(l),0);
+  const outstanding=bLoans.reduce((s,l)=>s+getBal(l),0);
+  const overdue=bLoans.filter(l=>isOverdue(l)).length;
+  document.getElementById('bdm-title').textContent=b.name+' — Branch Detail';
+  document.getElementById('bdm-body').innerHTML=`
+    <div class="info-grid" style="margin-top:0">
+      <div class="iitem"><label>Branch Code</label><p>${b.code||'—'}</p></div>
+      <div class="iitem"><label>Location</label><p>${b.location||'—'}</p></div>
+      <div class="iitem"><label>Manager</label><p>${b.manager||'—'}</p></div>
+      <div class="iitem"><label>Phone</label><p>${b.phone||'—'}</p></div>
+      <div class="iitem"><label>Status</label><p><span class="badge b-${b.status==='active'?'active':'inactive'}">${b.status||'active'}</span></p></div>
+    </div>
+    <div class="sh" style="margin-top:16px">Financial Summary</div>
+    <div class="stat-grid">
+      <div class="stat-card"><div class="stat-val">${bLoans.length}</div><div class="stat-lbl">Total Loans</div></div>
+      <div class="stat-card" style="border-color:var(--blue)"><div class="stat-val">&#8358;${fmt(disbursed)}</div><div class="stat-lbl">Disbursed</div></div>
+      <div class="stat-card" style="border-color:var(--green)"><div class="stat-val">&#8358;${fmt(paid)}</div><div class="stat-lbl">Collected</div></div>
+      <div class="stat-card" style="border-color:var(--red)"><div class="stat-val">&#8358;${fmt(outstanding)}</div><div class="stat-lbl">Outstanding</div></div>
+      <div class="stat-card" style="border-color:var(--red)"><div class="stat-val">${overdue}</div><div class="stat-lbl">Overdue</div></div>
+    </div>
+    <div class="sh">Staff (${bUsers.length})</div>
+    ${bUsers.length===0?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:10px">No staff assigned.</p>':
+      bUsers.map(u=>`<div class="user-card">
+        <div class="user-avatar">${(u.name||'?')[0].toUpperCase()}</div>
+        <div class="user-info"><h4>${u.name||'—'}</h4><p>${u.username} &bull; <span class="badge b-${u.role==='admin'?'admin':'staff'}">${u.role}</span></p></div>
+        <span class="badge b-${u.status==='active'?'active':'inactive'}">${u.status||'active'}</span>
+      </div>`).join('')}
+    <div class="sh">Loans</div>
+    ${bLoans.length===0?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:10px">No loans in this branch.</p>':
+      `<div class="tbl-wrap"><table>
+        <thead><tr><th>Loan ID</th><th>Name</th><th>Amount</th><th>Paid</th><th>Balance</th><th>Status</th></tr></thead>
+        <tbody>${bLoans.slice(0,10).map(l=>`<tr>
+          <td><strong>${l.loanId||l.id}</strong></td><td>${l.name||''}</td>
+          <td>&#8358;${fmt(l.amount)}</td>
+          <td style="color:var(--green);font-weight:700">&#8358;${fmt(getPaid(l))}</td>
+          <td style="color:${getBal(l)>0?'var(--red)':'var(--green)'};font-weight:700">&#8358;${fmt(getBal(l))}</td>
+          <td>${bdg(isOverdue(l)?'Overdue':l.status)}</td>
+        </tr>`).join('')}</tbody>
+      </table></div>`}`;
+  showModal('branch-detail-modal');
+}
+
+// ===== APPLICANTS =====
 function renderApp(list){
   const tb=document.getElementById('app-tbody');if(!tb)return;
   tb.innerHTML=list.map(l=>{
@@ -758,6 +1188,7 @@ function renderApp(list){
       <td><strong>${l.loanId||l.id}</strong></td>
       <td>${l.photo?`<img src="${l.photo}" style="width:26px;height:26px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:5px;border:1px solid var(--gold)" alt=""/>`:''}${l.name||''}${od?'<span class="ndot"></span>':''}</td>
       <td>${l.phone||''}</td>
+      <td><span style="font-size:.72rem;background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)">${getBranchName(l.branchId)}</span></td>
       <td>&#8358;${fmt(l.amount)}</td>
       <td style="font-weight:700">&#8358;${fmt(tr)}</td>
       <td style="color:${bal>0?'var(--red)':'var(--green)'};font-weight:700">&#8358;${fmt(bal)}</td>
@@ -771,16 +1202,17 @@ function renderApp(list){
         <button class="btn btn-red btn-sm" onclick="delApp('${l.id}')">&#128465;</button>
       </div></td>
     </tr>`;
-  }).join('')||'<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No applicants found.</td></tr>';
+  }).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No applicants found.</td></tr>';
 }
 function searchApplicants(){
-  const q=v('srch').toLowerCase(),st=v('fstt');
-  let list=allLoans.filter(l=>(l.name||'').toLowerCase().includes(q)||(l.phone||'').includes(q)||(l.loanId||l.id||'').toLowerCase().includes(q));
+  const q=v('srch').toLowerCase(),st=v('fstt'),br=v('fbrch');
+  let list=getScopedLoans().filter(l=>(l.name||'').toLowerCase().includes(q)||(l.phone||'').includes(q)||(l.loanId||l.id||'').toLowerCase().includes(q));
   if(st)list=list.filter(l=>l.status===st);
+  if(br&&currentSession.role==='admin')list=list.filter(l=>l.branchId===br);
   renderApp(list);
 }
 
-// REPAYMENTS
+// ===== REPAYMENTS =====
 function renderRep(list){
   const q=(document.getElementById('rep-srch')||{}).value||'';
   const flt=(document.getElementById('rep-flt')||{}).value||'';
@@ -797,66 +1229,58 @@ function renderRep(list){
       <td><strong>${l.loanId||l.id}</strong></td>
       <td>${l.name||''}${od?'<span class="ndot"></span>':''}</td>
       <td>${l.phone||''}</td>
-      <td><span style="font-size:.72rem;background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)">${l.repayplan||'—'}</span></td>
+      <td><span style="font-size:.72rem;background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)">${getBranchName(l.branchId)}</span></td>
+      <td>${l.repayplan||'—'}</td>
       <td>&#8358;${fmt(pr)}</td>
-      <td style="font-weight:800;color:var(--navy)">&#8358;${fmt(tr)}</td>
+      <td>&#8358;${fmt(tr)}</td>
       <td style="color:var(--green);font-weight:700">&#8358;${fmt(paid)}</td>
       <td style="color:${bal>0?'var(--red)':'var(--green)'};font-weight:700">&#8358;${fmt(bal)}</td>
-      <td style="min-width:80px"><div class="pbar-wrap"><div class="pbar-fill ${cls}" style="width:${pct}%"></div></div><span style="font-size:.65rem;color:var(--muted)">${pct}%</span></td>
-      <td style="font-size:.76rem;color:${od?'var(--red)':'var(--text)'}">${l.maturityDate||'—'}</td>
+      <td style="min-width:90px"><div class="pbar-wrap"><div class="pbar-fill ${cls}" style="width:${pct}%"></div></div><span style="font-size:.68rem;color:var(--muted)">${pct}%</span></td>
+      <td>${l.maturityDate||'—'}</td>
       <td>${bdg(od?'Overdue':l.status)}</td>
       <td><button class="btn btn-green btn-sm" onclick="openRepayModal('${l.id}')">&#128176; Pay</button></td>
     </tr>`;
-  }).join('')||'<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:20px">No records.</td></tr>';
+  }).join('')||'<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">No records found.</td></tr>';
 }
-function searchRep(){renderRep(allLoans)}
+function searchRep(){renderRep(getScopedLoans())}
 
-// REPAYMENT MODAL
+// ===== REPAYMENT MODAL =====
 function openRepayModal(id){
-  const l=allLoans.find(x=>x.id===id);if(!l)return;
   curId=id;
+  const l=allLoans.find(x=>x.id===id);if(!l)return;
+  // Check branch access
+  if(currentSession.role==='staff'&&l.branchId!==currentSession.branchId){toast('Access denied: not your branch','e');return}
   const pr=parseFloat(l.amount)||0,ir=pr*24/100,tr=pr+ir;
-  const paid=getPaid(l),bal=Math.max(0,tr-paid);
-  const pct=tr>0?Math.min(100,Math.round(paid/tr*100)):0;
-  const cls=pct<30?'dng':pct<70?'warn':'';
-  const inst=getInstall(tr,l.repayplan,l.durationNum,l.durationUnit);
-  document.getElementById('rm-title').textContent='Record Payment — '+l.name;
+  const paid=getPaid(l),bal=getBal(l),pct=tr>0?Math.min(100,Math.round(paid/tr*100)):0;
+  const od=isOverdue(l);const cls=pct<30?'dng':pct<70?'warn':'';
+  document.getElementById('rm-title').textContent='Payment — '+(l.name||'');
   document.getElementById('rm-body').innerHTML=`
-    <div class="repay-sum">
-      <div class="rs"><div class="rv">&#8358;${fmt(pr)}</div><div class="rl">Principal</div></div>
-      <div class="rs"><div class="rv" style="color:var(--amber)">&#8358;${fmt(ir)}</div><div class="rl">Interest 24%</div></div>
-      <div class="rs"><div class="rv" style="color:var(--navy)">&#8358;${fmt(tr)}</div><div class="rl">Total Repayable</div></div>
-      <div class="rs"><div class="rv" style="color:var(--green)">&#8358;${fmt(paid)}</div><div class="rl">Total Paid</div></div>
-      <div class="rs"><div class="rv" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="rl">Balance</div></div>
+    <div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:14px">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+        <div><strong>${l.name}</strong> &bull; ${l.loanId||l.id} &bull; <span style="font-size:.72rem;color:var(--muted)">${getBranchName(l.branchId)}</span></div>
+        ${bdg(od?'Overdue':l.status)}
+      </div>
+      <div class="repay-sum">
+        <div class="rs"><div class="rv">&#8358;${fmt(pr)}</div><div class="rl">Principal</div></div>
+        <div class="rs"><div class="rv" style="color:var(--amber)">&#8358;${fmt(ir)}</div><div class="rl">Interest</div></div>
+        <div class="rs"><div class="rv">&#8358;${fmt(tr)}</div><div class="rl">Total</div></div>
+        <div class="rs"><div class="rv" style="color:var(--green)">&#8358;${fmt(paid)}</div><div class="rl">Paid</div></div>
+        <div class="rs"><div class="rv" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="rl">Balance</div></div>
+      </div>
+      <div class="pbar-wrap"><div class="pbar-fill ${cls}" style="width:${pct}%"></div></div>
+      <div style="font-size:.7rem;color:var(--muted);margin-top:4px">${pct}% repaid</div>
     </div>
-    <div class="pbar-wrap" style="margin-bottom:4px"><div class="pbar-fill ${cls}" style="width:${pct}%"></div></div>
-    <div style="font-size:.73rem;color:var(--muted);margin-bottom:4px">${pct}% repaid &bull; Plan: <strong>${l.repayplan||'N/A'}</strong> &bull; Due: <strong>${l.maturityDate||'N/A'}</strong></div>
-    ${inst?`<div style="background:#fef3c7;border-radius:7px;padding:8px 12px;font-size:.77rem;color:#92400e;margin-bottom:12px">Expected installment: <strong>&#8358;${fmt(inst.amt)}</strong> &mdash; ${inst.lbl}</div>`:''}
-    ${bal<=0
-      ?`<div class="alert-card alert-green" style="justify-content:center;font-weight:700;color:var(--green);font-size:.92rem;margin-bottom:12px">&#10003; Loan Fully Repaid!</div>`
-      :`<div style="background:var(--bg);border-radius:10px;padding:15px;margin-bottom:14px;border:1px solid var(--border)">
-        <div style="font-size:.8rem;font-weight:800;color:var(--navy);margin-bottom:10px">&#128176; New Payment Entry</div>
-        <div class="fg" style="margin-bottom:9px"><label>Amount Paid (&#8358;) *</label>
-          <input type="number" id="pay-amt" placeholder="Enter amount paid" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit"/>
+    ${bal>0?`
+      <div class="sh" style="margin-top:4px">Record New Payment</div>
+      <div class="form-grid">
+        <div class="fg"><label>Amount (&#8358;) *</label><input type="number" id="pay-amt" placeholder="0" max="${bal}"/></div>
+        <div class="fg"><label>Date *</label><input type="date" id="pay-date" value="${td()}"/></div>
+        <div class="fg"><label>Method</label>
+          <select id="pay-mth"><option value="">Select</option><option>Cash</option><option>Bank Transfer</option><option>POS</option><option>Mobile Money</option></select>
         </div>
-        <div style="display:flex;gap:6px;margin-bottom:9px;flex-wrap:wrap">
-          <button class="btn btn-out btn-sm" onclick="document.getElementById('pay-amt').value='${Math.round(bal)}'">Pay Full Balance</button>
-          ${inst?`<button class="btn btn-out btn-sm" onclick="document.getElementById('pay-amt').value='${Math.round(inst.amt)}'">Pay Installment</button>`:''}
-        </div>
-        <div class="fg" style="margin-bottom:9px"><label>Payment Date *</label>
-          <input type="date" id="pay-date" value="${td()}" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit"/>
-        </div>
-        <div class="fg" style="margin-bottom:9px"><label>Payment Method</label>
-          <select id="pay-mth" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.86rem;font-family:inherit">
-            <option value="">Select method</option>
-            <option>Cash</option><option>Bank Transfer</option><option>POS</option><option>Cheque</option>
-          </select>
-        </div>
-        <div class="fg" style="margin-bottom:12px"><label>Reference / Note (optional)</label>
-          <input id="pay-note" placeholder="e.g. Bank ref #123" style="width:100%;padding:9px 11px;border:1.5px solid var(--border);border-radius:8px;font-size:.88rem;font-family:inherit"/>
-        </div>
-        <button class="btn btn-green" onclick="savePayment()" style="width:100%;justify-content:center;padding:11px;font-size:.88rem">&#128176; Save Payment</button>
-      </div>`}
+        <div class="fg"><label>Note</label><input id="pay-note" placeholder="Optional note"/></div>
+      </div>
+      <button class="btn btn-green" onclick="savePayment()" style="width:100%;justify-content:center;padding:11px;font-size:.88rem;margin-top:12px">&#128176; Save Payment</button>`:''}
     <div class="sh" style="margin-top:4px">Payment History (${(l.payments||[]).length} records)</div>
     ${(l.payments||[]).length===0
       ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No payments yet.</p>'
@@ -876,12 +1300,12 @@ function savePayment(){
   if(!amt||amt<=0){toast('Enter a valid amount','e');return}
   if(!date){toast('Select payment date','e');return}
   const l=allLoans.find(x=>x.id===curId);
-  const payments=[...(l.payments||[]),{amount:amt,date,note:v('pay-note'),method:v('pay-mth')}];
+  const payments=[...(l.payments||[]),{amount:amt,date,note:v('pay-note'),method:v('pay-mth'),recordedBy:currentSession.username,recordedAt:new Date().toISOString()}];
   const totalPaid=payments.reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
   const newSt=totalPaid>=getTR(l)?'Completed':l.status;
   db.collection('loans').doc(curId).set({payments,status:newSt},{merge:true}).then(()=>{
     l.payments=payments;if(newSt!==l.status)l.status=newSt;
-    renderRep(allLoans);renderDash();
+    renderRep(getScopedLoans());renderDash();
     toast(newSt==='Completed'?'Payment saved! Loan marked Completed.':'Payment recorded!','s');
     openRepayModal(curId);
   }).catch(e=>toast('Error: '+e.message,'e'));
@@ -891,32 +1315,41 @@ function delPayment(idx){
   const l=allLoans.find(x=>x.id===curId);
   const payments=(l.payments||[]).filter((_,i)=>i!==idx);
   db.collection('loans').doc(curId).set({payments},{merge:true}).then(()=>{
-    l.payments=payments;renderRep(allLoans);renderDash();
+    l.payments=payments;renderRep(getScopedLoans());renderDash();
     toast('Payment deleted.','w');openRepayModal(curId);
   }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
-// STATUS
-function editStatus(id){stId=id;document.getElementById('st-sel').value=allLoans.find(x=>x.id===id)?.status||'Pending';showModal('status-modal')}
+// ===== STATUS =====
+function editStatus(id){
+  // Branch guard
+  const l=allLoans.find(x=>x.id===id);
+  if(!l)return;
+  if(currentSession.role==='staff'&&l.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  stId=id;document.getElementById('st-sel').value=l.status||'Pending';showModal('status-modal');
+}
 function saveStatus(){
   const st=v('st-sel');
   db.collection('loans').doc(stId).set({status:st},{merge:true}).then(()=>{
     const l=allLoans.find(x=>x.id===stId);if(l)l.status=st;
-    closeModal('status-modal');renderApp(allLoans);renderDash();
+    closeModal('status-modal');renderApp(getScopedLoans());renderDash();
     toast('Status updated to '+st,'s');
   }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
-// DELETE
+// ===== DELETE =====
 function delApp(id){
+  const l=allLoans.find(x=>x.id===id);
+  if(!l)return;
+  if(currentSession.role==='staff'&&l.branchId!==currentSession.branchId){toast('Access denied','e');return}
   if(!confirm('Permanently delete this applicant?'))return;
   db.collection('loans').doc(id).delete().then(()=>{
     allLoans=allLoans.filter(l=>l.id!==id);
-    renderApp(allLoans);renderDash();toast('Applicant deleted.','w');
+    renderApp(getScopedLoans());renderDash();toast('Applicant deleted.','w');
   }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
-// LIVE CALC (form)
+// ===== LIVE CALC =====
 function liveCalc(){
   const amt=parseFloat(v('f-amount'))||0;
   const plan=v('f-plan'),dn=v('f-dur-n'),du=v('f-dur-u'),appdate=v('f-appdate');
@@ -935,7 +1368,7 @@ function liveCalc(){
   else{document.getElementById('c-iv').innerHTML='—';document.getElementById('c-il').textContent='Select plan & duration';}
 }
 
-// STANDALONE CALC
+// ===== STANDALONE CALC =====
 function scCalc(){
   const amt=parseFloat(v('sc-amt'))||0,plan=v('sc-plan'),dn=v('sc-dn'),du=v('sc-du');
   const res=document.getElementById('sc-result'),sch=document.getElementById('sc-schedule');
@@ -952,7 +1385,6 @@ function scCalc(){
     </div>
     ${inst?`<div class="calc-row"><span>${inst.lbl}</span><strong>&#8358;${fmt(inst.amt)}</strong></div>`:''}
   </div>`;
-  // Schedule
   if(inst&&plan!=='Lump Sum'&&dn){
     const n=parseInt(dn)||1;let periods;
     if(plan==='Daily')periods=du==='days'?n:du==='weeks'?n*7:n*30;
@@ -977,9 +1409,11 @@ function scCalc(){
   }
 }
 
-// FORM SUBMIT
+// ===== FORM SUBMIT =====
 function submitForm(e){
   e.preventDefault();
+  const branchId = v('f-branch') || (currentSession.role==='staff'?currentSession.branchId:'');
+  if(!branchId){toast('Please select a branch','e');return}
   const dn=v('f-dur-n'),du=v('f-dur-u'),appdate=v('f-appdate');
   const matISO=getMaturityISO(appdate,dn,du);
   const matStr=getMaturity(appdate,dn,du);
@@ -993,6 +1427,10 @@ function submitForm(e){
     repayplan:v('f-plan'),interest:'24',
     appdate,maturityDate:matISO,maturityDateStr:matStr,
     status:v('f-status'),
+    branchId:branchId,
+    branchName:getBranchName(branchId),
+    loanOfficer:v('f-officer'),
+    createdBy:currentSession.username,
     photo:document.getElementById('f-photo-data').value,
     docs:sj('f-docs-data'),
     g1:{name:v('g1-name'),phone:v('g1-phone'),address:v('g1-addr'),occupation:v('g1-occ'),relationship:v('g1-rel'),idtype:v('g1-idtype'),idnum:v('g1-idnum'),photo:document.getElementById('g1-photo-data').value,docs:[]},
@@ -1015,9 +1453,22 @@ function resetForm(){
   const box=document.getElementById('calc-box');if(box)box.style.display='none';
   const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
   ['f-photo-prev','g1-photo-prev','g2-photo-prev'].forEach(id=>{const el=document.getElementById(id);if(el)el.src=blank});
+  // Restore staff branch lock
+  const fb=document.getElementById('f-branch');
+  if(fb&&currentSession.role==='staff'){fb.value=currentSession.branchId;fb.disabled=true;}
+  // Populate officer dropdown
+  populateOfficerDropdown();
+}
+function populateOfficerDropdown(){
+  const sel=document.getElementById('f-officer');if(!sel)return;
+  const branchId=currentSession.role==='staff'?currentSession.branchId:v('f-branch');
+  sel.innerHTML='<option value="">— Optional —</option>';
+  allUsers.filter(u=>!branchId||u.branchId===branchId).forEach(u=>{
+    const o=document.createElement('option');o.value=u.id;o.textContent=u.name+(u.username?' ('+u.username+')':'');sel.appendChild(o);
+  });
 }
 
-// PHOTOS/DOCS
+// ===== PHOTOS/DOCS =====
 function prevPhoto(inp,prevId,dataId){
   const f=inp.files[0];if(!f)return;
   const r=new FileReader();r.onload=e=>{document.getElementById(prevId).src=e.target.result;document.getElementById(dataId).value=e.target.result};r.readAsDataURL(f);
@@ -1036,10 +1487,11 @@ function docsUpload(inp,listId,dataId){
   });
 }
 
-// PROFILE
+// ===== PROFILE =====
 function viewProfile(id){
   curId=id;
   const l=allLoans.find(x=>x.id===id);if(!l)return;
+  if(currentSession.role==='staff'&&l.branchId!==currentSession.branchId){toast('Access denied','e');return}
   const pr=parseFloat(l.amount)||0,ir=pr*24/100,tr=pr+ir;
   const paid=getPaid(l),bal=getBal(l),pct=tr>0?Math.min(100,Math.round(paid/tr*100)):0;
   const cls=pct<30?'dng':pct<70?'warn':'';
@@ -1052,6 +1504,7 @@ function viewProfile(id){
       <div style="flex:1">
         <div style="font-size:1.1rem;font-weight:800;margin-bottom:2px">${l.name||''}</div>
         <div style="opacity:.75;font-size:.82rem">${l.phone||''} &bull; ${l.occupation||''}</div>
+        <div style="opacity:.65;font-size:.75rem;margin-top:3px">&#127970; ${getBranchName(l.branchId)}${l.loanOfficer?' &bull; Officer: '+l.loanOfficer:''}</div>
         <div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">
           ${bdg(od?'Overdue':l.status)}
           <span style="font-size:.72rem;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px">${l.loanId||l.id}</span>
@@ -1093,6 +1546,8 @@ function viewProfile(id){
       <div class="iitem"><label>Duration</label><p>${l.duration||'—'}</p></div>
       <div class="iitem"><label>Application Date</label><p>${l.appdate||'—'}</p></div>
       <div class="iitem"><label>Maturity Date</label><p>${l.maturityDateStr||l.maturityDate||'—'}</p></div>
+      <div class="iitem"><label>Branch</label><p>&#127970; ${getBranchName(l.branchId)}</p></div>
+      <div class="iitem"><label>Created By</label><p>${l.createdBy||'—'}</p></div>
     </div>
     ${(l.g1&&l.g1.name)?`
     <div class="sh">Guarantor 1</div>
@@ -1124,8 +1579,8 @@ function viewProfile(id){
     ${(l.payments||[]).length===0
       ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No payments recorded yet.</p>'
       :`<div class="tbl-wrap"><table>
-        <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Method</th><th>Note</th></tr></thead>
-        <tbody>${(l.payments||[]).map((p,i)=>`<tr><td>${i+1}</td><td style="color:var(--green);font-weight:700">&#8358;${fmt(p.amount)}</td><td>${p.date}</td><td>${p.method||'—'}</td><td>${p.note||'—'}</td></tr>`).join('')}</tbody>
+        <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Method</th><th>Note</th><th>By</th></tr></thead>
+        <tbody>${(l.payments||[]).map((p,i)=>`<tr><td>${i+1}</td><td style="color:var(--green);font-weight:700">&#8358;${fmt(p.amount)}</td><td>${p.date}</td><td>${p.method||'—'}</td><td>${p.note||'—'}</td><td>${p.recordedBy||'—'}</td></tr>`).join('')}</tbody>
       </table></div>`}
     <div class="btn-row no-print" style="margin-top:18px">
       <button class="btn btn-green" onclick="openRepayModal('${l.id}');closeModal('profile-modal')">&#128176; Record Payment</button>
@@ -1135,13 +1590,14 @@ function viewProfile(id){
 }
 function printProfile(){window.print()}
 
-// REPORTS
+// ===== REPORTS =====
 function renderReports(){
-  const st=v('rpt-st'),from=v('rpt-from'),to=v('rpt-to');
-  let list=allLoans.filter(l=>{
+  const st=v('rpt-st'),from=v('rpt-from'),to=v('rpt-to'),br=v('rpt-br');
+  let list=getScopedLoans().filter(l=>{
     if(st&&l.status!==st)return false;
     if(from&&l.appdate&&l.appdate<from)return false;
     if(to&&l.appdate&&l.appdate>to)return false;
+    if(br&&currentSession.role==='admin'&&l.branchId!==br)return false;
     return true;
   });
   const totalP=list.reduce((s,l)=>s+(parseFloat(l.amount)||0),0);
@@ -1162,6 +1618,7 @@ function renderReports(){
       <td><strong>${l.loanId||l.id}</strong></td>
       <td>${l.name||''}</td>
       <td>${l.phone||''}</td>
+      <td><span style="font-size:.72rem;background:var(--bg);padding:2px 7px;border-radius:4px;border:1px solid var(--border)">${getBranchName(l.branchId)}</span></td>
       <td>&#8358;${fmt(pr)}</td>
       <td>&#8358;${fmt(ir)}</td>
       <td style="font-weight:800">&#8358;${fmt(tr)}</td>
@@ -1172,25 +1629,26 @@ function renderReports(){
       <td>${l.appdate||'—'}</td>
       <td>${l.maturityDateStr||l.maturityDate||'—'}</td>
     </tr>`;
-  }).join('')||'<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:20px">No records found.</td></tr>';
+  }).join('')||'<tr><td colspan="13" style="text-align:center;color:var(--muted);padding:20px">No records found.</td></tr>';
 }
 
-// NOTIFICATIONS
+// ===== NOTIFICATIONS =====
 function renderNotif(){
-  const overdue=allLoans.filter(l=>isOverdue(l));
-  const dueSoon=allLoans.filter(l=>{
+  const loans=getScopedLoans();
+  const overdue=loans.filter(l=>isOverdue(l));
+  const dueSoon=loans.filter(l=>{
     if(l.status==='Completed'||l.status==='Rejected'||!l.maturityDate)return false;
     const diff=(new Date(l.maturityDate)-new Date())/(1000*60*60*24);
     return diff>=0&&diff<=7&&getBal(l)>0;
   });
-  const pending=allLoans.filter(l=>l.status==='Pending');
+  const pending=loans.filter(l=>l.status==='Pending');
   let html='';
   if(overdue.length){
     html+=`<div class="sh" style="color:var(--red)">&#128680; Overdue Loans (${overdue.length})</div>`;
     html+=overdue.map(l=>`<div class="alert-card alert-red">
       <div style="font-size:1.2rem">&#9888;&#65039;</div>
       <div><strong>${l.name}</strong> &mdash; Balance: <strong>&#8358;${fmt(getBal(l))}</strong><br/>
-      <span style="font-size:.75rem;color:var(--muted)">Due: ${l.maturityDate||'N/A'} &bull; ${l.phone} &bull; ${l.loanId||l.id}</span></div>
+      <span style="font-size:.75rem;color:var(--muted)">Due: ${l.maturityDate||'N/A'} &bull; ${l.phone} &bull; ${getBranchName(l.branchId)} &bull; ${l.loanId||l.id}</span></div>
     </div>`).join('');
   }
   if(dueSoon.length){
@@ -1198,7 +1656,7 @@ function renderNotif(){
     html+=dueSoon.map(l=>`<div class="alert-card alert-amber">
       <div style="font-size:1.2rem">&#128336;</div>
       <div><strong>${l.name}</strong> &mdash; Balance: <strong>&#8358;${fmt(getBal(l))}</strong><br/>
-      <span style="font-size:.75rem;color:var(--muted)">Due: ${l.maturityDate||'N/A'} &bull; ${l.phone}</span></div>
+      <span style="font-size:.75rem;color:var(--muted)">Due: ${l.maturityDate||'N/A'} &bull; ${l.phone} &bull; ${getBranchName(l.branchId)}</span></div>
     </div>`).join('');
   }
   if(pending.length){
@@ -1206,31 +1664,240 @@ function renderNotif(){
     html+=pending.map(l=>`<div class="alert-card alert-green">
       <div style="font-size:1.2rem">&#128203;</div>
       <div><strong>${l.name}</strong> &mdash; &#8358;${fmt(l.amount)}<br/>
-      <span style="font-size:.75rem;color:var(--muted)">${l.appdate||''} &bull; ${l.phone}</span></div>
+      <span style="font-size:.75rem;color:var(--muted)">${l.appdate||''} &bull; ${l.phone} &bull; ${getBranchName(l.branchId)}</span></div>
     </div>`).join('');
   }
   if(!html)html='<div style="text-align:center;padding:30px;color:var(--muted)">&#10003; No alerts. All loans are on track.</div>';
   document.getElementById('notif-body').innerHTML=html;
 }
 function chkNotifBadge(){
-  const cnt=allLoans.filter(l=>isOverdue(l)).length;
+  const cnt=getScopedLoans().filter(l=>isOverdue(l)).length;
   const btn=document.getElementById('notif-btn');
   if(btn)btn.innerHTML=cnt>0?`&#128276; Alerts <span style="background:var(--red);color:#fff;border-radius:50%;padding:1px 5px;font-size:.68rem">${cnt}</span>`:'&#128276; Alerts';
 }
 
-// EXPORT EXCEL
+// ===== BRANCH MANAGEMENT =====
+function renderBranches(){
+  const grid=document.getElementById('branches-grid');if(!grid)return;
+  if(allBranches.length===0){
+    grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--muted)">No branches yet. Create your first branch above.</div>';
+    return;
+  }
+  grid.innerHTML=allBranches.map(b=>{
+    const bLoans=allLoans.filter(l=>l.branchId===b.id);
+    const bStaff=allUsers.filter(u=>u.branchId===b.id);
+    const bOutstanding=bLoans.reduce((s,l)=>s+getBal(l),0);
+    const bPaid=bLoans.reduce((s,l)=>s+getPaid(l),0);
+    return `<div class="branch-card" style="${b.status==='inactive'?'opacity:.6':''}">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start">
+        <div>
+          <h3>&#127970; ${b.name}</h3>
+          <div class="branch-code">${b.code||''} ${b.location?'&bull; '+b.location:''}</div>
+        </div>
+        <span class="badge b-${b.status==='active'?'active':'inactive'}">${b.status||'active'}</span>
+      </div>
+      <div class="branch-stats">
+        <div class="branch-stat"><div class="bsv">${bLoans.length}</div><div class="bsl">Loans</div></div>
+        <div class="branch-stat"><div class="bsv">${bStaff.length}</div><div class="bsl">Staff</div></div>
+        <div class="branch-stat"><div class="bsv" style="color:var(--green)">&#8358;${fmt(bPaid)}</div><div class="bsl">Collected</div></div>
+        <div class="branch-stat"><div class="bsv" style="color:${bOutstanding>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bOutstanding)}</div><div class="bsl">Outstanding</div></div>
+      </div>
+      ${b.manager?`<div style="font-size:.72rem;color:var(--muted);margin-top:8px">&#128100; Manager: ${b.manager}</div>`:''}
+      <div class="branch-actions">
+        <button class="btn btn-out btn-sm" onclick="viewBranchDetail('${b.id}')">&#128196; Details</button>
+        <button class="btn btn-amber btn-sm" onclick="editBranch('${b.id}')">&#9998; Edit</button>
+        <button class="btn btn-red btn-sm" onclick="deleteBranch('${b.id}')">&#128465;</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function openBranchModal(editId){
+  editBranchId=editId||null;
+  document.getElementById('bm-title').textContent=editId?'Edit Branch':'New Branch';
+  if(editId){
+    const b=allBranches.find(x=>x.id===editId)||{};
+    document.getElementById('bm-id').value=editId;
+    document.getElementById('bm-name').value=b.name||'';
+    document.getElementById('bm-code').value=b.code||'';
+    document.getElementById('bm-location').value=b.location||'';
+    document.getElementById('bm-manager').value=b.manager||'';
+    document.getElementById('bm-phone').value=b.phone||'';
+    document.getElementById('bm-status').value=b.status||'active';
+  } else {
+    ['bm-name','bm-code','bm-location','bm-manager','bm-phone'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('bm-status').value='active';
+  }
+  showModal('branch-modal');
+}
+function editBranch(id){openBranchModal(id)}
+function saveBranch(){
+  const name=document.getElementById('bm-name').value.trim();
+  const code=document.getElementById('bm-code').value.trim().toUpperCase();
+  if(!name){toast('Branch name is required','e');return}
+  if(!code){toast('Branch code is required','e');return}
+  const data={name,code,location:document.getElementById('bm-location').value.trim(),manager:document.getElementById('bm-manager').value.trim(),phone:document.getElementById('bm-phone').value.trim(),status:document.getElementById('bm-status').value,updatedAt:new Date().toISOString()};
+  const id=editBranchId;
+  const op=id?db.collection('branches').doc(id).set(data,{merge:true}):db.collection('branches').add({...data,createdAt:new Date().toISOString()});
+  op.then(ref=>{
+    if(id){const b=allBranches.find(x=>x.id===id);if(b)Object.assign(b,data);}
+    else allBranches.push({id:ref.id,...data,createdAt:new Date().toISOString()});
+    closeModal('branch-modal');renderBranches();populateAllBranchDropdowns();populateLoginBranchSelect();
+    toast(id?'Branch updated!':'Branch created!','s');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+function deleteBranch(id){
+  const bLoans=allLoans.filter(l=>l.branchId===id).length;
+  const bStaff=allUsers.filter(u=>u.branchId===id).length;
+  if(bLoans>0||bStaff>0){toast(`Cannot delete: branch has ${bLoans} loans and ${bStaff} staff`,'e');return}
+  if(!confirm('Delete this branch?'))return;
+  db.collection('branches').doc(id).delete().then(()=>{
+    allBranches=allBranches.filter(b=>b.id!==id);
+    renderBranches();populateAllBranchDropdowns();populateLoginBranchSelect();
+    toast('Branch deleted.','w');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ===== USER MANAGEMENT =====
+function renderUsers(){
+  const q=v('usr-srch').toLowerCase(),br=v('usr-br'),role=v('usr-role');
+  let list=allUsers.filter(u=>{
+    if(q&&!(u.name||'').toLowerCase().includes(q)&&!(u.username||'').toLowerCase().includes(q))return false;
+    if(br&&u.branchId!==br)return false;
+    if(role&&u.role!==role)return false;
+    return true;
+  });
+  const el=document.getElementById('users-list');if(!el)return;
+  if(list.length===0){el.innerHTML='<p style="text-align:center;color:var(--muted);padding:20px">No staff accounts found.</p>';return}
+  el.innerHTML=list.map(u=>`<div class="user-card">
+    <div class="user-avatar" style="${u.role==='admin'?'background:var(--purple)':''}">${(u.name||'?')[0].toUpperCase()}</div>
+    <div class="user-info">
+      <h4>${u.name||'—'} <span class="badge b-${u.role==='admin'?'admin':'staff'}">${u.role||'staff'}</span></h4>
+      <p>@${u.username||'—'} &bull; &#127970; ${getBranchName(u.branchId)} ${u.phone?'&bull; '+u.phone:''}</p>
+    </div>
+    <span class="badge b-${u.status==='active'?'active':'inactive'}">${u.status||'active'}</span>
+    <div style="display:flex;gap:4px;margin-left:8px">
+      <button class="btn btn-amber btn-sm" onclick="editUser('${u.id}')">&#9998;</button>
+      <button class="btn btn-red btn-sm" onclick="deleteUser('${u.id}')">&#128465;</button>
+    </div>
+  </div>`).join('');
+}
+function toggleBranchField(){
+  const role=document.getElementById('um-role').value;
+  const fg=document.getElementById('um-branch-fg');
+  if(fg)fg.style.display=role==='admin'?'none':'';
+}
+function openUserModal(editId){
+  editUserId=editId||null;
+  document.getElementById('um-title').textContent=editId?'Edit Staff Account':'New Staff Account';
+  // Populate branch dropdown in modal
+  const sel=document.getElementById('um-branch');
+  sel.innerHTML='<option value="">— Select Branch —</option>';
+  allBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name+(b.code?` (${b.code})`:'');sel.appendChild(o);});
+  const passFg=document.getElementById('um-pass-fg');
+  if(editId){
+    const u=allUsers.find(x=>x.id===editId)||{};
+    document.getElementById('um-id').value=editId;
+    document.getElementById('um-name').value=u.name||'';
+    document.getElementById('um-username').value=u.username||'';
+    document.getElementById('um-pass').value='';
+    document.getElementById('um-role').value=u.role||'staff';
+    document.getElementById('um-branch').value=u.branchId||'';
+    document.getElementById('um-phone').value=u.phone||'';
+    document.getElementById('um-status').value=u.status||'active';
+    if(passFg){passFg.querySelector('label').textContent='New Password (leave blank to keep)'}
+  } else {
+    ['um-name','um-username','um-pass','um-phone'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('um-role').value='staff';
+    document.getElementById('um-branch').value='';
+    document.getElementById('um-status').value='active';
+    if(passFg){passFg.querySelector('label').textContent='Password *'}
+  }
+  toggleBranchField();
+  showModal('user-modal');
+}
+function editUser(id){openUserModal(id)}
+function saveUser(){
+  const name=document.getElementById('um-name').value.trim();
+  const username=document.getElementById('um-username').value.trim().toLowerCase();
+  const pass=document.getElementById('um-pass').value;
+  const role=document.getElementById('um-role').value;
+  const branchId=document.getElementById('um-branch').value;
+  const phone=document.getElementById('um-phone').value.trim();
+  const status=document.getElementById('um-status').value;
+  const id=editUserId;
+
+  if(!name){toast('Name is required','e');return}
+  if(!username){toast('Username is required','e');return}
+  if(!id&&!pass){toast('Password is required','e');return}
+  if(role==='staff'&&!branchId){toast('Select a branch for staff','e');return}
+
+  // Check duplicate username
+  const dup=allUsers.find(u=>u.username===username&&u.id!==id);
+  if(dup){toast('Username already taken','e');return}
+
+  const data={name,username,role,branchId:role==='staff'?branchId:'',phone,status,updatedAt:new Date().toISOString()};
+  if(pass)data.password=pass;
+
+  const op=id?db.collection('staff_users').doc(id).set(data,{merge:true}):db.collection('staff_users').add({...data,createdAt:new Date().toISOString()});
+  op.then(ref=>{
+    if(id){const u=allUsers.find(x=>x.id===id);if(u)Object.assign(u,data);}
+    else allUsers.push({id:ref.id,...data,createdAt:new Date().toISOString()});
+    closeModal('user-modal');renderUsers();
+    toast(id?'Staff account updated!':'Staff account created!','s');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+function deleteUser(id){
+  if(id===currentSession.userId){toast("You can't delete your own account",'e');return}
+  if(!confirm('Delete this staff account?'))return;
+  db.collection('staff_users').doc(id).delete().then(()=>{
+    allUsers=allUsers.filter(u=>u.id!==id);renderUsers();toast('Account deleted.','w');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ===== CHANGE STAFF PASSWORD =====
+function changeStaffPw(){
+  const old=v('pw-old'),nw=v('pw-new'),cf=v('pw-conf');
+  const u=allUsers.find(x=>x.id===currentSession.userId);
+  if(!u){toast('User not found','e');return}
+  if(old!==u.password){toast('Current password incorrect','e');return}
+  if(!nw||nw.length<4){toast('New password must be at least 4 characters','e');return}
+  if(nw!==cf){toast('Passwords do not match','e');return}
+  db.collection('staff_users').doc(u.id).set({password:nw},{merge:true}).then(()=>{
+    u.password=nw;
+    document.getElementById('pw-old').value='';
+    document.getElementById('pw-new').value='';
+    document.getElementById('pw-conf').value='';
+    toast('Password updated!','s');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ===== CHANGE ADMIN PIN =====
+function changePin(){
+  const old=v('s-old'),nw=v('s-new'),cf=v('s-conf');
+  if(currentSession.role!=='admin'){toast('Admin access required','e');return}
+  if(old!==ADMIN_PIN){toast('Current PIN is incorrect','e');return}
+  if(!nw||nw.length<4){toast('New PIN must be at least 4 digits','e');return}
+  if(nw!==cf){toast('PINs do not match','e');return}
+  ADMIN_PIN=nw;localStorage.setItem('lv_pin',nw);
+  document.getElementById('s-old').value='';document.getElementById('s-new').value='';document.getElementById('s-conf').value='';
+  toast('PIN updated successfully!','s');
+}
+
+// ===== EXPORT EXCEL =====
 function exportExcel(){
   if(typeof XLSX==='undefined'){toast('Excel library not loaded','e');return}
-  const rows=allLoans.map(l=>{
+  const rows=getScopedLoans().map(l=>{
     const pr=parseFloat(l.amount)||0,ir=pr*0.24,tr=pr+ir,pd=getPaid(l),bal=getBal(l);
     return{
       'Loan ID':l.loanId||l.id,'Name':l.name,'Phone':l.phone,'DOB':l.dob,
+      'Branch':getBranchName(l.branchId),'Loan Officer':l.loanOfficer||'',
       'Address':l.address,'Occupation':l.occupation,'Bank':l.bank,
       'Account No':l.account,'Account Name':l.acctname,
       'Principal':pr,'Interest':ir,'Total Repayable':tr,
       'Total Paid':pd,'Balance':bal,'Repayment Plan':l.repayplan,
       'Duration':l.duration,'App Date':l.appdate,'Maturity Date':l.maturityDate,
       'Status':isOverdue(l)?'Overdue':l.status,'Purpose':l.purpose,
+      'Created By':l.createdBy||'',
       'G1 Name':(l.g1||{}).name,'G1 Phone':(l.g1||{}).phone,
       'G2 Name':(l.g2||{}).name,'G2 Phone':(l.g2||{}).phone,
     };
@@ -1241,14 +1908,15 @@ function exportExcel(){
   toast('Excel exported!','s');
 }
 
-// BACKUP & RESTORE
+// ===== BACKUP & RESTORE =====
 function backupData(){
-  const blob=new Blob([JSON.stringify({loans:allLoans,exportDate:new Date().toISOString(),version:'2.0'})],{type:'application/json'});
+  const blob=new Blob([JSON.stringify({loans:allLoans,branches:allBranches,users:allUsers.map(u=>{const{password,...rest}=u;return rest}),exportDate:new Date().toISOString(),version:'3.0'})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
   a.download='LoanVault_Backup_'+td()+'.json';a.click();
   toast('Backup downloaded!','s');
 }
 function restoreData(inp){
+  if(currentSession.role!=='admin'){toast('Admin access required','e');return}
   const f=inp.files[0];if(!f)return;
   const r=new FileReader();
   r.onload=e=>{
@@ -1262,27 +1930,12 @@ function restoreData(inp){
         if(id)batch.set(db.collection('loans').doc(id),data,{merge:true});
         else db.collection('loans').add(data);
       });
-      batch.commit().then(()=>{loadLoans();toast('Backup restored!','s');}).catch(ex=>toast('Restore error: '+ex.message,'e'));
+      batch.commit().then(()=>{loadAll();toast('Backup restored!','s');}).catch(ex=>toast('Restore error: '+ex.message,'e'));
     }catch(ex){toast('Invalid file: '+ex.message,'e')}
   };r.readAsText(f);
 }
 
-// CHANGE PIN
-function changePin(){
-  const old=document.getElementById('s-old').value;
-  const nw=document.getElementById('s-new').value;
-  const cf=document.getElementById('s-conf').value;
-  if(old!==PIN){toast('Current PIN is incorrect','e');return}
-  if(!nw||nw.length<4){toast('New PIN must be at least 4 digits','e');return}
-  if(nw!==cf){toast('PINs do not match','e');return}
-  PIN=nw;localStorage.setItem('lv_pin',nw);
-  document.getElementById('s-old').value='';
-  document.getElementById('s-new').value='';
-  document.getElementById('s-conf').value='';
-  toast('PIN updated successfully!','s');
-}
-
-// DOB SELECTS
+// ===== DOB SELECTS =====
 (function initDob(){
   const dd=document.getElementById('dob-d'),yy=document.getElementById('dob-y');
   if(!dd||!yy)return;
@@ -1297,6 +1950,12 @@ function changePin(){
   document.getElementById('dob-m').addEventListener('change',syncDob);
   yy.addEventListener('change',syncDob);
 })();
+
+// Branch field change → update officer dropdown
+document.getElementById('f-branch').addEventListener('change',function(){
+  populateOfficerDropdown();
+  liveCalc();
+});
 </script>
 </body>
 </html>
