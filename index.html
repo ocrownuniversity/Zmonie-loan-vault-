@@ -289,6 +289,7 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
             <div class="form-group"><label>Repayment Plan</label>
               <select id="f-repayplan">
                 <option value="">Select plan</option>
+                <option>Daily</option>
                 <option>Weekly</option>
                 <option>Bi-weekly</option>
                 <option>Monthly</option>
@@ -401,10 +402,10 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
       <div class="card">
         <div class="card-title">&#128176; Repayment Tracker</div>
         <div class="search-bar">
-          <input type="text" id="repay-search" placeholder="Search applicant..." oninput="searchRepayments()"/>
+          <input type="text" id="repay-search" placeholder="Search by name, phone or loan ID..." oninput="searchRepayments()"/>
         </div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Loan ID</th><th>Applicant</th><th>Loan Amount</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Status</th><th>Action</th></tr></thead>
+          <thead><tr><th>Loan ID</th><th>Applicant</th><th>Phone</th><th>Plan</th><th>Loan Amount</th><th>Total Paid</th><th>Balance</th><th>Progress</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="repay-tbody"></tbody>
         </table></div>
       </div>
@@ -657,6 +658,7 @@ function renderApplicants(list){
       <td>${l.appdate||''}</td>
       <td style="display:flex;gap:6px;flex-wrap:wrap">
         <button class="btn btn-outline btn-sm" onclick="viewProfile('${l.id}')">&#128100; Profile</button>
+        <button class="btn btn-green btn-sm" onclick="openRepayModal('${l.id}')">&#128176; Payment</button>
         <button class="btn btn-gold btn-sm" onclick="editStatus('${l.id}')">&#9998; Status</button>
         <button class="btn btn-red btn-sm" onclick="deleteApplicant('${l.id}')">&#128465;</button>
       </td>
@@ -677,7 +679,11 @@ function searchApplicants(){
 // ===== REPAYMENTS =====
 function renderRepayments(list){
   const q = (document.getElementById('repay-search')||{}).value||'';
-  const filtered = q ? list.filter(l=>(l.name||'').toLowerCase().includes(q.toLowerCase())) : list;
+  const filtered = q ? list.filter(l=>
+    (l.name||'').toLowerCase().includes(q.toLowerCase())||
+    (l.phone||'').includes(q)||
+    (l.loanId||l.id||'').toLowerCase().includes(q.toLowerCase())
+  ) : list;
   const tb = document.getElementById('repay-tbody');
   if(!tb) return;
   tb.innerHTML = filtered.map(l=>{
@@ -687,15 +693,21 @@ function renderRepayments(list){
     const pct = total>0 ? Math.min(100,Math.round(paid/total*100)) : 0;
     return `<tr>
       <td>${l.loanId||l.id}</td>
-      <td>${l.name||''}</td>
+      <td><strong>${l.name||''}</strong></td>
+      <td>${l.phone||''}</td>
+      <td><span style="font-size:.75rem;background:var(--bg);padding:2px 8px;border-radius:4px;border:1px solid var(--border)">${l.repayplan||'&mdash;'}</span></td>
       <td>&#8358;${fmt(total)}</td>
-      <td>&#8358;${fmt(paid)}</td>
-      <td>&#8358;${fmt(bal)}</td>
-      <td><progress value="${pct}" max="100"></progress><div style="font-size:.72rem;color:var(--muted)">${pct}%</div></td>
+      <td style="color:var(--green);font-weight:600">&#8358;${fmt(paid)}</td>
+      <td style="color:${bal>0?'var(--red)':'var(--green)'};font-weight:600">&#8358;${fmt(bal)}</td>
+      <td style="min-width:100px"><progress value="${pct}" max="100"></progress><div style="font-size:.72rem;color:var(--muted)">${pct}%</div></td>
       <td>${badge(l.status)}</td>
-      <td><button class="btn btn-green btn-sm" onclick="openRepayModal('${l.id}')">&#43; Payment</button></td>
+      <td>
+        <button class="btn btn-green btn-sm" onclick="openRepayModal('${l.id}')" style="white-space:nowrap">
+          &#128176; Record Payment
+        </button>
+      </td>
     </tr>`;
-  }).join('') || '<tr><td colspan="8" style="text-align:center;color:var(--muted);padding:20px">No data.</td></tr>';
+  }).join('') || '<tr><td colspan="10" style="text-align:center;color:var(--muted);padding:20px">No borrowers found.</td></tr>';
 }
 
 function searchRepayments(){
@@ -710,22 +722,41 @@ function openRepayModal(id){
   const total = parseFloat(l.amount)||0;
   const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
   const bal = Math.max(0,total-paid);
-  document.getElementById('repay-modal-title').textContent = 'Record Payment - '+l.name;
+  const pct = total>0?Math.min(100,Math.round(paid/total*100)):0;
+  document.getElementById('repay-modal-title').textContent = 'Record Payment — '+l.name;
   document.getElementById('repay-modal-body').innerHTML = `
     <div class="repay-summary">
       <div class="repay-stat"><div class="val">&#8358;${fmt(total)}</div><div class="lbl">Loan Amount</div></div>
       <div class="repay-stat"><div class="val" style="color:var(--green)">&#8358;${fmt(paid)}</div><div class="lbl">Total Paid</div></div>
-      <div class="repay-stat"><div class="val" style="color:var(--red)">&#8358;${fmt(bal)}</div><div class="lbl">Balance</div></div>
+      <div class="repay-stat"><div class="val" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="lbl">Balance</div></div>
     </div>
-    <div class="form-group" style="margin-bottom:12px"><label>Amount Paid (&#8358;)</label><input type="number" id="pay-amount" placeholder="Enter amount"/></div>
-    <div class="form-group" style="margin-bottom:12px"><label>Payment Date</label><input type="date" id="pay-date" value="${today()}"/></div>
-    <div class="form-group" style="margin-bottom:16px"><label>Note (optional)</label><input id="pay-note" placeholder="e.g. Cash payment"/></div>
-    <div class="btn-row"><button class="btn btn-green" onclick="savePayment()">&#128176; Record Payment</button></div>
-    <div class="section-head" style="margin-top:20px">Payment History</div>
+    <progress value="${pct}" max="100" style="margin-bottom:4px"></progress>
+    <div style="font-size:.75rem;color:var(--muted);margin-bottom:16px">${pct}% repaid &bull; Plan: <strong>${l.repayplan||'N/A'}</strong></div>
+
+    ${bal<=0?`<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:12px;text-align:center;color:#166534;font-weight:600;margin-bottom:16px">Loan fully repaid!</div>`:`
+    <div style="background:var(--bg);border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid var(--border)">
+      <div style="font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:12px">&#128176; New Payment Entry</div>
+      <div class="form-group" style="margin-bottom:10px"><label>Amount Paid (&#8358;) *</label><input type="number" id="pay-amount" placeholder="Enter amount paid" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;width:100%;font-family:inherit"/></div>
+      <div class="form-group" style="margin-bottom:10px"><label>Payment Date *</label><input type="date" id="pay-date" value="${today()}" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;width:100%;font-family:inherit"/></div>
+      <div class="form-group" style="margin-bottom:12px"><label>Note / Reference (optional)</label><input id="pay-note" placeholder="e.g. Cash, Bank transfer, ref #123" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;width:100%;font-family:inherit"/></div>
+      <button class="btn btn-green" onclick="savePayment()" style="width:100%;justify-content:center;padding:11px">&#128176; Save Payment</button>
+    </div>`}
+
+    <div class="section-head" style="margin-top:4px">Payment History (${(l.payments||[]).length} records)</div>
+    ${(l.payments||[]).length===0?`<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px">No payments recorded yet.</p>`:`
     <div class="tbl-wrap"><table>
-      <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Note</th></tr></thead>
-      <tbody>${(l.payments||[]).map((p,i)=>`<tr><td>${i+1}</td><td>&#8358;${fmt(p.amount)}</td><td>${p.date}</td><td>${p.note||''}</td></tr>`).join('')||'<tr><td colspan="4" style="text-align:center;color:var(--muted)">No payments yet.</td></tr>'}</tbody>
-    </table></div>
+      <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Note</th><th>Del</th></tr></thead>
+      <tbody>${[...(l.payments||[])].reverse().map((p,ri)=>{
+        const i = (l.payments.length-1)-ri;
+        return `<tr>
+          <td>${i+1}</td>
+          <td style="color:var(--green);font-weight:600">&#8358;${fmt(p.amount)}</td>
+          <td>${p.date}</td>
+          <td>${p.note||'&mdash;'}</td>
+          <td><button class="btn btn-red btn-sm" onclick="deletePayment(${i})" title="Delete">&#128465;</button></td>
+        </tr>`;
+      }).join('')}</tbody>
+    </table></div>`}
   `;
   showModal('repay-modal');
 }
@@ -740,10 +771,23 @@ function savePayment(){
   const payments = [...(l.payments||[]), {amount:amt, date, note}];
   db.collection('loans').doc(currentEditId).set({payments},{merge:true}).then(()=>{
     l.payments = payments;
-    closeModal('repay-modal');
     renderRepayments(allLoans);
     renderDashboard();
     toast('Payment recorded!');
+    openRepayModal(currentEditId);
+  }).catch(e=>toast('Error: '+e.message));
+}
+
+function deletePayment(index){
+  if(!confirm('Delete this payment record?')) return;
+  const l = allLoans.find(x=>x.id===currentEditId);
+  const payments = (l.payments||[]).filter((_,i)=>i!==index);
+  db.collection('loans').doc(currentEditId).set({payments},{merge:true}).then(()=>{
+    l.payments = payments;
+    renderRepayments(allLoans);
+    renderDashboard();
+    toast('Payment deleted.');
+    openRepayModal(currentEditId);
   }).catch(e=>toast('Error: '+e.message));
 }
 
