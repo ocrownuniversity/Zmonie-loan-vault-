@@ -405,7 +405,7 @@ progress::-webkit-progress-value{background:var(--green);border-radius:6px}
           <input type="text" id="repay-search" placeholder="Search by name, phone or loan ID..." oninput="searchRepayments()"/>
         </div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>Loan ID</th><th>Applicant</th><th>Phone</th><th>Plan</th><th>Loan Amount</th><th>Total Paid</th><th>Balance</th><th>Progress</th><th>Status</th><th>Action</th></tr></thead>
+          <thead><tr><th>Loan ID</th><th>Applicant</th><th>Phone</th><th>Plan</th><th>Principal</th><th>Total Repayable</th><th>Paid</th><th>Balance</th><th>Progress</th><th>Status</th><th>Action</th></tr></thead>
           <tbody id="repay-tbody"></tbody>
         </table></div>
       </div>
@@ -616,7 +616,10 @@ function renderDashboard(){
   const approved = allLoans.filter(l=>l.status==='Approved').length;
   const outstanding = allLoans.reduce((s,l)=>{
     const paid = (l.payments||[]).reduce((x,p)=>x+(parseFloat(p.amount)||0),0);
-    const bal = (parseFloat(l.amount)||0) - paid;
+    const principal = parseFloat(l.amount)||0;
+    const interestRate = parseFloat(l.interest)||0;
+    const totalRepay = principal + (principal * interestRate / 100);
+    const bal = totalRepay - paid;
     return s + (bal>0?bal:0);
   },0);
 
@@ -687,16 +690,20 @@ function renderRepayments(list){
   const tb = document.getElementById('repay-tbody');
   if(!tb) return;
   tb.innerHTML = filtered.map(l=>{
-    const total = parseFloat(l.amount)||0;
+    const principal = parseFloat(l.amount)||0;
+    const interestRate = parseFloat(l.interest)||0;
+    const interestAmt = principal * interestRate / 100;
+    const totalRepay = principal + interestAmt;
     const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-    const bal = Math.max(0, total-paid);
-    const pct = total>0 ? Math.min(100,Math.round(paid/total*100)) : 0;
+    const bal = Math.max(0, totalRepay - paid);
+    const pct = totalRepay>0 ? Math.min(100,Math.round(paid/totalRepay*100)) : 0;
     return `<tr>
       <td>${l.loanId||l.id}</td>
       <td><strong>${l.name||''}</strong></td>
       <td>${l.phone||''}</td>
       <td><span style="font-size:.75rem;background:var(--bg);padding:2px 8px;border-radius:4px;border:1px solid var(--border)">${l.repayplan||'&mdash;'}</span></td>
-      <td>&#8358;${fmt(total)}</td>
+      <td>&#8358;${fmt(principal)}<br/><span style="font-size:.7rem;color:var(--muted)">+&#8358;${fmt(interestAmt)} interest</span></td>
+      <td style="color:var(--navy);font-weight:700">&#8358;${fmt(totalRepay)}</td>
       <td style="color:var(--green);font-weight:600">&#8358;${fmt(paid)}</td>
       <td style="color:${bal>0?'var(--red)':'var(--green)'};font-weight:600">&#8358;${fmt(bal)}</td>
       <td style="min-width:100px"><progress value="${pct}" max="100"></progress><div style="font-size:.72rem;color:var(--muted)">${pct}%</div></td>
@@ -719,21 +726,27 @@ function openRepayModal(id){
   const l = allLoans.find(x=>x.id===id);
   if(!l) return;
   currentEditId = id;
-  const total = parseFloat(l.amount)||0;
+  const principal = parseFloat(l.amount)||0;
+  const interestRate = parseFloat(l.interest)||0;
+  const interestAmt = principal * interestRate / 100;
+  const totalRepay = principal + interestAmt;
   const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-  const bal = Math.max(0,total-paid);
-  const pct = total>0?Math.min(100,Math.round(paid/total*100)):0;
+  const bal = Math.max(0, totalRepay - paid);
+  const pct = totalRepay>0 ? Math.min(100,Math.round(paid/totalRepay*100)) : 0;
+
   document.getElementById('repay-modal-title').textContent = 'Record Payment — '+l.name;
   document.getElementById('repay-modal-body').innerHTML = `
     <div class="repay-summary">
-      <div class="repay-stat"><div class="val">&#8358;${fmt(total)}</div><div class="lbl">Loan Amount</div></div>
+      <div class="repay-stat"><div class="val">&#8358;${fmt(principal)}</div><div class="lbl">Principal</div></div>
+      <div class="repay-stat"><div class="val" style="color:var(--amber)">&#8358;${fmt(interestAmt)}</div><div class="lbl">Interest (${interestRate}%)</div></div>
+      <div class="repay-stat"><div class="val" style="color:var(--navy)">&#8358;${fmt(totalRepay)}</div><div class="lbl">Total Repayable</div></div>
       <div class="repay-stat"><div class="val" style="color:var(--green)">&#8358;${fmt(paid)}</div><div class="lbl">Total Paid</div></div>
-      <div class="repay-stat"><div class="val" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="lbl">Balance</div></div>
+      <div class="repay-stat"><div class="val" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="lbl">Balance Left</div></div>
     </div>
     <progress value="${pct}" max="100" style="margin-bottom:4px"></progress>
     <div style="font-size:.75rem;color:var(--muted);margin-bottom:16px">${pct}% repaid &bull; Plan: <strong>${l.repayplan||'N/A'}</strong></div>
 
-    ${bal<=0?`<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:12px;text-align:center;color:#166534;font-weight:600;margin-bottom:16px">Loan fully repaid!</div>`:`
+    ${bal<=0?`<div style="background:#dcfce7;border:1px solid #86efac;border-radius:8px;padding:12px;text-align:center;color:#166534;font-weight:600;margin-bottom:16px">&#10003; Loan fully repaid!</div>`:`
     <div style="background:var(--bg);border-radius:8px;padding:16px;margin-bottom:16px;border:1px solid var(--border)">
       <div style="font-size:.82rem;font-weight:700;color:var(--navy);margin-bottom:12px">&#128176; New Payment Entry</div>
       <div class="form-group" style="margin-bottom:10px"><label>Amount Paid (&#8358;) *</label><input type="number" id="pay-amount" placeholder="Enter amount paid" style="padding:9px 12px;border:1px solid var(--border);border-radius:7px;font-size:.9rem;width:100%;font-family:inherit"/></div>
@@ -743,20 +756,21 @@ function openRepayModal(id){
     </div>`}
 
     <div class="section-head" style="margin-top:4px">Payment History (${(l.payments||[]).length} records)</div>
-    ${(l.payments||[]).length===0?`<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px">No payments recorded yet.</p>`:`
-    <div class="tbl-wrap"><table>
-      <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Note</th><th>Del</th></tr></thead>
-      <tbody>${[...(l.payments||[])].reverse().map((p,ri)=>{
-        const i = (l.payments.length-1)-ri;
-        return `<tr>
-          <td>${i+1}</td>
-          <td style="color:var(--green);font-weight:600">&#8358;${fmt(p.amount)}</td>
-          <td>${p.date}</td>
-          <td>${p.note||'&mdash;'}</td>
-          <td><button class="btn btn-red btn-sm" onclick="deletePayment(${i})" title="Delete">&#128465;</button></td>
-        </tr>`;
-      }).join('')}</tbody>
-    </table></div>`}
+    ${(l.payments||[]).length===0
+      ?`<p style="color:var(--muted);font-size:.85rem;text-align:center;padding:16px">No payments recorded yet.</p>`
+      :`<div class="tbl-wrap"><table>
+        <thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Note</th><th>Del</th></tr></thead>
+        <tbody>${[...(l.payments||[])].reverse().map((p,ri)=>{
+          const i = (l.payments.length-1)-ri;
+          return `<tr>
+            <td>${i+1}</td>
+            <td style="color:var(--green);font-weight:600">&#8358;${fmt(p.amount)}</td>
+            <td>${p.date}</td>
+            <td>${p.note||'&mdash;'}</td>
+            <td><button class="btn btn-red btn-sm" onclick="deletePayment(${i})" title="Delete">&#128465;</button></td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table></div>`}
   `;
   showModal('repay-modal');
 }
@@ -924,12 +938,13 @@ function renderFileList(files, container){
 function viewProfile(id){
   const l = allLoans.find(x=>x.id===id);
   if(!l) return;
-  const total = parseFloat(l.amount)||0;
+  const principal = parseFloat(l.amount)||0;
+  const interestRate = parseFloat(l.interest)||0;
+  const interestAmt = principal * interestRate / 100;
+  const totalRepay = principal + interestAmt;
   const paid = (l.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0);
-  const bal = Math.max(0,total-paid);
-  const pct = total>0?Math.min(100,Math.round(paid/total*100)):0;
-  const interest = parseFloat(l.interest)||0;
-  const totalRepay = total + (total*interest/100);
+  const bal = Math.max(0, totalRepay - paid);
+  const pct = totalRepay>0 ? Math.min(100,Math.round(paid/totalRepay*100)) : 0;
 
   document.getElementById('profile-body').innerHTML = `
     <div class="profile-header" style="margin-bottom:20px">
@@ -987,9 +1002,11 @@ function viewProfile(id){
 
     <div id="tab-repayments" style="display:none">
       <div class="repay-summary">
-        <div class="repay-stat"><div class="val">&#8358;${fmt(total)}</div><div class="lbl">Loan Amount</div></div>
+        <div class="repay-stat"><div class="val">&#8358;${fmt(principal)}</div><div class="lbl">Principal</div></div>
+        <div class="repay-stat"><div class="val" style="color:var(--amber)">&#8358;${fmt(interestAmt)}</div><div class="lbl">Interest (${interestRate}%)</div></div>
+        <div class="repay-stat"><div class="val" style="color:var(--navy)">&#8358;${fmt(totalRepay)}</div><div class="lbl">Total Repayable</div></div>
         <div class="repay-stat"><div class="val" style="color:var(--green)">&#8358;${fmt(paid)}</div><div class="lbl">Total Paid</div></div>
-        <div class="repay-stat"><div class="val" style="color:var(--red)">&#8358;${fmt(bal)}</div><div class="lbl">Balance</div></div>
+        <div class="repay-stat"><div class="val" style="color:${bal>0?'var(--red)':'var(--green)'}">&#8358;${fmt(bal)}</div><div class="lbl">Balance</div></div>
       </div>
       <progress value="${pct}" max="100"></progress>
       <div style="font-size:.78rem;color:var(--muted);margin-bottom:12px">${pct}% repaid</div>
