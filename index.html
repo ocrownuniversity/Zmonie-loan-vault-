@@ -571,9 +571,10 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
       <div class="card" style="max-width:860px;margin:0 auto">
         <div class="card-title">
           <span>&#129518; Loan Calculator &mdash; 24% Fixed Interest</span>
-          <div style="display:flex;gap:6px" class="no-print">
+          <div style="display:flex;gap:6px;flex-wrap:wrap" class="no-print">
             <button class="btn btn-out btn-sm tip" data-tip="Print this calculation" onclick="printCalc()">&#128424; Print</button>
             <button class="btn btn-gold btn-sm tip" data-tip="Copy result to clipboard" onclick="copyCalcResult()">&#128203; Copy</button>
+            <button class="btn btn-green btn-sm tip" data-tip="Download as HTML file" onclick="downloadCalcPage()">&#11015; Download</button>
             <button class="btn btn-navy btn-sm tip" data-tip="Clear all fields" onclick="clearCalc()">&#10005; Clear</button>
           </div>
         </div>
@@ -933,205 +934,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
 
 <div id="toast"></div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
-// ===== CALCULATOR TABS =====
-function switchCalcTab(tab){
-  ['basic','compare','whatif','reverse'].forEach(t=>{
-    document.getElementById('calc-panel-'+t).style.display = t===tab?'':'none';
-    document.getElementById('ctab-'+t).classList.toggle('active', t===tab);
-  });
-  if(tab==='compare') calcCompare();
-  if(tab==='whatif') wiCalc();
-  if(tab==='reverse') reverseCalc();
-}
-
-// ===== QUICK AMOUNT PRESET =====
-function setCalcAmt(n){
-  document.getElementById('sc-amt').value=n;
-  scCalc();
-}
-
-// ===== PRINT CALCULATOR =====
-function printCalc(){
-  document.getElementById('calc-print-date').textContent=new Date().toLocaleDateString('en-NG',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-  window.print();
-}
-
-// ===== COPY CALC RESULT =====
-function copyCalcResult(){
-  const res=document.getElementById('sc-result');
-  const sch=document.getElementById('sc-schedule');
-  const amt=document.getElementById('sc-amt').value;
-  if(!amt){toast('Nothing to copy — run a calculation first','w');return}
-  const pr=parseFloat(amt)||0,ir=pr*0.24,tr=pr+ir;
-  const plan=document.getElementById('sc-plan').value;
-  const dn=document.getElementById('sc-dn').value;
-  const du=document.getElementById('sc-du').value;
-  const inst=getInstall(tr,plan,dn,du);
-  const md=getMaturity(td(),dn,du);
-  let text='LOAN CALCULATION — LoanVault Pro\n';
-  text+='================================\n';
-  text+='Principal:        \u20A6'+fmt(pr)+'\n';
-  text+='Interest (24%):   \u20A6'+fmt(ir)+'\n';
-  text+='Total Repayable:  \u20A6'+fmt(tr)+'\n';
-  if(plan)text+='Repayment Plan:   '+plan+'\n';
-  if(dn)text+='Duration:         '+dn+' '+du+'\n';
-  if(md!=='—')text+='Maturity Date:    '+md+'\n';
-  if(inst)text+='Installment:      \u20A6'+fmt(inst.amt)+' ('+inst.lbl+')\n';
-  navigator.clipboard.writeText(text).then(()=>toast('Calculation copied to clipboard!','s')).catch(()=>toast('Could not copy','e'));
-}
-
-// ===== CLEAR CALCULATOR =====
-function clearCalc(){
-  ['sc-amt','sc-dn','sc-startdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
-  document.getElementById('sc-plan').value='';
-  document.getElementById('sc-du').value='months';
-  document.getElementById('sc-result').innerHTML='';
-  document.getElementById('sc-schedule').innerHTML='';
-}
-
-// ===== COMPARE ALL PLANS =====
-function calcCompare(){
-  const amt=parseFloat(document.getElementById('cmp-amt').value)||0;
-  const dn=document.getElementById('cmp-dn').value;
-  const du=document.getElementById('cmp-du').value;
-  const res=document.getElementById('cmp-result');
-  if(!amt||!dn){res.innerHTML='<p style="color:var(--muted);font-size:.83rem;text-align:center;padding:20px">Enter amount and duration above to compare all plans.</p>';return}
-  const pr=amt,ir=pr*0.24,tr=pr+ir;
-  const plans=['Daily','Weekly','Bi-weekly','Monthly','Lump Sum'];
-  const cards=plans.map((plan,idx)=>{
-    const inst=getInstall(tr,plan,dn,du);
-    if(!inst)return '';
-    const md=getMaturity(td(),dn,du);
-    const isBest=idx===3; // Monthly is usually most manageable
-    return '<div class="compare-card'+(isBest?' best':'')+'">'+
-      (isBest?'<div class="best-badge">Most Common</div>':'')+
-      '<h4>'+plan+' Plan</h4>'+
-      '<div class="compare-row"><span>Principal</span><span>&#8358;'+fmt(pr)+'</span></div>'+
-      '<div class="compare-row"><span>Interest (24%)</span><span>&#8358;'+fmt(ir)+'</span></div>'+
-      '<div class="compare-row"><span>Total Repayable</span><span>&#8358;'+fmt(tr)+'</span></div>'+
-      '<div class="compare-row"><span>'+inst.lbl+'</span><span style="color:var(--green);font-weight:800">&#8358;'+fmt(inst.amt)+'</span></div>'+
-      '<div class="compare-row"><span>Maturity Date</span><span>'+md+'</span></div>'+
-      '</div>';
-  }).join('');
-  res.innerHTML='<div class="calc-compare-grid">'+cards+'</div>';
-}
-
-// ===== WHAT-IF CALCULATOR =====
-function wiCalc(){
-  const amt=parseFloat(document.getElementById('wi-amt').value)||0;
-  const dur=parseInt(document.getElementById('wi-dur').value)||1;
-  const rate=parseFloat(document.getElementById('wi-rate').value)||24;
-  document.getElementById('wi-amt-lbl').innerHTML='&#8358;'+fmt(amt);
-  document.getElementById('wi-dur-lbl').textContent=dur+' month'+(dur>1?'s':'');
-  document.getElementById('wi-rate-lbl').textContent=rate+'%';
-  const ir=amt*(rate/100),tr=amt+ir;
-  const monthly=tr/dur;
-  const weekly=tr/(dur*4);
-  const daily=tr/(dur*30);
-  document.getElementById('wi-result').innerHTML=
-    '<div class="what-if-box">'+
-    '<div class="what-if-title">&#128200; Repayment Breakdown</div>'+
-    '<div class="what-if-grid">'+
-    '<div class="wi-item"><div class="wv">&#8358;'+fmt(amt)+'</div><div class="wl">Principal</div></div>'+
-    '<div class="wi-item"><div class="wv" style="color:var(--amber)">&#8358;'+fmt(ir)+'</div><div class="wl">Interest ('+rate+'%)</div></div>'+
-    '<div class="wi-item"><div class="wv" style="color:var(--navy)">&#8358;'+fmt(tr)+'</div><div class="wl">Total</div></div>'+
-    '<div class="wi-item"><div class="wv" style="color:var(--green)">&#8358;'+fmt(monthly)+'</div><div class="wl">Per Month</div></div>'+
-    '<div class="wi-item"><div class="wv" style="color:var(--blue)">&#8358;'+fmt(weekly)+'</div><div class="wl">Per Week</div></div>'+
-    '<div class="wi-item"><div class="wv" style="color:var(--purple)">&#8358;'+fmt(daily)+'</div><div class="wl">Per Day</div></div>'+
-    '</div>'+
-    '<div style="margin-top:10px;font-size:.75rem;color:#166534;background:#dcfce7;border-radius:7px;padding:8px 12px">'+
-    '<strong>Tip:</strong> At &#8358;'+fmt(monthly)+'/month for '+dur+' month'+(dur>1?'s':'')+', the borrower repays &#8358;'+fmt(ir)+' in interest over the loan period.'+
-    '</div></div>';
-}
-
-// ===== REVERSE CALCULATOR =====
-function reverseCalc(){
-  const install=parseFloat(document.getElementById('rev-install').value)||0;
-  const plan=document.getElementById('rev-plan').value;
-  const dn=document.getElementById('rev-dn').value;
-  const du=document.getElementById('rev-du').value;
-  const res=document.getElementById('rev-result');
-  if(!install||!plan||!dn){
-    res.innerHTML='<p style="color:var(--muted);font-size:.83rem;text-align:center;padding:20px">Fill in installment, plan and duration to calculate the maximum loan amount.</p>';
-    return;
-  }
-  const n=parseInt(dn)||1;
-  let periods;
-  if(plan==='Daily')periods=du==='days'?n:du==='weeks'?n*7:n*30;
-  else if(plan==='Weekly')periods=du==='days'?Math.ceil(n/7):du==='weeks'?n:n*4;
-  else if(plan==='Bi-weekly')periods=du==='months'?n*2:du==='weeks'?Math.ceil(n/2):Math.ceil(n/14);
-  else if(plan==='Monthly')periods=du==='months'?n:du==='weeks'?Math.ceil(n/4):Math.ceil(n/30);
-  if(!periods){res.innerHTML='';return}
-  const totalRepayable=install*periods;
-  const principal=totalRepayable/1.24;
-  const interest=totalRepayable-principal;
-  const md=getMaturity(td(),dn,du);
-  res.innerHTML='<div class="calc-box" style="margin-top:12px">'+
-    '<div class="calc-title">Reverse Calculation Result</div>'+
-    '<div class="calc-grid">'+
-    '<div class="calc-item"><div class="cv">&#8358;'+fmt(principal)+'</div><div class="cl">Max Principal</div></div>'+
-    '<div class="calc-item"><div class="cv">&#8358;'+fmt(interest)+'</div><div class="cl">Interest (24%)</div></div>'+
-    '<div class="calc-item hl"><div class="cv">&#8358;'+fmt(totalRepayable)+'</div><div class="cl">Total Repayable</div></div>'+
-    '<div class="calc-item"><div class="cv">'+md+'</div><div class="cl">Maturity Date</div></div>'+
-    '</div>'+
-    '<div class="calc-row"><span>'+plan+' installment &times; '+periods+' payments</span><strong>&#8358;'+fmt(install)+' each</strong></div>'+
-    '</div>'+
-    '<div style="background:#ede9fe;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:.78rem;color:#5b21b6">'+
-    '<strong>Result:</strong> A borrower paying &#8358;'+fmt(install)+' per '+plan.toLowerCase()+' can receive a maximum loan of <strong>&#8358;'+fmt(principal)+'</strong>.'+
-    '</div>';
-}
-
-// ===== FAB (Floating Action Button) =====
-let fabOpen=false;
-function toggleFab(){
-  fabOpen=!fabOpen;
-  document.getElementById('fab-menu').classList.toggle('open',fabOpen);
-  document.getElementById('fab-btn').textContent=fabOpen?'\u00D7':'+';
-}
-document.addEventListener('click',function(e){
-  if(fabOpen&&!e.target.closest('#fab-btn')&&!e.target.closest('#fab-menu')){
-    fabOpen=false;
-    document.getElementById('fab-menu').classList.remove('open');
-    document.getElementById('fab-btn').textContent='+';
-  }
-});
-
-// ===== SCROLL TO TOP =====
-window.addEventListener('scroll',function(){
-  const btn=document.getElementById('scroll-top');
-  if(btn)btn.classList.toggle('show',window.scrollY>300);
-});
-
-// ===== PAGE LOADER =====
-function showLoader(msg){
-  const el=document.getElementById('page-loader');
-  document.getElementById('loader-msg').textContent=msg||'Loading...';
-  if(el)el.classList.add('show');
-}
-function hideLoader(){
-  const el=document.getElementById('page-loader');
-  if(el)el.classList.remove('show');
-}
-
-// ===== KEYBOARD SHORTCUTS =====
-document.addEventListener('keydown',function(e){
-  if(e.altKey){
-    if(e.key==='n'){e.preventDefault();showPage('new-application')}
-    if(e.key==='r'){e.preventDefault();showPage('repayments')}
-    if(e.key==='c'){e.preventDefault();showPage('calculator')}
-    if(e.key==='d'){e.preventDefault();showPage('dashboard')}
-    if(e.key==='b'){e.preventDefault();showPage('borrowers')}
-  }
-});
-
-// ===== ENHANCED LIVE CALC (add print date) =====
-document.addEventListener('DOMContentLoaded',function(){
-  const d=document.getElementById('calc-print-date');
-  if(d)d.textContent=new Date().toLocaleDateString('en-NG',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
-});
-
-</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
@@ -2362,6 +2165,356 @@ document.getElementById('f-branch').addEventListener('change',function(){
   populateOfficerDropdown();
   liveCalc();
 });
+
+
+// ===== CALCULATOR TABS =====
+function switchCalcTab(tab){
+  ['basic','compare','whatif','reverse'].forEach(t=>{
+    document.getElementById('calc-panel-'+t).style.display = t===tab?'':'none';
+    document.getElementById('ctab-'+t).classList.toggle('active', t===tab);
+  });
+  if(tab==='compare') calcCompare();
+  if(tab==='whatif') wiCalc();
+  if(tab==='reverse') reverseCalc();
+}
+
+// ===== QUICK AMOUNT PRESET =====
+function setCalcAmt(n){
+  document.getElementById('sc-amt').value=n;
+  scCalc();
+}
+
+// ===== PRINT CALCULATOR =====
+function printCalc(){
+  document.getElementById('calc-print-date').textContent=new Date().toLocaleDateString('en-NG',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  window.print();
+}
+
+// ===== COPY CALC RESULT =====
+function copyCalcResult(){
+  const res=document.getElementById('sc-result');
+  const sch=document.getElementById('sc-schedule');
+  const amt=document.getElementById('sc-amt').value;
+  if(!amt){toast('Nothing to copy — run a calculation first','w');return}
+  const pr=parseFloat(amt)||0,ir=pr*0.24,tr=pr+ir;
+  const plan=document.getElementById('sc-plan').value;
+  const dn=document.getElementById('sc-dn').value;
+  const du=document.getElementById('sc-du').value;
+  const inst=getInstall(tr,plan,dn,du);
+  const md=getMaturity(td(),dn,du);
+  let text='LOAN CALCULATION — LoanVault Pro\n';
+  text+='================================\n';
+  text+='Principal:        \u20A6'+fmt(pr)+'\n';
+  text+='Interest (24%):   \u20A6'+fmt(ir)+'\n';
+  text+='Total Repayable:  \u20A6'+fmt(tr)+'\n';
+  if(plan)text+='Repayment Plan:   '+plan+'\n';
+  if(dn)text+='Duration:         '+dn+' '+du+'\n';
+  if(md!=='—')text+='Maturity Date:    '+md+'\n';
+  if(inst)text+='Installment:      \u20A6'+fmt(inst.amt)+' ('+inst.lbl+')\n';
+  navigator.clipboard.writeText(text).then(()=>toast('Calculation copied to clipboard!','s')).catch(()=>toast('Could not copy','e'));
+}
+
+// ===== CLEAR CALCULATOR =====
+function clearCalc(){
+  ['sc-amt','sc-dn','sc-startdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('sc-plan').value='';
+  document.getElementById('sc-du').value='months';
+  document.getElementById('sc-result').innerHTML='';
+  document.getElementById('sc-schedule').innerHTML='';
+}
+
+// ===== COMPARE ALL PLANS =====
+function calcCompare(){
+  const amt=parseFloat(document.getElementById('cmp-amt').value)||0;
+  const dn=document.getElementById('cmp-dn').value;
+  const du=document.getElementById('cmp-du').value;
+  const res=document.getElementById('cmp-result');
+  if(!amt||!dn){res.innerHTML='<p style="color:var(--muted);font-size:.83rem;text-align:center;padding:20px">Enter amount and duration above to compare all plans.</p>';return}
+  const pr=amt,ir=pr*0.24,tr=pr+ir;
+  const plans=['Daily','Weekly','Bi-weekly','Monthly','Lump Sum'];
+  const cards=plans.map((plan,idx)=>{
+    const inst=getInstall(tr,plan,dn,du);
+    if(!inst)return '';
+    const md=getMaturity(td(),dn,du);
+    const isBest=idx===3; // Monthly is usually most manageable
+    return '<div class="compare-card'+(isBest?' best':'')+'">'+
+      (isBest?'<div class="best-badge">Most Common</div>':'')+
+      '<h4>'+plan+' Plan</h4>'+
+      '<div class="compare-row"><span>Principal</span><span>&#8358;'+fmt(pr)+'</span></div>'+
+      '<div class="compare-row"><span>Interest (24%)</span><span>&#8358;'+fmt(ir)+'</span></div>'+
+      '<div class="compare-row"><span>Total Repayable</span><span>&#8358;'+fmt(tr)+'</span></div>'+
+      '<div class="compare-row"><span>'+inst.lbl+'</span><span style="color:var(--green);font-weight:800">&#8358;'+fmt(inst.amt)+'</span></div>'+
+      '<div class="compare-row"><span>Maturity Date</span><span>'+md+'</span></div>'+
+      '</div>';
+  }).join('');
+  res.innerHTML='<div class="calc-compare-grid">'+cards+'</div>';
+}
+
+// ===== WHAT-IF CALCULATOR =====
+function wiCalc(){
+  const amt=parseFloat(document.getElementById('wi-amt').value)||0;
+  const dur=parseInt(document.getElementById('wi-dur').value)||1;
+  const rate=parseFloat(document.getElementById('wi-rate').value)||24;
+  document.getElementById('wi-amt-lbl').innerHTML='&#8358;'+fmt(amt);
+  document.getElementById('wi-dur-lbl').textContent=dur+' month'+(dur>1?'s':'');
+  document.getElementById('wi-rate-lbl').textContent=rate+'%';
+  const ir=amt*(rate/100),tr=amt+ir;
+  const monthly=tr/dur;
+  const weekly=tr/(dur*4);
+  const daily=tr/(dur*30);
+  document.getElementById('wi-result').innerHTML=
+    '<div class="what-if-box">'+
+    '<div class="what-if-title">&#128200; Repayment Breakdown</div>'+
+    '<div class="what-if-grid">'+
+    '<div class="wi-item"><div class="wv">&#8358;'+fmt(amt)+'</div><div class="wl">Principal</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--amber)">&#8358;'+fmt(ir)+'</div><div class="wl">Interest ('+rate+'%)</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--navy)">&#8358;'+fmt(tr)+'</div><div class="wl">Total</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--green)">&#8358;'+fmt(monthly)+'</div><div class="wl">Per Month</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--blue)">&#8358;'+fmt(weekly)+'</div><div class="wl">Per Week</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--purple)">&#8358;'+fmt(daily)+'</div><div class="wl">Per Day</div></div>'+
+    '</div>'+
+    '<div style="margin-top:10px;font-size:.75rem;color:#166534;background:#dcfce7;border-radius:7px;padding:8px 12px">'+
+    '<strong>Tip:</strong> At &#8358;'+fmt(monthly)+'/month for '+dur+' month'+(dur>1?'s':'')+', the borrower repays &#8358;'+fmt(ir)+' in interest over the loan period.'+
+    '</div></div>';
+}
+
+// ===== REVERSE CALCULATOR =====
+function reverseCalc(){
+  const install=parseFloat(document.getElementById('rev-install').value)||0;
+  const plan=document.getElementById('rev-plan').value;
+  const dn=document.getElementById('rev-dn').value;
+  const du=document.getElementById('rev-du').value;
+  const res=document.getElementById('rev-result');
+  if(!install||!plan||!dn){
+    res.innerHTML='<p style="color:var(--muted);font-size:.83rem;text-align:center;padding:20px">Fill in installment, plan and duration to calculate the maximum loan amount.</p>';
+    return;
+  }
+  const n=parseInt(dn)||1;
+  let periods;
+  if(plan==='Daily')periods=du==='days'?n:du==='weeks'?n*7:n*30;
+  else if(plan==='Weekly')periods=du==='days'?Math.ceil(n/7):du==='weeks'?n:n*4;
+  else if(plan==='Bi-weekly')periods=du==='months'?n*2:du==='weeks'?Math.ceil(n/2):Math.ceil(n/14);
+  else if(plan==='Monthly')periods=du==='months'?n:du==='weeks'?Math.ceil(n/4):Math.ceil(n/30);
+  if(!periods){res.innerHTML='';return}
+  const totalRepayable=install*periods;
+  const principal=totalRepayable/1.24;
+  const interest=totalRepayable-principal;
+  const md=getMaturity(td(),dn,du);
+  res.innerHTML='<div class="calc-box" style="margin-top:12px">'+
+    '<div class="calc-title">Reverse Calculation Result</div>'+
+    '<div class="calc-grid">'+
+    '<div class="calc-item"><div class="cv">&#8358;'+fmt(principal)+'</div><div class="cl">Max Principal</div></div>'+
+    '<div class="calc-item"><div class="cv">&#8358;'+fmt(interest)+'</div><div class="cl">Interest (24%)</div></div>'+
+    '<div class="calc-item hl"><div class="cv">&#8358;'+fmt(totalRepayable)+'</div><div class="cl">Total Repayable</div></div>'+
+    '<div class="calc-item"><div class="cv">'+md+'</div><div class="cl">Maturity Date</div></div>'+
+    '</div>'+
+    '<div class="calc-row"><span>'+plan+' installment &times; '+periods+' payments</span><strong>&#8358;'+fmt(install)+' each</strong></div>'+
+    '</div>'+
+    '<div style="background:#ede9fe;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:.78rem;color:#5b21b6">'+
+    '<strong>Result:</strong> A borrower paying &#8358;'+fmt(install)+' per '+plan.toLowerCase()+' can receive a maximum loan of <strong>&#8358;'+fmt(principal)+'</strong>.'+
+    '</div>';
+}
+
+// ===== FAB (Floating Action Button) =====
+let fabOpen=false;
+function toggleFab(){
+  fabOpen=!fabOpen;
+  document.getElementById('fab-menu').classList.toggle('open',fabOpen);
+  document.getElementById('fab-btn').textContent=fabOpen?'\u00D7':'+';
+}
+document.addEventListener('click',function(e){
+  if(fabOpen&&!e.target.closest('#fab-btn')&&!e.target.closest('#fab-menu')){
+    fabOpen=false;
+    document.getElementById('fab-menu').classList.remove('open');
+    document.getElementById('fab-btn').textContent='+';
+  }
+});
+
+// ===== SCROLL TO TOP =====
+window.addEventListener('scroll',function(){
+  const btn=document.getElementById('scroll-top');
+  if(btn)btn.classList.toggle('show',window.scrollY>300);
+});
+
+// ===== PAGE LOADER =====
+function showLoader(msg){
+  const el=document.getElementById('page-loader');
+  document.getElementById('loader-msg').textContent=msg||'Loading...';
+  if(el)el.classList.add('show');
+}
+function hideLoader(){
+  const el=document.getElementById('page-loader');
+  if(el)el.classList.remove('show');
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown',function(e){
+  if(e.altKey){
+    if(e.key==='n'){e.preventDefault();showPage('new-application')}
+    if(e.key==='r'){e.preventDefault();showPage('repayments')}
+    if(e.key==='c'){e.preventDefault();showPage('calculator')}
+    if(e.key==='d'){e.preventDefault();showPage('dashboard')}
+    if(e.key==='b'){e.preventDefault();showPage('borrowers')}
+  }
+});
+
+// ===== ENHANCED LIVE CALC (add print date) =====
+document.addEventListener('DOMContentLoaded',function(){
+  const d=document.getElementById('calc-print-date');
+  if(d)d.textContent=new Date().toLocaleDateString('en-NG',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+});
+
+// ===== DOWNLOAD CALCULATOR PAGE =====
+function downloadCalcPage(){
+  const amt = parseFloat(document.getElementById('sc-amt').value)||0;
+  const plan = document.getElementById('sc-plan').value;
+  const dn = document.getElementById('sc-dn').value;
+  const du = document.getElementById('sc-du').value;
+  const startDate = document.getElementById('sc-startdate').value;
+
+  if(!amt){ toast('Run a calculation first before downloading','w'); return; }
+
+  const pr = amt, ir = pr*0.24, tr = pr+ir;
+  const inst = getInstall(tr, plan, dn, du);
+  const md = getMaturity(startDate||td(), dn, du);
+  const now = new Date().toLocaleDateString('en-NG',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+
+  // Build repayment schedule rows
+  let scheduleHTML = '';
+  if(inst && plan !== 'Lump Sum' && dn){
+    const n=parseInt(dn)||1; let periods;
+    if(plan==='Daily')periods=du==='days'?n:du==='weeks'?n*7:n*30;
+    else if(plan==='Weekly')periods=du==='days'?Math.ceil(n/7):du==='weeks'?n:n*4;
+    else if(plan==='Bi-weekly')periods=du==='months'?n*2:du==='weeks'?Math.ceil(n/2):Math.ceil(n/14);
+    else if(plan==='Monthly')periods=du==='months'?n:du==='weeks'?Math.ceil(n/4):Math.ceil(n/30);
+    if(periods && periods<=120){
+      let bal=tr;
+      const start=startDate?new Date(startDate):new Date();
+      const rows=Array.from({length:periods},(_,i)=>{
+        const d=new Date(start);
+        if(plan==='Daily')d.setDate(d.getDate()+i+1);
+        else if(plan==='Weekly')d.setDate(d.getDate()+(i+1)*7);
+        else if(plan==='Bi-weekly')d.setDate(d.getDate()+(i+1)*14);
+        else d.setMonth(d.getMonth()+i+1);
+        bal=Math.max(0,bal-inst.amt);
+        const rowBg = i%2===0?'#f8fafc':'#fff';
+        return `<tr style="background:${rowBg}">
+          <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center;font-weight:700">${i+1}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0">${d.toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'})}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;color:#16a34a;font-weight:700">&#8358;${fmt(inst.amt)}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;color:${bal>0?'#dc2626':'#16a34a'};font-weight:700">&#8358;${fmt(bal)}</td>
+          <td style="padding:8px 12px;border-bottom:1px solid #e2e8f0;text-align:center">
+            <span style="display:inline-block;width:80px;height:8px;background:#e2e8f0;border-radius:4px;overflow:hidden">
+              <span style="display:block;height:100%;width:${Math.min(100,Math.round((tr-bal)/tr*100))}%;background:#16a34a;border-radius:4px"></span>
+            </span>
+          </td>
+        </tr>`;
+      }).join('');
+      scheduleHTML = `
+        <h2 style="font-size:1rem;font-weight:800;color:#0f2342;margin:28px 0 12px;padding-bottom:6px;border-bottom:2px solid #e2e8f0">
+          &#128197; Repayment Schedule — ${periods} ${plan} Payments
+        </h2>
+        <table style="width:100%;border-collapse:collapse;font-size:.83rem;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden">
+          <thead>
+            <tr style="background:#0f2342;color:#fff">
+              <th style="padding:10px 12px">#</th>
+              <th style="padding:10px 12px;text-align:left">Due Date</th>
+              <th style="padding:10px 12px;text-align:left">Installment</th>
+              <th style="padding:10px 12px;text-align:left">Balance After</th>
+              <th style="padding:10px 12px">Progress</th>
+            </tr>
+          </thead>
+          <tbody>${rows}</tbody>
+        </table>`;
+    }
+  } else if(plan==='Lump Sum'){
+    scheduleHTML = `<div style="background:#fef3c7;border:1px solid #fcd34d;border-radius:8px;padding:14px;margin-top:16px;font-size:.85rem;color:#92400e">
+      <strong>Lump Sum Repayment:</strong> Full amount of <strong>&#8358;${fmt(tr)}</strong> due on <strong>${md}</strong>
+    </div>`;
+  }
+
+  const pageHTML = `<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Loan Calculation — &#8358;${fmt(pr)} — LoanVault Pro</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{font-family:'Inter',sans-serif;background:#f0f4f9;color:#1e293b;padding:24px;min-height:100vh}
+  .page{background:#fff;max-width:800px;margin:0 auto;border-radius:16px;box-shadow:0 4px 40px rgba(15,35,66,.12);overflow:hidden}
+  .header{background:linear-gradient(135deg,#0f2342,#1a3a6b);padding:28px 32px;color:#fff}
+  .header-brand{font-family:'DM Serif Display',serif;font-size:1.6rem;margin-bottom:6px}
+  .header-brand span{color:#e8b84b}
+  .header-sub{font-size:.8rem;opacity:.7}
+  .body{padding:28px 32px}
+  .summary-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:24px}
+  .sum-card{border-radius:10px;padding:14px;text-align:center;border:1px solid #e2e8f0}
+  .sum-card.hl{background:#0f2342;color:#fff;border-color:#0f2342}
+  .sum-card.green{background:#f0fdf4;border-color:#86efac}
+  .sum-val{font-size:1.15rem;font-weight:800;margin-bottom:3px}
+  .sum-lbl{font-size:.62rem;text-transform:uppercase;letter-spacing:.05em;opacity:.7}
+  .detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+  .detail-item{background:#f8fafc;border-radius:8px;padding:10px 14px;border:1px solid #e2e8f0}
+  .detail-item label{font-size:.62rem;text-transform:uppercase;color:#64748b;font-weight:700;letter-spacing:.04em}
+  .detail-item p{font-size:.85rem;font-weight:700;color:#0f2342;margin-top:3px}
+  .installment-box{background:linear-gradient(135deg,#c8973a,#e8b84b);border-radius:10px;padding:16px;text-align:center;margin-bottom:24px;color:#fff}
+  .install-val{font-size:1.4rem;font-weight:800;margin-bottom:2px}
+  .install-lbl{font-size:.75rem;opacity:.85}
+  .footer{background:#f8fafc;padding:18px 32px;border-top:1px solid #e2e8f0;display:flex;justify-content:space-between;align-items:center;flex-wrap:gap}
+  .footer p{font-size:.72rem;color:#64748b}
+  .print-btn{background:#0f2342;color:#fff;border:none;padding:9px 18px;border-radius:8px;font-size:.8rem;font-weight:700;cursor:pointer;font-family:inherit}
+  @media print{body{background:#fff;padding:0}.page{box-shadow:none;border-radius:0}.footer .print-btn{display:none}}
+  @media(max-width:500px){.body{padding:18px}.header{padding:20px}.detail-grid{grid-template-columns:1fr}.summary-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="header">
+    <div class="header-brand">Loan<span>Vault</span> <span style="font-size:.7rem;opacity:.6;font-family:Inter">Pro</span></div>
+    <div class="header-sub">Loan Calculation Report &bull; Generated ${now} &bull; 24% Fixed Interest</div>
+  </div>
+  <div class="body">
+    <h2 style="font-size:1rem;font-weight:800;color:#0f2342;margin-bottom:14px">&#129518; Calculation Summary</h2>
+    <div class="summary-grid">
+      <div class="sum-card"><div class="sum-val">&#8358;${fmt(pr)}</div><div class="sum-lbl">Principal</div></div>
+      <div class="sum-card" style="background:#fffbeb;border-color:#fcd34d"><div class="sum-val" style="color:#d97706">&#8358;${fmt(ir)}</div><div class="sum-lbl">Interest (24%)</div></div>
+      <div class="sum-card hl"><div class="sum-val">&#8358;${fmt(tr)}</div><div class="sum-lbl">Total Repayable</div></div>
+      <div class="sum-card green"><div class="sum-val" style="color:#16a34a">${md}</div><div class="sum-lbl">Maturity Date</div></div>
+    </div>
+    ${inst?`<div class="installment-box"><div class="install-val">&#8358;${fmt(inst.amt)}</div><div class="install-lbl">${inst.lbl}</div></div>`:''}
+    <h2 style="font-size:1rem;font-weight:800;color:#0f2342;margin-bottom:12px">&#128196; Loan Details</h2>
+    <div class="detail-grid">
+      <div class="detail-item"><label>Repayment Plan</label><p>${plan||'--'}</p></div>
+      <div class="detail-item"><label>Duration</label><p>${dn?dn+' '+du:'--'}</p></div>
+      <div class="detail-item"><label>Start Date</label><p>${startDate||'--'}</p></div>
+      <div class="detail-item"><label>Interest Rate</label><p>24% Fixed</p></div>
+      <div class="detail-item"><label>Interest Amount</label><p>&#8358;${fmt(ir)}</p></div>
+      <div class="detail-item"><label>Generated</label><p>${now}</p></div>
+    </div>
+    ${scheduleHTML}
+  </div>
+  <div class="footer">
+    <div>
+      <p><strong>LoanVault Pro</strong> — Branch Management System</p>
+      <p style="margin-top:3px">This document was generated automatically. Verify all figures before disbursement.</p>
+    </div>
+    <button class="print-btn" onclick="window.print()">&#128424; Print</button>
+  </div>
+</div>
+</body>
+</html>`;
+
+  const blob = new Blob([pageHTML], {type:'text/html'});
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'LoanCalc_' + fmt(pr).replace(/[^0-9]/g,'') + '_' + td() + '.html';
+  a.click();
+  URL.revokeObjectURL(a.href);
+  toast('Calculation downloaded as HTML file!','s');
+}
+
 </script>
 
 <!-- FLOATING ACTION BUTTON -->
