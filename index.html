@@ -194,6 +194,64 @@ tbody tr:hover{background:#f8fafc}
 /* ===== RESPONSIVE ===== */
 @media(max-width:768px){main{padding:10px}.card{padding:14px}.modal{max-height:96vh}.mbody{padding:14px}.branch-grid{grid-template-columns:1fr}}
 @media print{header,nav,.no-print{display:none!important}#app{display:block!important}.page-section{display:block!important}body{background:#fff}.card{box-shadow:none;border:1px solid #ccc}}
+
+/* ===== CALCULATOR ENHANCEMENTS ===== */
+.calc-print-header{display:none}
+.calc-tab-bar{display:flex;gap:2px;background:var(--bg);padding:4px;border-radius:10px;margin-bottom:16px}
+.calc-tab{flex:1;padding:9px;border:none;border-radius:7px;font-size:.78rem;font-weight:700;cursor:pointer;background:transparent;color:var(--muted);font-family:inherit;transition:.2s}
+.calc-tab.active{background:var(--navy);color:#fff;box-shadow:0 2px 8px rgba(15,35,66,.18)}
+.calc-compare-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:14px}
+.compare-card{background:var(--card);border-radius:var(--radius);padding:16px;box-shadow:var(--shadow);border:2px solid var(--border);position:relative}
+.compare-card.best{border-color:var(--green)}
+.compare-card .best-badge{position:absolute;top:-10px;right:12px;background:var(--green);color:#fff;font-size:.63rem;font-weight:800;padding:2px 10px;border-radius:20px;text-transform:uppercase;letter-spacing:.06em}
+.compare-card h4{font-size:.82rem;font-weight:800;color:var(--navy);margin-bottom:8px}
+.compare-row{display:flex;justify-content:space-between;font-size:.78rem;padding:4px 0;border-bottom:1px solid var(--border)}
+.compare-row:last-child{border-bottom:none;font-weight:800;color:var(--navy)}
+.what-if-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border:1px solid #86efac;border-radius:10px;padding:14px;margin-top:12px}
+.what-if-title{font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:var(--green);margin-bottom:10px}
+.what-if-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px}
+.wi-item{background:#fff;border-radius:8px;padding:9px;text-align:center;border:1px solid #bbf7d0}
+.wi-item .wv{font-size:.95rem;font-weight:800;color:var(--navy)}
+.wi-item .wl{font-size:.6rem;color:var(--muted);text-transform:uppercase;margin-top:2px}
+.range-row{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.range-row input[type=range]{flex:1;accent-color:var(--navy)}
+.range-val{font-size:.82rem;font-weight:700;color:var(--navy);min-width:80px;text-align:right}
+/* ===== FLOATING ACTION BUTTON ===== */
+.fab{position:fixed;bottom:24px;right:24px;width:52px;height:52px;border-radius:50%;background:var(--gold);border:none;color:#fff;font-size:1.4rem;cursor:pointer;box-shadow:0 4px 20px rgba(200,151,58,.4);z-index:150;display:flex;align-items:center;justify-content:center;transition:.2s}
+.fab:hover{background:var(--gold2);transform:scale(1.08)}
+.fab-menu{position:fixed;bottom:86px;right:24px;display:flex;flex-direction:column;gap:8px;z-index:150;opacity:0;pointer-events:none;transform:translateY(10px);transition:.2s}
+.fab-menu.open{opacity:1;pointer-events:all;transform:translateY(0)}
+.fab-item{display:flex;align-items:center;gap:8px;background:#fff;border:none;border-radius:10px;padding:9px 14px;font-size:.78rem;font-weight:700;cursor:pointer;box-shadow:var(--shadow);color:var(--navy);font-family:inherit;white-space:nowrap;transition:.15s}
+.fab-item:hover{background:var(--bg);transform:translateX(-3px)}
+/* ===== TOOLTIPS ===== */
+.tip{position:relative;display:inline-block}
+.tip::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:var(--navy);color:#fff;font-size:.68rem;padding:5px 10px;border-radius:6px;white-space:nowrap;opacity:0;pointer-events:none;transition:.2s;z-index:50;font-weight:500}
+.tip:hover::after{opacity:1}
+/* ===== SEARCH HIGHLIGHT ===== */
+mark{background:#fef08a;border-radius:3px;padding:0 2px}
+/* ===== DARK OVERLAY LOADER ===== */
+#page-loader{position:fixed;inset:0;background:rgba(15,35,66,.7);z-index:9998;display:none;align-items:center;justify-content:center;flex-direction:column;gap:12px}
+#page-loader.show{display:flex}
+.loader-ring{width:44px;height:44px;border:4px solid rgba(255,255,255,.2);border-top-color:var(--gold);border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+#page-loader p{color:#fff;font-size:.82rem;font-weight:600}
+/* ===== KEYBOARD SHORTCUT BADGE ===== */
+.kbd{display:inline-block;background:var(--bg);border:1px solid var(--border);border-radius:4px;padding:1px 6px;font-size:.66rem;font-family:monospace;color:var(--muted);margin-left:4px}
+/* ===== SCROLL TO TOP ===== */
+#scroll-top{position:fixed;bottom:86px;right:24px;width:36px;height:36px;border-radius:50%;background:var(--navy);border:none;color:#fff;font-size:.9rem;cursor:pointer;z-index:140;display:none;align-items:center;justify-content:center;box-shadow:var(--shadow);transition:.2s}
+#scroll-top.show{display:flex}
+#scroll-top:hover{background:var(--navy2)}
+/* ===== PRINT STYLES FOR CALCULATOR ===== */
+@media print{
+  #page-calculator .card{max-width:100%!important;box-shadow:none;border:none}
+  .calc-print-header{display:block!important;text-align:center;margin-bottom:20px;border-bottom:2px solid var(--navy);padding-bottom:12px}
+  .calc-print-header h2{font-family:'DM Serif Display',serif;color:var(--navy);font-size:1.4rem}
+  .calc-print-header p{font-size:.8rem;color:var(--muted);margin-top:4px}
+  .no-print,.fab,.fab-menu,#scroll-top,.calc-tab-bar{display:none!important}
+  .calc-box{background:var(--navy)!important;-webkit-print-color-adjust:exact;print-color-adjust:exact}
+  .calc-compare-grid{grid-template-columns:repeat(2,1fr)}
+  .tbl-wrap table{font-size:.72rem}
+}
 </style>
 </head>
 <body>
@@ -398,7 +456,10 @@ tbody tr:hover{background:#f8fafc}
           </div>
           <!-- LIVE CALC BOX -->
           <div class="calc-box" id="calc-box" style="display:none">
-            <div class="calc-title">&#129518; Live Calculation &mdash; 24% Fixed Interest</div>
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px">
+              <div class="calc-title" style="margin-bottom:0">&#129518; Live Calculation &mdash; 24% Fixed Interest</div>
+              <button type="button" class="btn btn-sm no-print" onclick="window.print()" style="background:rgba(255,255,255,.18);color:#fff;border:1px solid rgba(255,255,255,.3);font-size:.68rem;padding:4px 10px">&#128424; Print</button>
+            </div>
             <div class="calc-grid">
               <div class="calc-item"><div class="cv" id="c-p">&#8358;0</div><div class="cl">Principal</div></div>
               <div class="calc-item"><div class="cv" id="c-i">&#8358;0</div><div class="cl">Interest (24%)</div></div>
@@ -501,27 +562,144 @@ tbody tr:hover{background:#f8fafc}
 
     <!-- CALCULATOR -->
     <div class="page-section" id="page-calculator">
-      <div class="card" style="max-width:580px;margin:0 auto">
-        <div class="card-title">&#129518; Loan Calculator &mdash; 24% Fixed Interest</div>
-        <div class="form-grid">
-          <div class="fg"><label>Loan Amount (&#8358;)</label><input type="number" id="sc-amt" placeholder="Enter amount" oninput="scCalc()"/></div>
-          <div class="fg"><label>Repayment Plan</label>
-            <select id="sc-plan" onchange="scCalc()">
-              <option value="">Select plan</option>
-              <option>Daily</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option><option>Lump Sum</option>
-            </select>
-          </div>
-          <div class="fg"><label>Duration</label>
-            <div style="display:flex;gap:6px">
-              <input type="number" id="sc-dn" placeholder="e.g. 6" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="scCalc()"/>
-              <select id="sc-du" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="scCalc()">
-                <option value="days">Days</option><option value="weeks">Weeks</option><option value="months" selected>Months</option>
-              </select>
-            </div>
+      <!-- Print header (only shows when printing) -->
+      <div class="calc-print-header">
+        <h2>LoanVault Pro &mdash; Loan Calculation Report</h2>
+        <p>Generated on <span id="calc-print-date"></span> &bull; 24% Fixed Interest Rate</p>
+      </div>
+
+      <div class="card" style="max-width:860px;margin:0 auto">
+        <div class="card-title">
+          <span>&#129518; Loan Calculator &mdash; 24% Fixed Interest</span>
+          <div style="display:flex;gap:6px" class="no-print">
+            <button class="btn btn-out btn-sm tip" data-tip="Print this calculation" onclick="printCalc()">&#128424; Print</button>
+            <button class="btn btn-gold btn-sm tip" data-tip="Copy result to clipboard" onclick="copyCalcResult()">&#128203; Copy</button>
+            <button class="btn btn-navy btn-sm tip" data-tip="Clear all fields" onclick="clearCalc()">&#10005; Clear</button>
           </div>
         </div>
-        <div id="sc-result" style="margin-top:14px"></div>
-        <div id="sc-schedule"></div>
+
+        <!-- Calculator Tabs -->
+        <div class="calc-tab-bar no-print">
+          <button class="calc-tab active" id="ctab-basic" onclick="switchCalcTab('basic')">&#129518; Basic</button>
+          <button class="calc-tab" id="ctab-compare" onclick="switchCalcTab('compare')">&#9878; Compare Plans</button>
+          <button class="calc-tab" id="ctab-whatif" onclick="switchCalcTab('whatif')">&#128200; What-If</button>
+          <button class="calc-tab" id="ctab-reverse" onclick="switchCalcTab('reverse')">&#8617; Reverse Calc</button>
+        </div>
+
+        <!-- BASIC TAB -->
+        <div id="calc-panel-basic">
+          <div class="form-grid">
+            <div class="fg">
+              <label>Loan Amount (&#8358;) <span class="tip no-print" data-tip="Enter the principal amount to be disbursed">&#9432;</span></label>
+              <input type="number" id="sc-amt" placeholder="Enter amount" oninput="scCalc()" style="font-size:1rem;font-weight:700"/>
+            </div>
+            <div class="fg">
+              <label>Repayment Plan</label>
+              <select id="sc-plan" onchange="scCalc()">
+                <option value="">Select plan</option>
+                <option>Daily</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option><option>Lump Sum</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Duration</label>
+              <div style="display:flex;gap:6px">
+                <input type="number" id="sc-dn" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="scCalc()"/>
+                <select id="sc-du" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="scCalc()">
+                  <option value="days">Days</option><option value="weeks">Weeks</option><option value="months" selected>Months</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg">
+              <label>Start Date <span style="font-size:.67rem;color:var(--muted)">(optional)</span></label>
+              <input type="date" id="sc-startdate" onchange="scCalc()" style="padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit;width:100%"/>
+            </div>
+          </div>
+
+          <!-- Quick Amount Presets -->
+          <div class="no-print" style="display:flex;flex-wrap:wrap;gap:6px;margin:10px 0 4px">
+            <span style="font-size:.7rem;color:var(--muted);font-weight:700;align-self:center">Quick:</span>
+            <button class="btn btn-out btn-sm" onclick="setCalcAmt(10000)">&#8358;10k</button>
+            <button class="btn btn-out btn-sm" onclick="setCalcAmt(20000)">&#8358;20k</button>
+            <button class="btn btn-out btn-sm" onclick="setCalcAmt(50000)">&#8358;50k</button>
+            <button class="btn btn-out btn-sm" onclick="setCalcAmt(100000)">&#8358;100k</button>
+            <button class="btn btn-out btn-sm" onclick="setCalcAmt(200000)">&#8358;200k</button>
+            <button class="btn btn-out btn-sm" onclick="setCalcAmt(500000)">&#8358;500k</button>
+            <button class="btn btn-out btn-sm" onclick="setCalcAmt(1000000)">&#8358;1M</button>
+          </div>
+
+          <div id="sc-result" style="margin-top:12px"></div>
+          <div id="sc-schedule"></div>
+        </div>
+
+        <!-- COMPARE PLANS TAB -->
+        <div id="calc-panel-compare" style="display:none">
+          <div class="form-grid" style="margin-bottom:12px">
+            <div class="fg">
+              <label>Loan Amount (&#8358;)</label>
+              <input type="number" id="cmp-amt" placeholder="Enter amount" oninput="calcCompare()" style="font-size:1rem;font-weight:700"/>
+            </div>
+            <div class="fg">
+              <label>Duration</label>
+              <div style="display:flex;gap:6px">
+                <input type="number" id="cmp-dn" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="calcCompare()"/>
+                <select id="cmp-du" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="calcCompare()">
+                  <option value="days">Days</option><option value="weeks">Weeks</option><option value="months" selected>Months</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="cmp-result"></div>
+        </div>
+
+        <!-- WHAT-IF TAB -->
+        <div id="calc-panel-whatif" style="display:none">
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">Slide the controls to explore how loan parameters affect your repayment.</p>
+          <div class="range-row">
+            <label style="font-size:.75rem;font-weight:700;color:var(--muted);width:110px">Loan Amount</label>
+            <input type="range" id="wi-amt" min="1000" max="2000000" step="1000" value="50000" oninput="wiCalc()"/>
+            <div class="range-val" id="wi-amt-lbl">&#8358;50,000</div>
+          </div>
+          <div class="range-row">
+            <label style="font-size:.75rem;font-weight:700;color:var(--muted);width:110px">Duration (months)</label>
+            <input type="range" id="wi-dur" min="1" max="36" step="1" value="6" oninput="wiCalc()"/>
+            <div class="range-val" id="wi-dur-lbl">6 months</div>
+          </div>
+          <div class="range-row">
+            <label style="font-size:.75rem;font-weight:700;color:var(--muted);width:110px">Interest Rate</label>
+            <input type="range" id="wi-rate" min="5" max="50" step="1" value="24" oninput="wiCalc()"/>
+            <div class="range-val" id="wi-rate-lbl">24%</div>
+          </div>
+          <div id="wi-result"></div>
+        </div>
+
+        <!-- REVERSE CALC TAB -->
+        <div id="calc-panel-reverse" style="display:none">
+          <p style="font-size:.8rem;color:var(--muted);margin-bottom:14px">Know what installment a borrower can afford? Work backwards to find the loan amount.</p>
+          <div class="form-grid" style="margin-bottom:12px">
+            <div class="fg">
+              <label>Installment Amount (&#8358;)</label>
+              <input type="number" id="rev-install" placeholder="e.g. 5000" oninput="reverseCalc()" style="font-size:1rem;font-weight:700"/>
+            </div>
+            <div class="fg">
+              <label>Repayment Plan</label>
+              <select id="rev-plan" onchange="reverseCalc()">
+                <option value="">Select plan</option>
+                <option>Daily</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option>
+              </select>
+            </div>
+            <div class="fg">
+              <label>Duration</label>
+              <div style="display:flex;gap:6px">
+                <input type="number" id="rev-dn" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="reverseCalc()"/>
+                <select id="rev-du" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="reverseCalc()">
+                  <option value="days">Days</option><option value="weeks">Weeks</option><option value="months" selected>Months</option>
+                </select>
+              </div>
+            </div>
+          </div>
+          <div id="rev-result"></div>
+        </div>
+
       </div>
     </div>
 
@@ -755,7 +933,205 @@ tbody tr:hover{background:#f8fafc}
 
 <div id="toast"></div>
 
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js">
+// ===== CALCULATOR TABS =====
+function switchCalcTab(tab){
+  ['basic','compare','whatif','reverse'].forEach(t=>{
+    document.getElementById('calc-panel-'+t).style.display = t===tab?'':'none';
+    document.getElementById('ctab-'+t).classList.toggle('active', t===tab);
+  });
+  if(tab==='compare') calcCompare();
+  if(tab==='whatif') wiCalc();
+  if(tab==='reverse') reverseCalc();
+}
+
+// ===== QUICK AMOUNT PRESET =====
+function setCalcAmt(n){
+  document.getElementById('sc-amt').value=n;
+  scCalc();
+}
+
+// ===== PRINT CALCULATOR =====
+function printCalc(){
+  document.getElementById('calc-print-date').textContent=new Date().toLocaleDateString('en-NG',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+  window.print();
+}
+
+// ===== COPY CALC RESULT =====
+function copyCalcResult(){
+  const res=document.getElementById('sc-result');
+  const sch=document.getElementById('sc-schedule');
+  const amt=document.getElementById('sc-amt').value;
+  if(!amt){toast('Nothing to copy — run a calculation first','w');return}
+  const pr=parseFloat(amt)||0,ir=pr*0.24,tr=pr+ir;
+  const plan=document.getElementById('sc-plan').value;
+  const dn=document.getElementById('sc-dn').value;
+  const du=document.getElementById('sc-du').value;
+  const inst=getInstall(tr,plan,dn,du);
+  const md=getMaturity(td(),dn,du);
+  let text='LOAN CALCULATION — LoanVault Pro\n';
+  text+='================================\n';
+  text+='Principal:        \u20A6'+fmt(pr)+'\n';
+  text+='Interest (24%):   \u20A6'+fmt(ir)+'\n';
+  text+='Total Repayable:  \u20A6'+fmt(tr)+'\n';
+  if(plan)text+='Repayment Plan:   '+plan+'\n';
+  if(dn)text+='Duration:         '+dn+' '+du+'\n';
+  if(md!=='—')text+='Maturity Date:    '+md+'\n';
+  if(inst)text+='Installment:      \u20A6'+fmt(inst.amt)+' ('+inst.lbl+')\n';
+  navigator.clipboard.writeText(text).then(()=>toast('Calculation copied to clipboard!','s')).catch(()=>toast('Could not copy','e'));
+}
+
+// ===== CLEAR CALCULATOR =====
+function clearCalc(){
+  ['sc-amt','sc-dn','sc-startdate'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('sc-plan').value='';
+  document.getElementById('sc-du').value='months';
+  document.getElementById('sc-result').innerHTML='';
+  document.getElementById('sc-schedule').innerHTML='';
+}
+
+// ===== COMPARE ALL PLANS =====
+function calcCompare(){
+  const amt=parseFloat(document.getElementById('cmp-amt').value)||0;
+  const dn=document.getElementById('cmp-dn').value;
+  const du=document.getElementById('cmp-du').value;
+  const res=document.getElementById('cmp-result');
+  if(!amt||!dn){res.innerHTML='<p style="color:var(--muted);font-size:.83rem;text-align:center;padding:20px">Enter amount and duration above to compare all plans.</p>';return}
+  const pr=amt,ir=pr*0.24,tr=pr+ir;
+  const plans=['Daily','Weekly','Bi-weekly','Monthly','Lump Sum'];
+  const cards=plans.map((plan,idx)=>{
+    const inst=getInstall(tr,plan,dn,du);
+    if(!inst)return '';
+    const md=getMaturity(td(),dn,du);
+    const isBest=idx===3; // Monthly is usually most manageable
+    return '<div class="compare-card'+(isBest?' best':'')+'">'+
+      (isBest?'<div class="best-badge">Most Common</div>':'')+
+      '<h4>'+plan+' Plan</h4>'+
+      '<div class="compare-row"><span>Principal</span><span>&#8358;'+fmt(pr)+'</span></div>'+
+      '<div class="compare-row"><span>Interest (24%)</span><span>&#8358;'+fmt(ir)+'</span></div>'+
+      '<div class="compare-row"><span>Total Repayable</span><span>&#8358;'+fmt(tr)+'</span></div>'+
+      '<div class="compare-row"><span>'+inst.lbl+'</span><span style="color:var(--green);font-weight:800">&#8358;'+fmt(inst.amt)+'</span></div>'+
+      '<div class="compare-row"><span>Maturity Date</span><span>'+md+'</span></div>'+
+      '</div>';
+  }).join('');
+  res.innerHTML='<div class="calc-compare-grid">'+cards+'</div>';
+}
+
+// ===== WHAT-IF CALCULATOR =====
+function wiCalc(){
+  const amt=parseFloat(document.getElementById('wi-amt').value)||0;
+  const dur=parseInt(document.getElementById('wi-dur').value)||1;
+  const rate=parseFloat(document.getElementById('wi-rate').value)||24;
+  document.getElementById('wi-amt-lbl').innerHTML='&#8358;'+fmt(amt);
+  document.getElementById('wi-dur-lbl').textContent=dur+' month'+(dur>1?'s':'');
+  document.getElementById('wi-rate-lbl').textContent=rate+'%';
+  const ir=amt*(rate/100),tr=amt+ir;
+  const monthly=tr/dur;
+  const weekly=tr/(dur*4);
+  const daily=tr/(dur*30);
+  document.getElementById('wi-result').innerHTML=
+    '<div class="what-if-box">'+
+    '<div class="what-if-title">&#128200; Repayment Breakdown</div>'+
+    '<div class="what-if-grid">'+
+    '<div class="wi-item"><div class="wv">&#8358;'+fmt(amt)+'</div><div class="wl">Principal</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--amber)">&#8358;'+fmt(ir)+'</div><div class="wl">Interest ('+rate+'%)</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--navy)">&#8358;'+fmt(tr)+'</div><div class="wl">Total</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--green)">&#8358;'+fmt(monthly)+'</div><div class="wl">Per Month</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--blue)">&#8358;'+fmt(weekly)+'</div><div class="wl">Per Week</div></div>'+
+    '<div class="wi-item"><div class="wv" style="color:var(--purple)">&#8358;'+fmt(daily)+'</div><div class="wl">Per Day</div></div>'+
+    '</div>'+
+    '<div style="margin-top:10px;font-size:.75rem;color:#166534;background:#dcfce7;border-radius:7px;padding:8px 12px">'+
+    '<strong>Tip:</strong> At &#8358;'+fmt(monthly)+'/month for '+dur+' month'+(dur>1?'s':'')+', the borrower repays &#8358;'+fmt(ir)+' in interest over the loan period.'+
+    '</div></div>';
+}
+
+// ===== REVERSE CALCULATOR =====
+function reverseCalc(){
+  const install=parseFloat(document.getElementById('rev-install').value)||0;
+  const plan=document.getElementById('rev-plan').value;
+  const dn=document.getElementById('rev-dn').value;
+  const du=document.getElementById('rev-du').value;
+  const res=document.getElementById('rev-result');
+  if(!install||!plan||!dn){
+    res.innerHTML='<p style="color:var(--muted);font-size:.83rem;text-align:center;padding:20px">Fill in installment, plan and duration to calculate the maximum loan amount.</p>';
+    return;
+  }
+  const n=parseInt(dn)||1;
+  let periods;
+  if(plan==='Daily')periods=du==='days'?n:du==='weeks'?n*7:n*30;
+  else if(plan==='Weekly')periods=du==='days'?Math.ceil(n/7):du==='weeks'?n:n*4;
+  else if(plan==='Bi-weekly')periods=du==='months'?n*2:du==='weeks'?Math.ceil(n/2):Math.ceil(n/14);
+  else if(plan==='Monthly')periods=du==='months'?n:du==='weeks'?Math.ceil(n/4):Math.ceil(n/30);
+  if(!periods){res.innerHTML='';return}
+  const totalRepayable=install*periods;
+  const principal=totalRepayable/1.24;
+  const interest=totalRepayable-principal;
+  const md=getMaturity(td(),dn,du);
+  res.innerHTML='<div class="calc-box" style="margin-top:12px">'+
+    '<div class="calc-title">Reverse Calculation Result</div>'+
+    '<div class="calc-grid">'+
+    '<div class="calc-item"><div class="cv">&#8358;'+fmt(principal)+'</div><div class="cl">Max Principal</div></div>'+
+    '<div class="calc-item"><div class="cv">&#8358;'+fmt(interest)+'</div><div class="cl">Interest (24%)</div></div>'+
+    '<div class="calc-item hl"><div class="cv">&#8358;'+fmt(totalRepayable)+'</div><div class="cl">Total Repayable</div></div>'+
+    '<div class="calc-item"><div class="cv">'+md+'</div><div class="cl">Maturity Date</div></div>'+
+    '</div>'+
+    '<div class="calc-row"><span>'+plan+' installment &times; '+periods+' payments</span><strong>&#8358;'+fmt(install)+' each</strong></div>'+
+    '</div>'+
+    '<div style="background:#ede9fe;border-radius:8px;padding:10px 14px;margin-top:10px;font-size:.78rem;color:#5b21b6">'+
+    '<strong>Result:</strong> A borrower paying &#8358;'+fmt(install)+' per '+plan.toLowerCase()+' can receive a maximum loan of <strong>&#8358;'+fmt(principal)+'</strong>.'+
+    '</div>';
+}
+
+// ===== FAB (Floating Action Button) =====
+let fabOpen=false;
+function toggleFab(){
+  fabOpen=!fabOpen;
+  document.getElementById('fab-menu').classList.toggle('open',fabOpen);
+  document.getElementById('fab-btn').textContent=fabOpen?'\u00D7':'+';
+}
+document.addEventListener('click',function(e){
+  if(fabOpen&&!e.target.closest('#fab-btn')&&!e.target.closest('#fab-menu')){
+    fabOpen=false;
+    document.getElementById('fab-menu').classList.remove('open');
+    document.getElementById('fab-btn').textContent='+';
+  }
+});
+
+// ===== SCROLL TO TOP =====
+window.addEventListener('scroll',function(){
+  const btn=document.getElementById('scroll-top');
+  if(btn)btn.classList.toggle('show',window.scrollY>300);
+});
+
+// ===== PAGE LOADER =====
+function showLoader(msg){
+  const el=document.getElementById('page-loader');
+  document.getElementById('loader-msg').textContent=msg||'Loading...';
+  if(el)el.classList.add('show');
+}
+function hideLoader(){
+  const el=document.getElementById('page-loader');
+  if(el)el.classList.remove('show');
+}
+
+// ===== KEYBOARD SHORTCUTS =====
+document.addEventListener('keydown',function(e){
+  if(e.altKey){
+    if(e.key==='n'){e.preventDefault();showPage('new-application')}
+    if(e.key==='r'){e.preventDefault();showPage('repayments')}
+    if(e.key==='c'){e.preventDefault();showPage('calculator')}
+    if(e.key==='d'){e.preventDefault();showPage('dashboard')}
+    if(e.key==='b'){e.preventDefault();showPage('borrowers')}
+  }
+});
+
+// ===== ENHANCED LIVE CALC (add print date) =====
+document.addEventListener('DOMContentLoaded',function(){
+  const d=document.getElementById('calc-print-date');
+  if(d)d.textContent=new Date().toLocaleDateString('en-NG',{weekday:'long',day:'2-digit',month:'long',year:'numeric'});
+});
+
+</script>
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script>
@@ -975,6 +1351,7 @@ function showPage(id){
 
 // ===== LOAD ALL DATA =====
 async function loadAll(){
+  showLoader('Loading data...');
   try{
     const [brSnap,usSnap,lnSnap]=await Promise.all([
       db.collection('branches').get(),
@@ -988,7 +1365,8 @@ async function loadAll(){
     renderDash();
     chkNotifBadge();
     populateLoginBranchSelect();
-  }catch(e){toast('Load error: '+e.message,'e')}
+    hideLoader();
+  }catch(e){hideLoader();toast('Load error: '+e.message,'e')}
 }
 
 // Populate login staff branch dropdown from cached branches
@@ -1985,5 +2363,18 @@ document.getElementById('f-branch').addEventListener('change',function(){
   liveCalc();
 });
 </script>
+
+<!-- FLOATING ACTION BUTTON -->
+<button class="fab no-print" id="fab-btn" onclick="toggleFab()" title="Quick Actions">+</button>
+<div class="fab-menu no-print" id="fab-menu">
+  <button class="fab-item" onclick="showPage('new-application');toggleFab()">&#128203; New Loan</button>
+  <button class="fab-item" onclick="showPage('repayments');toggleFab()">&#128176; Record Payment</button>
+  <button class="fab-item" onclick="showPage('calculator');toggleFab()">&#129518; Calculator</button>
+  <button class="fab-item" onclick="showPage('notifications');toggleFab()">&#128276; Alerts</button>
+  <button class="fab-item" onclick="exportExcel();toggleFab()">&#128190; Export Excel</button>
+</div>
+<button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">&#8679;</button>
+<div id="page-loader"><div class="loader-ring"></div><p id="loader-msg">Loading...</p></div>
+
 </body>
 </html>
