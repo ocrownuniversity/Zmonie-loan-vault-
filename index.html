@@ -254,8 +254,8 @@ tbody tr:hover{background:#f8fafc}
     <button class="nb" onclick="showPage('calculator')">&#129518; Calculator</button>
     <button class="nb" onclick="showPage('reports')">&#128196; Reports</button>
     <button class="nb" onclick="showPage('notifications')">&#128276; Alerts</button>
-    <button class="nb admin-only" onclick="showPage('branches')">&#127970; Branches</button>
-    <button class="nb admin-only" onclick="showPage('users')">&#128101; Staff</button>
+    <button class="nb" id="nav-branches" onclick="showPage('branches')" style="display:none">&#x1F3E6; Branches</button>
+    <button class="nb" id="nav-users" onclick="showPage('users')" style="display:none">&#x1F464; Staff</button>
     <button class="nb" onclick="showPage('settings')">&#9881; Settings</button>
   </nav>
   <main>
@@ -905,16 +905,31 @@ function startApp(){
   document.getElementById('app').style.display='block';
   document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-NG',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
 
-  // Role UI
   const isAdmin = currentSession.role === 'admin';
-  document.getElementById('role-pill').textContent = isAdmin ? 'ADMIN' : 'STAFF';
-  const branchBadge = document.getElementById('branch-badge');
-  if(!isAdmin && currentSession.branchName){branchBadge.textContent='&#127970; '+currentSession.branchName;branchBadge.style.display='';}
-  else branchBadge.style.display='none';
 
-  // Show/hide admin-only nav items
-  document.querySelectorAll('.admin-only').forEach(el=>el.style.display=isAdmin?'':'none');
-  document.querySelectorAll('.admin-only-card').forEach(el=>el.style.display=isAdmin?'':'none');
+  // Role pill
+  document.getElementById('role-pill').textContent = isAdmin ? 'ADMIN' : 'STAFF';
+
+  // Branch badge — use innerHTML so emoji renders correctly
+  const branchBadge = document.getElementById('branch-badge');
+  if(!isAdmin && currentSession.branchName){
+    branchBadge.innerHTML = '&#x1F3E6; ' + currentSession.branchName;
+    branchBadge.style.display = '';
+  } else {
+    branchBadge.style.display = 'none';
+  }
+
+  // Admin-only nav buttons — referenced by ID
+  const navBranches = document.getElementById('nav-branches');
+  const navUsers = document.getElementById('nav-users');
+  if(navBranches) navBranches.style.display = isAdmin ? '' : 'none';
+  if(navUsers) navUsers.style.display = isAdmin ? '' : 'none';
+
+  // Admin-only dashboard card
+  const bsCard = document.getElementById('branch-summary-card');
+  if(bsCard) bsCard.style.display = isAdmin ? '' : 'none';
+
+  // Field-level visibility
   document.querySelectorAll('.admin-only-input').forEach(el=>el.style.display=isAdmin?'':'none');
   document.querySelectorAll('.admin-only-field').forEach(el=>el.style.display=isAdmin?'':'none');
   document.querySelectorAll('.staff-only-card').forEach(el=>el.style.display=!isAdmin?'':'none');
@@ -1026,8 +1041,8 @@ function renderDash(){
   // Branch context bar
   const bar=document.getElementById('branch-context-bar');
   if(bar){
-    if(isAdmin){bar.textContent='&#127970; Showing combined data from all branches';bar.style.display='block'}
-    else{bar.textContent='&#127970; '+currentSession.branchName+' — You see only your branch data';bar.style.display='block'}
+    if(isAdmin){bar.innerHTML='&#x1F3E6; Showing combined data from all branches';bar.style.display='block'}
+    else{bar.innerHTML='&#x1F3E6; '+currentSession.branchName+' &mdash; You see only your branch data';bar.style.display='block'}
   }
 
   const total=loans.length;
@@ -1934,6 +1949,19 @@ function restoreData(inp){
     }catch(ex){toast('Invalid file: '+ex.message,'e')}
   };r.readAsText(f);
 }
+
+// ===== PRELOAD for staff login =====
+(async function preload(){
+  try{
+    const [brSnap, usSnap] = await Promise.all([
+      db.collection('branches').get(),
+      db.collection('staff_users').get()
+    ]);
+    allBranches = brSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allUsers = usSnap.docs.map(d=>({id:d.id,...d.data()}));
+    populateLoginBranchSelect();
+  }catch(e){ console.warn('Preload:', e.message); }
+})();
 
 // ===== DOB SELECTS =====
 (function initDob(){
