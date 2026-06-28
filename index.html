@@ -758,7 +758,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
       <div class="card">
         <div class="card-title">
           <span>&#128101; Staff Management</span>
-          <button class="btn btn-navy btn-sm" onclick="openUserModal()">&#43; New Staff Account</button>
+          <button class="btn btn-navy btn-sm" id="new-staff-btn" onclick="openUserModal()">&#43; New Staff Account</button>
         </div>
         <div class="search-row">
           <input type="text" id="usr-srch" placeholder="Search staff..." oninput="renderUsers()"/>
@@ -1108,10 +1108,19 @@ function startApp(){
   const bsCard = document.getElementById('branch-summary-card');
   if(bsCard) bsCard.style.display = isAdmin ? '' : 'none';
 
+  // Hide new-staff-btn from staff users
+  const newStaffBtn = document.getElementById('new-staff-btn');
+  if(newStaffBtn) newStaffBtn.style.display = isAdmin ? '' : 'none';
+
   // Field-level visibility
   document.querySelectorAll('.admin-only-input').forEach(el=>el.style.display=isAdmin?'':'none');
   document.querySelectorAll('.admin-only-field').forEach(el=>el.style.display=isAdmin?'':'none');
   document.querySelectorAll('.staff-only-card').forEach(el=>el.style.display=!isAdmin?'':'none');
+
+  // Always land on dashboard after login
+  // Reset all pages to inactive first so no leftover state shows
+  document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
 
   loadAll();
 }
@@ -1130,8 +1139,12 @@ function doLogout(){
 
 // ===== NAV =====
 function showPage(id){
-  // Guard: non-admin cannot access admin pages
-  if((id==='branches'||id==='users')&&currentSession.role!=='admin'){toast('Admin access required','e');return}
+  // Guard: non-admin cannot access admin-only pages
+  if((id==='branches'||id==='users')&&currentSession.role!=='admin'){
+    toast('Admin access only','e');
+    // Redirect staff to dashboard instead
+    id='dashboard';
+  }
   document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const sec=document.getElementById('page-'+id);if(sec)sec.classList.add('active');
@@ -1165,10 +1178,10 @@ async function loadAll(){
     allUsers=usSnap.docs.map(d=>({id:d.id,...d.data()}));
     allLoans=lnSnap.docs.map(d=>({id:d.id,...d.data()}));
     populateAllBranchDropdowns();
-    renderDash();
     chkNotifBadge();
     populateLoginBranchSelect();
     hideLoader();
+    showPage('dashboard'); // Always land on dashboard after login
   }catch(e){hideLoader();toast('Load error: '+e.message,'e')}
 }
 
@@ -1222,8 +1235,15 @@ function renderDash(){
   // Branch context bar
   const bar=document.getElementById('branch-context-bar');
   if(bar){
-    if(isAdmin){bar.innerHTML='&#x1F3E6; Showing combined data from all branches';bar.style.display='block'}
-    else{bar.innerHTML='&#x1F3E6; '+currentSession.branchName+' &mdash; You see only your branch data';bar.style.display='block'}
+    if(isAdmin){
+      bar.innerHTML='&#x1F3E6; Showing combined data across all <strong>'+allBranches.length+' branch'+(allBranches.length!==1?'es':'')+'</strong>';
+      bar.style.display='block';
+    } else {
+      const hr=new Date().getHours();
+      const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
+      bar.innerHTML='&#x1F44B; '+greet+', <strong>'+(currentSession.name||currentSession.username)+'</strong> &mdash; &#x1F3E6; '+currentSession.branchName;
+      bar.style.display='block';
+    }
   }
 
   const total=loans.length;
@@ -1955,6 +1975,14 @@ function deleteBranch(id){
 
 // ===== USER MANAGEMENT =====
 function renderUsers(){
+  // Double-check: only admin can manage staff
+  if(currentSession.role!=='admin'){
+    const el=document.getElementById('users-list');
+    if(el)el.innerHTML='<p style="text-align:center;color:var(--red);padding:20px;font-weight:700">Access denied. Admin only.</p>';
+    const btn=document.getElementById('new-staff-btn');
+    if(btn)btn.style.display='none';
+    return;
+  }
   const q=v('usr-srch').toLowerCase(),br=v('usr-br'),role=v('usr-role');
   let list=allUsers.filter(u=>{
     if(q&&!(u.name||'').toLowerCase().includes(q)&&!(u.username||'').toLowerCase().includes(q))return false;
@@ -1983,6 +2011,7 @@ function toggleBranchField(){
   if(fg)fg.style.display=role==='admin'?'none':'';
 }
 function openUserModal(editId){
+  if(currentSession.role!=='admin'){toast('Admin access only','e');return}
   editUserId=editId||null;
   document.getElementById('um-title').textContent=editId?'Edit Staff Account':'New Staff Account';
   // Populate branch dropdown in modal
@@ -2013,6 +2042,7 @@ function openUserModal(editId){
 }
 function editUser(id){openUserModal(id)}
 function saveUser(){
+  if(currentSession.role!=='admin'){toast('Admin access only','e');return}
   const name=document.getElementById('um-name').value.trim();
   const username=document.getElementById('um-username').value.trim().toLowerCase();
   const pass=document.getElementById('um-pass').value;
@@ -2043,6 +2073,7 @@ function saveUser(){
   }).catch(e=>toast('Error: '+e.message,'e'));
 }
 function deleteUser(id){
+  if(currentSession.role!=='admin'){toast('Admin access only','e');return}
   if(id===currentSession.userId){toast("You can't delete your own account",'e');return}
   if(!confirm('Delete this staff account?'))return;
   db.collection('staff_users').doc(id).delete().then(()=>{
