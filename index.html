@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>LoanVault Pro - Branch Management System</title>
+<title>LoanVault Pro - Loans, EasyBuy &amp; Investment</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -252,6 +252,46 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
   .calc-compare-grid{grid-template-columns:repeat(2,1fr)}
   .tbl-wrap table{font-size:.72rem}
 }
+
+/* ===== EASYBUY & INVESTMENT MODULE CSS ===== */
+--teal:#0d9488;--teal2:#14b8a6;--orange:#ea580c;--orange2:#f97316;
+.eb-badge{background:linear-gradient(135deg,#0d9488,#14b8a6)}
+.inv-badge{background:linear-gradient(135deg,#7c3aed,#a855f7)}
+.mod-header{border-radius:12px;padding:16px 20px;margin-bottom:16px;color:#fff;display:flex;align-items:center;gap:12px}
+.mod-header.eb{background:linear-gradient(135deg,#0d9488,#134e4a)}
+.mod-header.inv{background:linear-gradient(135deg,#7c3aed,#4c1d95)}
+.mod-header h2{font-size:1rem;font-weight:800}
+.mod-header p{font-size:.75rem;opacity:.8;margin-top:2px}
+.mod-icon{font-size:2rem;flex-shrink:0}
+.b-eb-active{background:#ccfbf1;color:#0f766e}
+.b-eb-completed{background:#dbeafe;color:#1e40af}
+.b-eb-defaulted{background:#fee2e2;color:#991b1b}
+.b-inv-active{background:#ede9fe;color:#5b21b6}
+.b-inv-completed{background:#dcfce7;color:#166534}
+.b-inv-withdrawn{background:#fef3c7;color:#92400e}
+.prd-card{background:linear-gradient(135deg,#0d9488,#134e4a);border-radius:10px;padding:14px;color:#fff;margin-bottom:14px}
+.prd-card h4{font-size:.82rem;font-weight:800;margin-bottom:2px}
+.prd-card p{font-size:.72rem;opacity:.8}
+.inv-return-box{background:linear-gradient(135deg,#7c3aed,#4c1d95);border-radius:10px;padding:14px;color:#fff;margin-bottom:14px}
+.inv-return-box h4{font-size:.82rem;font-weight:800;margin-bottom:2px}
+/* Agreement print styles */
+.agr-page{display:none}
+@media print{
+  .agr-page{display:block!important}
+  .agr-page *{font-family:'Inter',sans-serif}
+  #app,#login-screen{display:none!important}
+  .no-print{display:none!important}
+}
+.dash-module-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;margin-bottom:16px}
+.dash-module-card{border-radius:var(--radius);padding:16px;color:#fff;cursor:pointer;transition:.2s;position:relative;overflow:hidden}
+.dash-module-card:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.dash-module-card.eb{background:linear-gradient(135deg,#0d9488,#134e4a)}
+.dash-module-card.inv{background:linear-gradient(135deg,#7c3aed,#4c1d95)}
+.dash-module-card .dmc-icon{font-size:2rem;margin-bottom:8px}
+.dash-module-card h3{font-size:.9rem;font-weight:800}
+.dash-module-card p{font-size:.72rem;opacity:.8;margin-top:2px}
+.dash-module-card .dmc-stat{font-size:1.5rem;font-weight:800;margin-top:8px}
+
 </style>
 </head>
 <body>
@@ -312,6 +352,8 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
     <button class="nb" onclick="showPage('calculator')">&#129518; Calculator</button>
     <button class="nb" onclick="showPage('reports')">&#128196; Reports</button>
     <button class="nb" onclick="showPage('notifications')">&#128276; Alerts</button>
+    <button class="nb" onclick="showPage('easybuy')">&#128722; EasyBuy</button>
+    <button class="nb" onclick="showPage('investment')">&#128200; Investment</button>
     <button class="nb" id="nav-branches" onclick="showPage('branches')" style="display:none">&#x1F3E6; Branches</button>
     <button class="nb" id="nav-users" onclick="showPage('users')" style="display:none">&#x1F464; Staff</button>
     <button class="nb" onclick="showPage('settings')">&#9881; Settings</button>
@@ -342,9 +384,186 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
         <div class="card-title">&#9203; Recent Payment Activity</div>
         <div id="activity-feed"></div>
       </div>
+      <!-- EasyBuy & Investment Module Summaries -->
+      <div class="dash-module-grid" id="dash-modules"></div>
+    </div>
+
+    <!-- EASYBUY PAGE -->
+    <div class="page-section" id="page-easybuy">
+      <div class="mod-header eb"><div class="mod-icon">&#128722;</div><div><h2>EasyBuy Module</h2><p>Hire-purchase &amp; instalment product management</p></div><div style="margin-left:auto;display:flex;gap:8px"><button class="btn btn-sm no-print" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="exportEasyBuyExcel()">&#128190; Excel</button><button class="btn btn-sm no-print" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="showPage('new-easybuy')">&#43; New EasyBuy</button></div></div>
+      <div class="stat-grid" id="eb-stat-grid"></div>
+      <div class="card">
+        <div class="card-title"><span>&#128722; EasyBuy Records</span></div>
+        <div class="search-row">
+          <input type="text" id="eb-srch" placeholder="Search name, phone, product, ID..." oninput="searchEB()"/>
+          <select id="eb-fst" onchange="searchEB()"><option value="">All Status</option><option>Active</option><option>Completed</option><option>Defaulted</option></select>
+          <select id="eb-fbr" onchange="searchEB()" style="display:none"><option value="">All Branches</option></select>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>ID</th><th>Customer</th><th>Phone</th><th>Branch</th><th>Product</th><th>Price</th><th>Initial</th><th>Balance</th><th>Plan</th><th>Status</th><th>Date</th><th>Actions</th></tr></thead>
+          <tbody id="eb-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- NEW EASYBUY -->
+    <div class="page-section" id="page-new-easybuy">
+      <div class="card">
+        <div class="card-title">&#128722; New EasyBuy Registration
+          <button class="btn btn-out btn-sm no-print" onclick="showPage('easybuy')">&#8592; Back</button>
+        </div>
+        <form id="eb-form" onsubmit="submitEasyBuy(event)">
+          <div class="sh">&#128100; Customer Information</div>
+          <div class="form-grid">
+            <div class="fg"><label>Full Name *</label><input required id="eb-name" placeholder="Customer full name"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="eb-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Address *</label><input required id="eb-address" placeholder="Residential address"/></div>
+            <div class="fg"><label>Occupation / Business</label><input id="eb-occ" placeholder="Job title or business"/></div>
+            <div class="fg"><label>ID Type</label><select id="eb-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
+            <div class="fg"><label>ID Number</label><input id="eb-idnum" placeholder="ID number"/></div>
+          </div>
+          <div class="sh">&#127970; Branch</div>
+          <div class="form-grid">
+            <div class="fg"><label>Branch *</label><select id="eb-branch" required><option value="">-- Select Branch --</option></select></div>
+            <div class="fg"><label>Sales Officer</label><select id="eb-officer"><option value="">-- Optional --</option></select></div>
+          </div>
+          <div class="sh">&#128247; Customer Photo &amp; Documents</div>
+          <div class="form-grid">
+            <div class="fg"><label>Customer Photo</label>
+              <div class="photo-up" onclick="document.getElementById('eb-photo-file').click()">
+                <img id="eb-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload photo</p>
+              </div>
+              <input type="file" id="eb-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'eb-photo-prev','eb-photo-data')"/>
+              <input type="hidden" id="eb-photo-data"/>
+            </div>
+            <div class="fg"><label>Documents</label>
+              <input type="file" id="eb-docs-file" multiple accept="image/*,.pdf" onchange="docsUpload(this,'eb-docs-list','eb-docs-data')"/>
+              <div id="eb-docs-list" class="flist"></div>
+              <input type="hidden" id="eb-docs-data" value="[]"/>
+            </div>
+          </div>
+          <div class="sh">&#128230; Product Details</div>
+          <div class="form-grid">
+            <div class="fg"><label>Product Name *</label><input required id="eb-product" placeholder="e.g. Samsung TV 55 inch"/></div>
+            <div class="fg"><label>Product Description</label><input id="eb-proddesc" placeholder="Model, colour, specs…"/></div>
+            <div class="fg"><label>Product Price (&#8358;) *</label><input required type="number" id="eb-price" placeholder="0" oninput="ebCalc()"/></div>
+            <div class="fg"><label>Initial Payment (&#8358;) *</label><input required type="number" id="eb-initial" placeholder="0" oninput="ebCalc()"/></div>
+            <div class="fg"><label>Payment Plan *</label><select required id="eb-plan" onchange="ebCalc()"><option value="">Select plan</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option><option>Lump Sum</option></select></div>
+            <div class="fg"><label>Duration *</label>
+              <div style="display:flex;gap:6px">
+                <input type="number" id="eb-dur-n" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="ebCalc()"/>
+                <select id="eb-dur-u" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="ebCalc()"><option value="weeks">Weeks</option><option value="months" selected>Months</option></select>
+              </div>
+            </div>
+            <div class="fg"><label>Agreement Date *</label><input required type="date" id="eb-agrdate"/></div>
+            <div class="fg"><label>Status</label><select id="eb-status"><option value="Active">Active</option><option value="Completed">Completed</option><option value="Defaulted">Defaulted</option></select></div>
+          </div>
+          <!-- EasyBuy live calc -->
+          <div class="calc-box" id="eb-calc-box" style="display:none">
+            <div class="calc-title">&#128722; EasyBuy Summary</div>
+            <div class="calc-grid">
+              <div class="calc-item"><div class="cv" id="eb-c-price">&#8358;0</div><div class="cl">Product Price</div></div>
+              <div class="calc-item"><div class="cv" id="eb-c-init">&#8358;0</div><div class="cl">Initial Payment</div></div>
+              <div class="calc-item hl"><div class="cv" id="eb-c-bal">&#8358;0</div><div class="cl">Balance</div></div>
+              <div class="calc-item"><div class="cv" id="eb-c-inst">--</div><div class="cl">Installment</div></div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-navy">&#128190; Save EasyBuy Record</button>
+            <button type="button" class="btn btn-out" onclick="resetEBForm()">&#8635; Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- INVESTMENT PAGE -->
+    <div class="page-section" id="page-investment">
+      <div class="mod-header inv"><div class="mod-icon">&#128200;</div><div><h2>Investment Module</h2><p>Investor management &amp; return tracking</p></div><div style="margin-left:auto;display:flex;gap:8px"><button class="btn btn-sm no-print" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="exportInvestmentExcel()">&#128190; Excel</button><button class="btn btn-sm no-print" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="showPage('new-investment')">&#43; New Investment</button></div></div>
+      <div class="stat-grid" id="inv-stat-grid"></div>
+      <div class="card">
+        <div class="card-title"><span>&#128200; Investment Records</span></div>
+        <div class="search-row">
+          <input type="text" id="inv-srch" placeholder="Search name, phone, ID..." oninput="searchINV()"/>
+          <select id="inv-fst" onchange="searchINV()"><option value="">All Status</option><option>Active</option><option>Completed</option><option>Withdrawn</option></select>
+          <select id="inv-fbr" onchange="searchINV()" style="display:none"><option value="">All Branches</option></select>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>ID</th><th>Investor</th><th>Phone</th><th>Branch</th><th>Amount</th><th>Plan</th><th>Return</th><th>Start</th><th>Maturity</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="inv-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- NEW INVESTMENT -->
+    <div class="page-section" id="page-new-investment">
+      <div class="card">
+        <div class="card-title">&#128200; New Investment Registration
+          <button class="btn btn-out btn-sm no-print" onclick="showPage('investment')">&#8592; Back</button>
+        </div>
+        <form id="inv-form" onsubmit="submitInvestment(event)">
+          <div class="sh">&#128100; Investor Information</div>
+          <div class="form-grid">
+            <div class="fg"><label>Full Name *</label><input required id="inv-name" placeholder="Investor full name"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="inv-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Address *</label><input required id="inv-address" placeholder="Residential address"/></div>
+            <div class="fg"><label>Occupation</label><input id="inv-occ" placeholder="Occupation"/></div>
+            <div class="fg"><label>ID Type</label><select id="inv-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
+            <div class="fg"><label>ID Number</label><input id="inv-idnum" placeholder="ID number"/></div>
+          </div>
+          <div class="sh">&#127970; Branch</div>
+          <div class="form-grid">
+            <div class="fg"><label>Branch *</label><select id="inv-branch" required><option value="">-- Select Branch --</option></select></div>
+          </div>
+          <div class="sh">&#128247; Investor Photo &amp; Documents</div>
+          <div class="form-grid">
+            <div class="fg"><label>Investor Photo</label>
+              <div class="photo-up" onclick="document.getElementById('inv-photo-file').click()">
+                <img id="inv-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload photo</p>
+              </div>
+              <input type="file" id="inv-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'inv-photo-prev','inv-photo-data')"/>
+              <input type="hidden" id="inv-photo-data"/>
+            </div>
+            <div class="fg"><label>Documents</label>
+              <input type="file" id="inv-docs-file" multiple accept="image/*,.pdf" onchange="docsUpload(this,'inv-docs-list','inv-docs-data')"/>
+              <div id="inv-docs-list" class="flist"></div>
+              <input type="hidden" id="inv-docs-data" value="[]"/>
+            </div>
+          </div>
+          <div class="sh">&#128181; Investment Details</div>
+          <div class="form-grid">
+            <div class="fg"><label>Investment Amount (&#8358;) *</label><input required type="number" id="inv-amount" placeholder="0" oninput="invCalc()"/></div>
+            <div class="fg"><label>Investment Plan *</label><select required id="inv-plan" onchange="invCalc()"><option value="">Select plan</option><option value="10">10% Return</option><option value="15">15% Return</option><option value="20">20% Return</option><option value="25">25% Return</option><option value="30">30% Return</option></select></div>
+            <div class="fg"><label>Duration *</label>
+              <div style="display:flex;gap:6px">
+                <input type="number" id="inv-dur-n" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="invCalc()"/>
+                <select id="inv-dur-u" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="invCalc()"><option value="months" selected>Months</option><option value="years">Years</option></select>
+              </div>
+            </div>
+            <div class="fg"><label>Start Date *</label><input required type="date" id="inv-startdate" oninput="invCalc()"/></div>
+            <div class="fg"><label>Status</label><select id="inv-status"><option value="Active">Active</option><option value="Completed">Completed</option><option value="Withdrawn">Withdrawn</option></select></div>
+          </div>
+          <!-- Investment live calc -->
+          <div class="calc-box inv-return-box" id="inv-calc-box" style="display:none;background:linear-gradient(135deg,#7c3aed,#4c1d95)">
+            <div class="calc-title">&#128200; Investment Return Summary</div>
+            <div class="calc-grid">
+              <div class="calc-item"><div class="cv" id="inv-c-amt">&#8358;0</div><div class="cl">Principal</div></div>
+              <div class="calc-item"><div class="cv" id="inv-c-ret">&#8358;0</div><div class="cl">Expected Return</div></div>
+              <div class="calc-item hl"><div class="cv" id="inv-c-total">&#8358;0</div><div class="cl">Total at Maturity</div></div>
+              <div class="calc-item"><div class="cv" id="inv-c-mat">--</div><div class="cl">Maturity Date</div></div>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-navy">&#128190; Save Investment Record</button>
+            <button type="button" class="btn btn-out" onclick="resetINVForm()">&#8635; Reset</button>
+          </div>
+        </form>
+      </div>
     </div>
 
     <!-- BORROWERS -->
+
     <div class="page-section" id="page-applicants">
       <div class="card">
         <div class="card-title">
@@ -932,6 +1151,56 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
   </div>
 </div>
 
+<!-- EASYBUY PROFILE MODAL -->
+<div class="overlay" id="eb-profile-modal">
+  <div class="modal" style="max-width:740px">
+    <div class="mhead">
+      <h3 id="eb-pm-title">EasyBuy Record</h3>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-out btn-sm no-print" onclick="printEBAgreement()">&#128424; Print Agreement</button>
+        <button class="mclose no-print" onclick="closeModal('eb-profile-modal')">&times;</button>
+      </div>
+    </div>
+    <div class="mbody" id="eb-pm-body"></div>
+  </div>
+</div>
+
+<!-- EASYBUY PAYMENT MODAL -->
+<div class="overlay" id="eb-pay-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="mhead">
+      <h3 id="eb-pay-title">Record EasyBuy Payment</h3>
+      <button class="mclose" onclick="closeModal('eb-pay-modal')">&times;</button>
+    </div>
+    <div class="mbody" id="eb-pay-body"></div>
+  </div>
+</div>
+
+<!-- INVESTMENT PROFILE MODAL -->
+<div class="overlay" id="inv-profile-modal">
+  <div class="modal" style="max-width:740px">
+    <div class="mhead">
+      <h3 id="inv-pm-title">Investment Record</h3>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-out btn-sm no-print" onclick="printINVAgreement()">&#128424; Print Statement</button>
+        <button class="mclose no-print" onclick="closeModal('inv-profile-modal')">&times;</button>
+      </div>
+    </div>
+    <div class="mbody" id="inv-pm-body"></div>
+  </div>
+</div>
+
+<!-- INVESTMENT PAYMENT MODAL -->
+<div class="overlay" id="inv-pay-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="mhead">
+      <h3 id="inv-pay-title">Record Investment Return Payment</h3>
+      <button class="mclose" onclick="closeModal('inv-pay-modal')">&times;</button>
+    </div>
+    <div class="mbody" id="inv-pay-body"></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -1158,6 +1427,10 @@ function showPage(id){
   if(id==='notifications')renderNotif();
   if(id==='branches')renderBranches();
   if(id==='users'){populateUserBranchDropdowns();renderUsers()}
+  if(id==='easybuy'){populateEBINVBranchDropdowns();renderEBStats();renderEB(scopedEB())}
+  if(id==='new-easybuy'){populateEBINVBranchDropdowns();resetEBForm()}
+  if(id==='investment'){populateEBINVBranchDropdowns();renderINVStats();renderINV(scopedINV())}
+  if(id==='new-investment'){populateEBINVBranchDropdowns();resetINVForm()}
   if(id==='settings'){
     document.getElementById('si-total').textContent=getScopedLoans().length;
     document.getElementById('si-branches').textContent=allBranches.length;
@@ -1169,15 +1442,20 @@ function showPage(id){
 async function loadAll(){
   showLoader('Loading data...');
   try{
-    const [brSnap,usSnap,lnSnap]=await Promise.all([
+    const [brSnap,usSnap,lnSnap,ebSnap,invSnap]=await Promise.all([
       db.collection('branches').get(),
       db.collection('staff_users').get(),
-      db.collection('loans').get()
+      db.collection('loans').get(),
+      db.collection('easybuy').get(),
+      db.collection('investments').get()
     ]);
     allBranches=brSnap.docs.map(d=>({id:d.id,...d.data()}));
     allUsers=usSnap.docs.map(d=>({id:d.id,...d.data()}));
     allLoans=lnSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allEasyBuys=ebSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allInvestments=invSnap.docs.map(d=>({id:d.id,...d.data()}));
     populateAllBranchDropdowns();
+    populateEBINVBranchDropdowns();
     chkNotifBadge();
     populateLoginBranchSelect();
     hideLoader();
@@ -2546,6 +2824,715 @@ function downloadCalcPage(){
   toast('Calculation downloaded as HTML file!','s');
 }
 
+
+
+// =====================================================
+// ===== EASYBUY MODULE =====
+// =====================================================
+let allEasyBuys = [], allInvestments = [], ebCurId = null, invCurId = null;
+
+// Scoped helpers
+function scopedEB(){ return currentSession.role==='admin' ? allEasyBuys : allEasyBuys.filter(e=>e.branchId===currentSession.branchId); }
+function scopedINV(){ return currentSession.role==='admin' ? allInvestments : allInvestments.filter(i=>i.branchId===currentSession.branchId); }
+
+function ebGenId(){ return 'EB-'+Date.now().toString().slice(-7); }
+function invGenId(){ return 'INV-'+Date.now().toString().slice(-7); }
+
+function ebBdg(s){
+  const m={Active:'b-eb-active',Completed:'b-eb-completed',Defaulted:'b-eb-defaulted'};
+  return '<span class="badge '+(m[s]||'b-pending')+'">'+s+'</span>';
+}
+function invBdg(s){
+  const m={Active:'b-inv-active',Completed:'b-inv-completed',Withdrawn:'b-inv-withdrawn'};
+  return '<span class="badge '+(m[s]||'b-pending')+'">'+s+'</span>';
+}
+
+// EasyBuy paid / balance helpers
+function ebGetPaid(e){ return (e.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0); }
+function ebGetBal(e){
+  const price=parseFloat(e.price)||0, init=parseFloat(e.initial)||0;
+  const remaining=price-init;
+  return Math.max(0, remaining - ebGetPaid(e));
+}
+function ebIsOverdue(e){
+  if(e.status==='Completed'||!e.dueDate) return false;
+  return new Date(e.dueDate)<new Date() && ebGetBal(e)>0;
+}
+
+// Investment return helper
+function invGetReturn(i){
+  const amt=parseFloat(i.amount)||0, rate=parseFloat(i.plan)||0;
+  return amt*(rate/100);
+}
+function invGetTotal(i){ return (parseFloat(i.amount)||0) + invGetReturn(i); }
+function invGetPaid(i){ return (i.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0); }
+function invGetBal(i){ return Math.max(0, invGetTotal(i) - invGetPaid(i)); }
+
+// EasyBuy maturity date
+function ebGetMaturity(agrdate, dn, du){
+  if(!agrdate||!dn) return '--';
+  const d=new Date(agrdate), n=parseInt(dn)||0;
+  if(du==='weeks') d.setDate(d.getDate()+n*7);
+  else d.setMonth(d.getMonth()+n);
+  return d.toISOString().slice(0,10);
+}
+
+// Investment maturity date
+function invGetMaturity(startdate, dn, du){
+  if(!startdate||!dn) return '--';
+  const d=new Date(startdate), n=parseInt(dn)||0;
+  if(du==='years') d.setFullYear(d.getFullYear()+n);
+  else d.setMonth(d.getMonth()+n);
+  return d.toISOString().slice(0,10);
+}
+
+// ===== EasyBuy LIVE CALC =====
+function ebCalc(){
+  const price=parseFloat(v('eb-price'))||0;
+  const init=parseFloat(v('eb-initial'))||0;
+  const plan=v('eb-plan'), dn=v('eb-dur-n'), du=v('eb-dur-u');
+  const box=document.getElementById('eb-calc-box');
+  if(!price){if(box)box.style.display='none';return;}
+  if(box)box.style.display='block';
+  const balance=Math.max(0,price-init);
+  let inst='--';
+  if(plan&&dn&&plan!=='Lump Sum'){
+    const n=parseInt(dn)||1;
+    let periods=plan==='Weekly'?n*4:plan==='Bi-weekly'?n*2:n;
+    if(du==='weeks'){
+      periods=plan==='Weekly'?n:plan==='Bi-weekly'?Math.ceil(n/2):Math.ceil(n/4);
+    }
+    if(periods>0) inst='&#8358;'+fmt(balance/periods)+' '+plan.toLowerCase();
+  } else if(plan==='Lump Sum') inst='&#8358;'+fmt(balance)+' lump sum';
+  document.getElementById('eb-c-price').innerHTML='&#8358;'+fmt(price);
+  document.getElementById('eb-c-init').innerHTML='&#8358;'+fmt(init);
+  document.getElementById('eb-c-bal').innerHTML='&#8358;'+fmt(balance);
+  document.getElementById('eb-c-inst').innerHTML=inst;
+}
+
+// ===== Investment LIVE CALC =====
+function invCalc(){
+  const amt=parseFloat(v('inv-amount'))||0;
+  const rate=parseFloat(v('inv-plan'))||0;
+  const dn=v('inv-dur-n'), du=v('inv-dur-u'), startdate=v('inv-startdate');
+  const box=document.getElementById('inv-calc-box');
+  if(!amt||!rate){if(box)box.style.display='none';return;}
+  if(box)box.style.display='block';
+  const ret=amt*(rate/100), total=amt+ret;
+  const mat=invGetMaturity(startdate, dn, du);
+  document.getElementById('inv-c-amt').innerHTML='&#8358;'+fmt(amt);
+  document.getElementById('inv-c-ret').innerHTML='&#8358;'+fmt(ret);
+  document.getElementById('inv-c-total').innerHTML='&#8358;'+fmt(total);
+  document.getElementById('inv-c-mat').textContent=mat!=='--'?new Date(mat).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}):'--';
+}
+
+// ===== POPULATE BRANCH DROPDOWNS FOR EB/INV =====
+function populateEBINVBranchDropdowns(){
+  ['eb-branch','inv-branch'].forEach(selId=>{
+    const sel=document.getElementById(selId);if(!sel)return;
+    sel.innerHTML='<option value="">-- Select Branch --</option>';
+    allBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name+(b.code?' ('+b.code+')':'');sel.appendChild(o);});
+    if(currentSession.role==='staff'){sel.value=currentSession.branchId;sel.disabled=true;}
+    else sel.disabled=false;
+  });
+  ['eb-fbr','inv-fbr'].forEach(selId=>{
+    const sel=document.getElementById(selId);if(!sel)return;
+    sel.style.display=currentSession.role==='admin'?'':'none';
+    sel.innerHTML='<option value="">All Branches</option>';
+    allBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name;sel.appendChild(o);});
+  });
+  // Officer dropdown
+  const ebOff=document.getElementById('eb-officer');
+  if(ebOff){
+    ebOff.innerHTML='<option value="">-- Optional --</option>';
+    const brId=currentSession.role==='staff'?currentSession.branchId:v('eb-branch');
+    allUsers.filter(u=>!brId||u.branchId===brId).forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name;ebOff.appendChild(o);});
+  }
+}
+
+// ===== RENDER DASHBOARD MODULE CARDS =====
+function renderDashModules(){
+  const ebList=scopedEB(), invList=scopedINV();
+  const ebActive=ebList.filter(e=>e.status==='Active').length;
+  const ebBal=ebList.reduce((s,e)=>s+ebGetBal(e),0);
+  const invAmt=invList.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  const invActive=invList.filter(i=>i.status==='Active').length;
+  const el=document.getElementById('dash-modules');
+  if(!el)return;
+  el.innerHTML=
+    '<div class="dash-module-card eb" onclick="showPage(\'easybuy\')">'+
+    '<div class="dmc-icon">&#128722;</div>'+
+    '<h3>EasyBuy</h3><p>Hire-purchase management</p>'+
+    '<div class="dmc-stat">'+ebList.length+'</div>'+
+    '<div style="font-size:.7rem;opacity:.8;margin-top:2px">'+ebActive+' active &bull; &#8358;'+fmt(ebBal)+' outstanding</div>'+
+    '</div>'+
+    '<div class="dash-module-card inv" onclick="showPage(\'investment\')">'+
+    '<div class="dmc-icon">&#128200;</div>'+
+    '<h3>Investment</h3><p>Investor management</p>'+
+    '<div class="dmc-stat">'+invList.length+'</div>'+
+    '<div style="font-size:.7rem;opacity:.8;margin-top:2px">'+invActive+' active &bull; &#8358;'+fmt(invAmt)+' invested</div>'+
+    '</div>';
+}
+
+// ===== RENDER EASYBUY LIST =====
+function renderEBStats(){
+  const list=scopedEB();
+  const total=list.reduce((s,e)=>s+(parseFloat(e.price)||0),0);
+  const collected=list.reduce((s,e)=>s+parseFloat(e.initial||0)+ebGetPaid(e),0);
+  const outstanding=list.reduce((s,e)=>s+ebGetBal(e),0);
+  const active=list.filter(e=>e.status==='Active').length;
+  const def=list.filter(e=>e.status==='Defaulted').length;
+  const el=document.getElementById('eb-stat-grid');if(!el)return;
+  el.innerHTML=
+    '<div class="stat-card" style="border-color:#0d9488"><div class="stat-val">'+list.length+'</div><div class="stat-lbl">Total Records</div></div>'+
+    '<div class="stat-card" style="border-color:var(--blue)"><div class="stat-val">&#8358;'+fmt(total)+'</div><div class="stat-lbl">Total Products Value</div></div>'+
+    '<div class="stat-card" style="border-color:var(--green)"><div class="stat-val">&#8358;'+fmt(collected)+'</div><div class="stat-lbl">Total Collected</div></div>'+
+    '<div class="stat-card" style="border-color:var(--red)"><div class="stat-val">&#8358;'+fmt(outstanding)+'</div><div class="stat-lbl">Outstanding Balance</div></div>'+
+    '<div class="stat-card" style="border-color:#0d9488"><div class="stat-val">'+active+'</div><div class="stat-lbl">Active</div></div>'+
+    '<div class="stat-card" style="border-color:var(--red)"><div class="stat-val">'+def+'</div><div class="stat-lbl">Defaulted</div></div>';
+}
+function renderEB(list){
+  const tb=document.getElementById('eb-tbody');if(!tb)return;
+  tb.innerHTML=list.map(e=>{
+    const price=parseFloat(e.price)||0, init=parseFloat(e.initial)||0;
+    const paid=ebGetPaid(e), bal=ebGetBal(e), od=ebIsOverdue(e);
+    return '<tr '+(od?'style="background:#fff5f5"':'')+'>'+
+      '<td><strong>'+e.ebId+'</strong></td>'+
+      '<td>'+(e.photo?'<img src="'+e.photo+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;border:1px solid #0d9488" alt=""/>':'')+e.name+'</td>'+
+      '<td>'+e.phone+'</td>'+
+      '<td><span style="font-size:.68rem;background:#f0fdf4;padding:2px 6px;border-radius:4px;border:1px solid #bbf7d0">'+getBranchName(e.branchId)+'</span></td>'+
+      '<td><strong>'+e.product+'</strong><br/><span style="font-size:.68rem;color:var(--muted)">'+( e.proddesc||'')+'</span></td>'+
+      '<td>&#8358;'+fmt(price)+'</td>'+
+      '<td style="color:var(--green);font-weight:700">&#8358;'+fmt(init+paid)+'</td>'+
+      '<td style="color:'+(bal>0?'var(--red)':'var(--green)')+';font-weight:700">&#8358;'+fmt(bal)+'</td>'+
+      '<td>'+( e.plan||'--')+'</td>'+
+      '<td>'+ebBdg(od?'Defaulted':e.status)+'</td>'+
+      '<td>'+(e.agrdate||'--')+'</td>'+
+      '<td><div style="display:flex;gap:3px;flex-wrap:wrap">'+
+        '<button class="btn btn-out btn-sm" onclick="viewEBProfile(\''+e.id+'\')">&#128100;</button>'+
+        '<button class="btn btn-green btn-sm" onclick="openEBPayModal(\''+e.id+'\')">&#128176;</button>'+
+        '<button class="btn btn-red btn-sm" onclick="delEB(\''+e.id+'\')">&#128465;</button>'+
+      '</div></td></tr>';
+  }).join('')||'<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:20px">No EasyBuy records found.</td></tr>';
+}
+function searchEB(){
+  const q=v('eb-srch').toLowerCase(), st=v('eb-fst'), br=v('eb-fbr');
+  let list=scopedEB().filter(e=>(e.name||'').toLowerCase().includes(q)||(e.phone||'').includes(q)||(e.ebId||'').toLowerCase().includes(q)||(e.product||'').toLowerCase().includes(q));
+  if(st)list=list.filter(e=>e.status===st);
+  if(br&&currentSession.role==='admin')list=list.filter(e=>e.branchId===br);
+  renderEB(list);
+}
+
+// ===== SUBMIT EASYBUY =====
+function submitEasyBuy(e){
+  e.preventDefault();
+  const branchId=currentSession.role==='staff'?currentSession.branchId:v('eb-branch');
+  if(!branchId){toast('Please select a branch','e');return}
+  const dn=v('eb-dur-n'), du=v('eb-dur-u'), agrdate=v('eb-agrdate');
+  const dueDate=ebGetMaturity(agrdate,dn,du);
+  const price=parseFloat(v('eb-price'))||0, init=parseFloat(v('eb-initial'))||0;
+  const data={
+    ebId:ebGenId(), name:v('eb-name'), phone:v('eb-phone'), address:v('eb-address'),
+    occupation:v('eb-occ'), idtype:v('eb-idtype'), idnum:v('eb-idnum'),
+    branchId, branchName:getBranchName(branchId), officer:v('eb-officer'),
+    product:v('eb-product'), proddesc:v('eb-proddesc'),
+    price, initial:init, plan:v('eb-plan'),
+    duration:dn+' '+du, durationNum:dn, durationUnit:du,
+    agrdate, dueDate, status:v('eb-status'),
+    photo:document.getElementById('eb-photo-data').value,
+    docs:sjd(document.getElementById('eb-docs-data').value),
+    payments:[], createdBy:currentSession.username||'admin',
+    createdAt:new Date().toISOString()
+  };
+  db.collection('easybuy').add(data).then(ref=>{
+    allEasyBuys.unshift({id:ref.id,...data});
+    toast('EasyBuy record saved!','s');resetEBForm();showPage('easybuy');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+function resetEBForm(){
+  document.getElementById('eb-form').reset();
+  const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+  const pp=document.getElementById('eb-photo-prev');if(pp)pp.src=blank;
+  const pd=document.getElementById('eb-photo-data');if(pd)pd.value='';
+  const dd=document.getElementById('eb-docs-data');if(dd)dd.value='[]';
+  const dl=document.getElementById('eb-docs-list');if(dl)dl.innerHTML='';
+  const box=document.getElementById('eb-calc-box');if(box)box.style.display='none';
+  populateEBINVBranchDropdowns();
+}
+function delEB(id){
+  if(!confirm('Delete this EasyBuy record?'))return;
+  db.collection('easybuy').doc(id).delete().then(()=>{
+    allEasyBuys=allEasyBuys.filter(e=>e.id!==id);
+    renderEB(scopedEB());renderEBStats();renderDashModules();
+    toast('EasyBuy record deleted.','w');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ===== EASYBUY PROFILE =====
+function viewEBProfile(id){
+  ebCurId=id;
+  const e=allEasyBuys.find(x=>x.id===id);if(!e)return;
+  const price=parseFloat(e.price)||0, init=parseFloat(e.initial)||0;
+  const remaining=price-init, paid=ebGetPaid(e), bal=ebGetBal(e);
+  const totalCollected=init+paid;
+  const pct=price>0?Math.min(100,Math.round(totalCollected/price*100)):0;
+  const cls=pct<30?'dng':pct<70?'warn':'';
+  const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+  document.getElementById('eb-pm-title').textContent='EasyBuy — '+e.name;
+  document.getElementById('eb-pm-body').innerHTML=
+    '<div class="prof-hd" style="background:linear-gradient(135deg,#0d9488,#134e4a)">'+
+    '<img class="prof-photo" src="'+(e.photo||blank)+'" alt="" style="border-color:#5eead4"/>'+
+    '<div style="flex:1"><div style="font-size:1.05rem;font-weight:800">'+(e.name||'')+'</div>'+
+    '<div style="opacity:.75;font-size:.81rem">'+(e.phone||'')+' &bull; '+(e.occupation||'')+'</div>'+
+    '<div style="opacity:.65;font-size:.73rem;margin-top:3px">&#127970; '+getBranchName(e.branchId)+'</div>'+
+    '<div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">'+ebBdg(e.status)+
+    '<span style="font-size:.72rem;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px">'+e.ebId+'</span></div></div></div>'+
+    '<div class="prd-card"><h4>&#128230; '+e.product+'</h4><p>'+(e.proddesc||'No description')+'</p></div>'+
+    '<div class="repay-sum">'+
+    '<div class="rs"><div class="rv">&#8358;'+fmt(price)+'</div><div class="rl">Product Price</div></div>'+
+    '<div class="rs"><div class="rv" style="color:#0d9488">&#8358;'+fmt(init)+'</div><div class="rl">Initial Payment</div></div>'+
+    '<div class="rs"><div class="rv">&#8358;'+fmt(remaining)+'</div><div class="rl">Balance Amount</div></div>'+
+    '<div class="rs"><div class="rv" style="color:var(--green)">&#8358;'+fmt(paid)+'</div><div class="rl">Instalments Paid</div></div>'+
+    '<div class="rs"><div class="rv" style="color:'+(bal>0?'var(--red)':'var(--green)')+'">&#8358;'+fmt(bal)+'</div><div class="rl">Remaining</div></div>'+
+    '</div>'+
+    '<div class="pbar-wrap"><div class="pbar-fill '+cls+'" style="width:'+pct+'%;background:#0d9488"></div></div>'+
+    '<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px">'+pct+'% paid &bull; Plan: <strong>'+(e.plan||'--')+'</strong> &bull; Due: <strong>'+(e.dueDate||'--')+'</strong></div>'+
+    '<div class="sh">Customer Details</div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Full Name</label><p>'+e.name+'</p></div>'+
+    '<div class="iitem"><label>Phone</label><p>'+(e.phone||'--')+'</p></div>'+
+    '<div class="iitem"><label>Address</label><p>'+(e.address||'--')+'</p></div>'+
+    '<div class="iitem"><label>Occupation</label><p>'+(e.occupation||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID Type</label><p>'+(e.idtype||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID Number</label><p>'+(e.idnum||'--')+'</p></div>'+
+    '<div class="iitem"><label>Agreement Date</label><p>'+(e.agrdate||'--')+'</p></div>'+
+    '<div class="iitem"><label>Due Date</label><p>'+(e.dueDate||'--')+'</p></div>'+
+    '<div class="iitem"><label>Branch</label><p>'+getBranchName(e.branchId)+'</p></div>'+
+    '</div>'+
+    '<div class="sh">Payment History ('+(e.payments||[]).length+' records)</div>'+
+    ((e.payments||[]).length===0
+      ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No instalment payments yet.</p>'
+      :'<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Method</th><th>Note</th><th>By</th></tr></thead><tbody>'+
+      (e.payments||[]).map((p,i)=>'<tr><td>'+(i+1)+'</td><td style="color:var(--green);font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.method||'--')+'</td><td>'+(p.note||'--')+'</td><td>'+(p.recordedBy||'--')+'</td></tr>').join('')+
+      '</tbody></table></div>')+
+    '<div class="btn-row no-print">'+
+    '<button class="btn btn-green" onclick="openEBPayModal(\''+e.id+'\');closeModal(\'eb-profile-modal\')">&#128176; Record Payment</button>'+
+    '<button class="btn btn-out btn-sm" onclick="printEBAgreement()">&#128424; Print Agreement</button>'+
+    '</div>';
+  showModal('eb-profile-modal');
+}
+
+// ===== EASYBUY PAYMENT MODAL =====
+function openEBPayModal(id){
+  ebCurId=id;
+  const e=allEasyBuys.find(x=>x.id===id);if(!e)return;
+  if(currentSession.role==='staff'&&e.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  const bal=ebGetBal(e);
+  document.getElementById('eb-pay-title').textContent='Payment — '+e.name;
+  document.getElementById('eb-pay-body').innerHTML=
+    '<div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:14px">'+
+    '<div style="font-weight:700;margin-bottom:4px">'+e.name+' &bull; '+e.ebId+'</div>'+
+    '<div style="font-size:.78rem;color:var(--muted)">Product: '+e.product+' &bull; Balance: <strong style="color:var(--red)">&#8358;'+fmt(bal)+'</strong></div></div>'+
+    (bal>0?
+    '<div class="sh" style="margin-top:4px">Record Instalment Payment</div>'+
+    '<div class="form-grid">'+
+    '<div class="fg"><label>Amount (&#8358;) *</label><input type="number" id="eb-pay-amt" placeholder="0" max="'+bal+'"/></div>'+
+    '<div class="fg"><label>Date *</label><input type="date" id="eb-pay-date" value="'+td()+'"/></div>'+
+    '<div class="fg"><label>Method</label><select id="eb-pay-mth"><option value="">Select</option><option>Cash</option><option>Bank Transfer</option><option>POS</option></select></div>'+
+    '<div class="fg"><label>Note</label><input id="eb-pay-note" placeholder="Optional note"/></div>'+
+    '</div>'+
+    '<button class="btn btn-green" onclick="saveEBPayment()" style="width:100%;justify-content:center;padding:11px;margin-top:12px">Save Payment</button>'
+    :'<div style="text-align:center;padding:16px;color:var(--green);font-weight:700">&#10003; Fully Paid!</div>')+
+    '<div class="sh" style="margin-top:8px">History ('+(e.payments||[]).length+')</div>'+
+    ((e.payments||[]).length===0?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:10px">No payments yet.</p>':
+    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Del</th></tr></thead><tbody>'+
+    [...(e.payments||[])].reverse().map((p,ri)=>{const i=(e.payments.length-1)-ri;return '<tr><td>'+(i+1)+'</td><td style="color:var(--green);font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td><button class="btn btn-red btn-sm" onclick="delEBPayment('+i+')">&#128465;</button></td></tr>';}).join('')+
+    '</tbody></table></div>');
+  showModal('eb-pay-modal');
+}
+function saveEBPayment(){
+  const amt=parseFloat(v('eb-pay-amt')), date=v('eb-pay-date');
+  if(!amt||amt<=0){toast('Enter valid amount','e');return}
+  if(!date){toast('Select date','e');return}
+  const e=allEasyBuys.find(x=>x.id===ebCurId);
+  const payments=[...(e.payments||[]),{amount:amt,date,note:v('eb-pay-note'),method:v('eb-pay-mth'),recordedBy:currentSession.username,recordedAt:new Date().toISOString()}];
+  const newBal=ebGetBal({...e,payments});
+  const newSt=newBal<=0?'Completed':e.status;
+  db.collection('easybuy').doc(ebCurId).set({payments,status:newSt},{merge:true}).then(()=>{
+    e.payments=payments;e.status=newSt;
+    renderEB(scopedEB());renderEBStats();renderDashModules();
+    toast(newSt==='Completed'?'Fully paid! Marked Completed.':'Payment saved!','s');
+    openEBPayModal(ebCurId);
+  }).catch(ex=>toast('Error: '+ex.message,'e'));
+}
+function delEBPayment(idx){
+  if(!confirm('Delete this payment?'))return;
+  const e=allEasyBuys.find(x=>x.id===ebCurId);
+  const payments=(e.payments||[]).filter((_,i)=>i!==idx);
+  db.collection('easybuy').doc(ebCurId).set({payments},{merge:true}).then(()=>{
+    e.payments=payments;renderEB(scopedEB());renderEBStats();
+    toast('Payment deleted.','w');openEBPayModal(ebCurId);
+  }).catch(ex=>toast('Error: '+ex.message,'e'));
+}
+
+// ===== PRINT EASYBUY AGREEMENT =====
+function printEBAgreement(){
+  const e=allEasyBuys.find(x=>x.id===ebCurId);if(!e)return;
+  const price=parseFloat(e.price)||0, init=parseFloat(e.initial)||0;
+  const bal=price-init, paid=ebGetPaid(e), remaining=Math.max(0,bal-paid);
+  const now=new Date().toLocaleDateString('en-NG',{day:'2-digit',month:'long',year:'numeric'});
+  const win=window.open('','_blank','width=800,height=900');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>EasyBuy Agreement</title>
+  <style>body{font-family:Arial,sans-serif;padding:32px;color:#1e293b;max-width:700px;margin:0 auto}
+  h1{color:#0d9488;font-size:1.4rem;margin-bottom:4px}.brand{font-size:1.6rem;font-weight:900;color:#0f2342}
+  .brand span{color:#c8973a}.section{margin-top:20px;border-top:1px solid #e2e8f0;padding-top:12px}
+  .section h3{font-size:.85rem;text-transform:uppercase;color:#0d9488;font-weight:800;letter-spacing:.08em;margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:8px}
+  td{padding:7px 10px;border-bottom:1px solid #f1f5f9}td:first-child{font-weight:700;color:#64748b;width:40%}
+  .summary-box{background:#f0fdf4;border:2px solid #0d9488;border-radius:8px;padding:14px;margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}
+  .sv{font-size:1.1rem;font-weight:800;color:#0f2342}.sl{font-size:.65rem;text-transform:uppercase;color:#64748b;margin-top:2px}
+  .sig-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px}
+  .sig-line{border-top:2px solid #1e293b;padding-top:6px;font-size:.78rem;color:#64748b}
+  .terms{font-size:.72rem;color:#64748b;margin-top:16px;background:#f8fafc;border-radius:6px;padding:12px;line-height:1.6}
+  @media print{body{padding:16px}}
+  </style></head><body>
+  <div class="brand">Loan<span>Vault</span> Pro</div>
+  <h1>EasyBuy Hire-Purchase Agreement</h1>
+  <p style="font-size:.8rem;color:#64748b">Agreement Date: ${e.agrdate||now} &bull; ID: ${e.ebId} &bull; Generated: ${now}</p>
+  <div class="section"><h3>Customer Information</h3>
+  <table><tr><td>Full Name</td><td>${e.name}</td></tr>
+  <tr><td>Phone</td><td>${e.phone}</td></tr>
+  <tr><td>Address</td><td>${e.address||'--'}</td></tr>
+  <tr><td>Occupation</td><td>${e.occupation||'--'}</td></tr>
+  <tr><td>ID Type</td><td>${e.idtype||'--'}</td></tr>
+  <tr><td>ID Number</td><td>${e.idnum||'--'}</td></tr>
+  <tr><td>Branch</td><td>${getBranchName(e.branchId)}</td></tr></table></div>
+  <div class="section"><h3>Product Details</h3>
+  <table><tr><td>Product Name</td><td>${e.product}</td></tr>
+  <tr><td>Description</td><td>${e.proddesc||'--'}</td></tr>
+  <tr><td>Product Price</td><td>&#8358;${fmt(price)}</td></tr>
+  <tr><td>Payment Plan</td><td>${e.plan||'--'}</td></tr>
+  <tr><td>Duration</td><td>${e.duration||'--'}</td></tr>
+  <tr><td>Due Date</td><td>${e.dueDate||'--'}</td></tr></table></div>
+  <div class="summary-box">
+  <div><div class="sv">&#8358;${fmt(price)}</div><div class="sl">Product Price</div></div>
+  <div><div class="sv" style="color:#0d9488">&#8358;${fmt(init)}</div><div class="sl">Initial Payment</div></div>
+  <div><div class="sv" style="color:#dc2626">&#8358;${fmt(remaining)}</div><div class="sl">Remaining Balance</div></div></div>
+  <div class="section"><h3>Payment History</h3>
+  ${(e.payments||[]).length===0?'<p style="color:#64748b;font-size:.82rem">No instalment payments recorded yet.</p>':
+  '<table><tr><td style="font-weight:800">#</td><td style="font-weight:800">Date</td><td style="font-weight:800">Amount</td><td style="font-weight:800">Method</td></tr>'+
+  (e.payments||[]).map((p,i)=>'<tr><td>'+(i+1)+'</td><td>'+p.date+'</td><td>&#8358;'+fmt(p.amount)+'</td><td>'+(p.method||'--')+'</td></tr>').join('')+
+  '</table>'}</div>
+  <div class="terms"><strong>Terms & Conditions:</strong> The customer agrees to make payments as scheduled above. Failure to pay within 7 days of the due date shall constitute a default. The company reserves the right to repossess the product upon default. This agreement is binding upon both parties.</div>
+  <div class="sig-row">
+  <div><div style="height:60px"></div><div class="sig-line">Customer Signature &bull; Date: ___________</div></div>
+  <div><div style="height:60px"></div><div class="sig-line">Authorised Officer &bull; Date: ___________</div></div>
+  </div>
+  <script>setTimeout(()=>window.print(),400)<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// ===== EXPORT EASYBUY EXCEL =====
+function exportEasyBuyExcel(){
+  if(typeof XLSX==='undefined'){toast('Excel library not loaded','e');return}
+  const rows=scopedEB().map(e=>({
+    'EasyBuy ID':e.ebId,'Name':e.name,'Phone':e.phone,'Address':e.address,
+    'Occupation':e.occupation,'ID Type':e.idtype,'ID Number':e.idnum,
+    'Branch':getBranchName(e.branchId),'Product':e.product,'Description':e.proddesc,
+    'Price':e.price,'Initial Payment':e.initial,
+    'Total Paid':parseFloat(e.initial||0)+ebGetPaid(e),
+    'Balance':ebGetBal(e),'Plan':e.plan,'Duration':e.duration,
+    'Agreement Date':e.agrdate,'Due Date':e.dueDate,'Status':e.status,
+    'Created By':e.createdBy
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'EasyBuy');
+  XLSX.writeFile(wb,'EasyBuy_Export_'+td()+'.xlsx');
+  toast('EasyBuy Excel exported!','s');
+}
+
+// =====================================================
+// ===== INVESTMENT MODULE =====
+// =====================================================
+function renderINVStats(){
+  const list=scopedINV();
+  const totalAmt=list.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
+  const totalReturn=list.reduce((s,i)=>s+invGetReturn(i),0);
+  const totalPaid=list.reduce((s,i)=>s+invGetPaid(i),0);
+  const outstanding=list.reduce((s,i)=>s+invGetBal(i),0);
+  const active=list.filter(i=>i.status==='Active').length;
+  const el=document.getElementById('inv-stat-grid');if(!el)return;
+  el.innerHTML=
+    '<div class="stat-card" style="border-color:var(--purple)"><div class="stat-val">'+list.length+'</div><div class="stat-lbl">Total Investors</div></div>'+
+    '<div class="stat-card" style="border-color:var(--blue)"><div class="stat-val">&#8358;'+fmt(totalAmt)+'</div><div class="stat-lbl">Total Invested</div></div>'+
+    '<div class="stat-card" style="border-color:var(--amber)"><div class="stat-val">&#8358;'+fmt(totalReturn)+'</div><div class="stat-lbl">Expected Returns</div></div>'+
+    '<div class="stat-card" style="border-color:var(--green)"><div class="stat-val">&#8358;'+fmt(totalPaid)+'</div><div class="stat-lbl">Returns Paid</div></div>'+
+    '<div class="stat-card" style="border-color:var(--red)"><div class="stat-val">&#8358;'+fmt(outstanding)+'</div><div class="stat-lbl">Outstanding Returns</div></div>'+
+    '<div class="stat-card" style="border-color:var(--purple)"><div class="stat-val">'+active+'</div><div class="stat-lbl">Active</div></div>';
+}
+function renderINV(list){
+  const tb=document.getElementById('inv-tbody');if(!tb)return;
+  tb.innerHTML=list.map(i=>{
+    const amt=parseFloat(i.amount)||0, ret=invGetReturn(i), total=invGetTotal(i);
+    const paid=invGetPaid(i), bal=invGetBal(i);
+    return '<tr>'+
+      '<td><strong>'+i.invId+'</strong></td>'+
+      '<td>'+(i.photo?'<img src="'+i.photo+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;border:1px solid #7c3aed" alt=""/>':'')+i.name+'</td>'+
+      '<td>'+i.phone+'</td>'+
+      '<td><span style="font-size:.68rem;background:#f5f3ff;padding:2px 6px;border-radius:4px;border:1px solid #ddd6fe">'+getBranchName(i.branchId)+'</span></td>'+
+      '<td style="font-weight:700">&#8358;'+fmt(amt)+'</td>'+
+      '<td>'+( i.plan||'--')+'% Return</td>'+
+      '<td style="color:#7c3aed;font-weight:700">&#8358;'+fmt(ret)+'</td>'+
+      '<td>'+(i.startdate||'--')+'</td>'+
+      '<td style="font-weight:700">'+(i.maturityDate||'--')+'</td>'+
+      '<td>'+invBdg(i.status)+'</td>'+
+      '<td><div style="display:flex;gap:3px;flex-wrap:wrap">'+
+        '<button class="btn btn-out btn-sm" onclick="viewINVProfile(\''+i.id+'\')">&#128100;</button>'+
+        '<button class="btn btn-purple btn-sm" onclick="openINVPayModal(\''+i.id+'\')">&#128176;</button>'+
+        '<button class="btn btn-red btn-sm" onclick="delINV(\''+i.id+'\')">&#128465;</button>'+
+      '</div></td></tr>';
+  }).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No investment records found.</td></tr>';
+}
+function searchINV(){
+  const q=v('inv-srch').toLowerCase(), st=v('inv-fst'), br=v('inv-fbr');
+  let list=scopedINV().filter(i=>(i.name||'').toLowerCase().includes(q)||(i.phone||'').includes(q)||(i.invId||'').toLowerCase().includes(q));
+  if(st)list=list.filter(i=>i.status===st);
+  if(br&&currentSession.role==='admin')list=list.filter(i=>i.branchId===br);
+  renderINV(list);
+}
+
+// ===== SUBMIT INVESTMENT =====
+function submitInvestment(e){
+  e.preventDefault();
+  const branchId=currentSession.role==='staff'?currentSession.branchId:v('inv-branch');
+  if(!branchId){toast('Please select a branch','e');return}
+  const dn=v('inv-dur-n'), du=v('inv-dur-u'), startdate=v('inv-startdate');
+  const maturityDate=invGetMaturity(startdate,dn,du);
+  const amt=parseFloat(v('inv-amount'))||0, rate=parseFloat(v('inv-plan'))||0;
+  const data={
+    invId:invGenId(), name:v('inv-name'), phone:v('inv-phone'), address:v('inv-address'),
+    occupation:v('inv-occ'), idtype:v('inv-idtype'), idnum:v('inv-idnum'),
+    branchId, branchName:getBranchName(branchId),
+    amount:amt, plan:rate, duration:dn+' '+du,
+    durationNum:dn, durationUnit:du,
+    expectedReturn:amt*(rate/100), totalAtMaturity:amt+(amt*(rate/100)),
+    startdate, maturityDate, status:v('inv-status'),
+    photo:document.getElementById('inv-photo-data').value,
+    docs:sjd(document.getElementById('inv-docs-data').value),
+    payments:[], createdBy:currentSession.username||'admin',
+    createdAt:new Date().toISOString()
+  };
+  db.collection('investments').add(data).then(ref=>{
+    allInvestments.unshift({id:ref.id,...data});
+    toast('Investment record saved!','s');resetINVForm();showPage('investment');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+function resetINVForm(){
+  document.getElementById('inv-form').reset();
+  const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+  const pp=document.getElementById('inv-photo-prev');if(pp)pp.src=blank;
+  const pd=document.getElementById('inv-photo-data');if(pd)pd.value='';
+  const dd=document.getElementById('inv-docs-data');if(dd)dd.value='[]';
+  const dl=document.getElementById('inv-docs-list');if(dl)dl.innerHTML='';
+  const box=document.getElementById('inv-calc-box');if(box)box.style.display='none';
+  populateEBINVBranchDropdowns();
+}
+function delINV(id){
+  if(!confirm('Delete this investment record?'))return;
+  db.collection('investments').doc(id).delete().then(()=>{
+    allInvestments=allInvestments.filter(i=>i.id!==id);
+    renderINV(scopedINV());renderINVStats();renderDashModules();
+    toast('Investment deleted.','w');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ===== INVESTMENT PROFILE =====
+function viewINVProfile(id){
+  invCurId=id;
+  const i=allInvestments.find(x=>x.id===id);if(!i)return;
+  const amt=parseFloat(i.amount)||0, ret=invGetReturn(i), total=invGetTotal(i);
+  const paid=invGetPaid(i), bal=invGetBal(i);
+  const pct=total>0?Math.min(100,Math.round(paid/total*100)):0;
+  const cls=pct<30?'dng':pct<70?'warn':'';
+  const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+  document.getElementById('inv-pm-title').textContent='Investment — '+i.name;
+  document.getElementById('inv-pm-body').innerHTML=
+    '<div class="prof-hd" style="background:linear-gradient(135deg,#7c3aed,#4c1d95)">'+
+    '<img class="prof-photo" src="'+(i.photo||blank)+'" alt="" style="border-color:#c4b5fd"/>'+
+    '<div style="flex:1"><div style="font-size:1.05rem;font-weight:800">'+i.name+'</div>'+
+    '<div style="opacity:.75;font-size:.81rem">'+i.phone+' &bull; '+(i.occupation||'')+'</div>'+
+    '<div style="opacity:.65;font-size:.73rem;margin-top:3px">&#127970; '+getBranchName(i.branchId)+'</div>'+
+    '<div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">'+invBdg(i.status)+
+    '<span style="font-size:.72rem;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px">'+i.invId+'</span></div></div></div>'+
+    '<div class="inv-return-box"><h4>&#128200; Investment Plan: '+i.plan+'% Return over '+i.duration+'</h4>'+
+    '<p>Maturity: '+(i.maturityDate||'--')+'</p></div>'+
+    '<div class="repay-sum">'+
+    '<div class="rs"><div class="rv">&#8358;'+fmt(amt)+'</div><div class="rl">Principal</div></div>'+
+    '<div class="rs"><div class="rv" style="color:#7c3aed">&#8358;'+fmt(ret)+'</div><div class="rl">Expected Return</div></div>'+
+    '<div class="rs"><div class="rv">&#8358;'+fmt(total)+'</div><div class="rl">Total at Maturity</div></div>'+
+    '<div class="rs"><div class="rv" style="color:var(--green)">&#8358;'+fmt(paid)+'</div><div class="rl">Returns Paid</div></div>'+
+    '<div class="rs"><div class="rv" style="color:'+(bal>0?'var(--red)':'var(--green)')+'">&#8358;'+fmt(bal)+'</div><div class="rl">Outstanding</div></div>'+
+    '</div>'+
+    '<div class="pbar-wrap"><div class="pbar-fill '+cls+'" style="width:'+pct+'%;background:#7c3aed"></div></div>'+
+    '<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px">'+pct+'% of returns paid &bull; Start: <strong>'+(i.startdate||'--')+'</strong> &bull; Maturity: <strong>'+(i.maturityDate||'--')+'</strong></div>'+
+    '<div class="sh">Investor Details</div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Full Name</label><p>'+i.name+'</p></div>'+
+    '<div class="iitem"><label>Phone</label><p>'+i.phone+'</p></div>'+
+    '<div class="iitem"><label>Address</label><p>'+(i.address||'--')+'</p></div>'+
+    '<div class="iitem"><label>Occupation</label><p>'+(i.occupation||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID Type</label><p>'+(i.idtype||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID Number</label><p>'+(i.idnum||'--')+'</p></div>'+
+    '<div class="iitem"><label>Start Date</label><p>'+(i.startdate||'--')+'</p></div>'+
+    '<div class="iitem"><label>Maturity Date</label><p>'+(i.maturityDate||'--')+'</p></div>'+
+    '<div class="iitem"><label>Branch</label><p>'+getBranchName(i.branchId)+'</p></div>'+
+    '</div>'+
+    '<div class="sh">Return Payment History ('+(i.payments||[]).length+')</div>'+
+    ((i.payments||[]).length===0
+      ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No return payments recorded yet.</p>'
+      :'<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Method</th><th>Note</th><th>By</th></tr></thead><tbody>'+
+      (i.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td style="color:#7c3aed;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.method||'--')+'</td><td>'+(p.note||'--')+'</td><td>'+(p.recordedBy||'--')+'</td></tr>').join('')+
+      '</tbody></table></div>')+
+    '<div class="btn-row no-print">'+
+    '<button class="btn btn-purple" onclick="openINVPayModal(\''+i.id+'\');closeModal(\'inv-profile-modal\')">&#128176; Record Return Payment</button>'+
+    '<button class="btn btn-out btn-sm" onclick="printINVAgreement()">&#128424; Print Statement</button>'+
+    '</div>';
+  showModal('inv-profile-modal');
+}
+
+// ===== INVESTMENT PAYMENT MODAL =====
+function openINVPayModal(id){
+  invCurId=id;
+  const i=allInvestments.find(x=>x.id===id);if(!i)return;
+  if(currentSession.role==='staff'&&i.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  const bal=invGetBal(i);
+  document.getElementById('inv-pay-title').textContent='Return Payment — '+i.name;
+  document.getElementById('inv-pay-body').innerHTML=
+    '<div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:14px">'+
+    '<div style="font-weight:700;margin-bottom:4px">'+i.name+' &bull; '+i.invId+'</div>'+
+    '<div style="font-size:.78rem;color:var(--muted)">Plan: '+i.plan+'% &bull; Outstanding Return: <strong style="color:#7c3aed">&#8358;'+fmt(bal)+'</strong></div></div>'+
+    (bal>0?
+    '<div class="sh" style="margin-top:4px">Record Return Payment</div>'+
+    '<div class="form-grid">'+
+    '<div class="fg"><label>Amount (&#8358;) *</label><input type="number" id="inv-pay-amt" placeholder="0" max="'+bal+'"/></div>'+
+    '<div class="fg"><label>Date *</label><input type="date" id="inv-pay-date" value="'+td()+'"/></div>'+
+    '<div class="fg"><label>Method</label><select id="inv-pay-mth"><option value="">Select</option><option>Cash</option><option>Bank Transfer</option><option>POS</option></select></div>'+
+    '<div class="fg"><label>Note</label><input id="inv-pay-note" placeholder="Optional note"/></div>'+
+    '</div>'+
+    '<button class="btn btn-purple" onclick="saveINVPayment()" style="width:100%;justify-content:center;padding:11px;margin-top:12px">Save Return Payment</button>'
+    :'<div style="text-align:center;padding:16px;color:var(--green);font-weight:700">&#10003; All returns paid!</div>')+
+    '<div class="sh" style="margin-top:8px">History ('+(i.payments||[]).length+')</div>'+
+    ((i.payments||[]).length===0?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:10px">No payments yet.</p>':
+    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Amount</th><th>Date</th><th>Del</th></tr></thead><tbody>'+
+    [...(i.payments||[])].reverse().map((p,ri)=>{const idx=(i.payments.length-1)-ri;return '<tr><td>'+(idx+1)+'</td><td style="color:#7c3aed;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td><button class="btn btn-red btn-sm" onclick="delINVPayment('+idx+')">&#128465;</button></td></tr>';}).join('')+
+    '</tbody></table></div>');
+  showModal('inv-pay-modal');
+}
+function saveINVPayment(){
+  const amt=parseFloat(v('inv-pay-amt')), date=v('inv-pay-date');
+  if(!amt||amt<=0){toast('Enter valid amount','e');return}
+  if(!date){toast('Select date','e');return}
+  const i=allInvestments.find(x=>x.id===invCurId);
+  const payments=[...(i.payments||[]),{amount:amt,date,note:v('inv-pay-note'),method:v('inv-pay-mth'),recordedBy:currentSession.username,recordedAt:new Date().toISOString()}];
+  const newBal=invGetBal({...i,payments});
+  const newSt=newBal<=0?'Completed':i.status;
+  db.collection('investments').doc(invCurId).set({payments,status:newSt},{merge:true}).then(()=>{
+    i.payments=payments;i.status=newSt;
+    renderINV(scopedINV());renderINVStats();renderDashModules();
+    toast(newSt==='Completed'?'Returns fully paid! Marked Completed.':'Payment saved!','s');
+    openINVPayModal(invCurId);
+  }).catch(ex=>toast('Error: '+ex.message,'e'));
+}
+function delINVPayment(idx){
+  if(!confirm('Delete this payment?'))return;
+  const i=allInvestments.find(x=>x.id===invCurId);
+  const payments=(i.payments||[]).filter((_,j)=>j!==idx);
+  db.collection('investments').doc(invCurId).set({payments},{merge:true}).then(()=>{
+    i.payments=payments;renderINV(scopedINV());renderINVStats();
+    toast('Payment deleted.','w');openINVPayModal(invCurId);
+  }).catch(ex=>toast('Error: '+ex.message,'e'));
+}
+
+// ===== PRINT INVESTMENT STATEMENT =====
+function printINVAgreement(){
+  const i=allInvestments.find(x=>x.id===invCurId);if(!i)return;
+  const amt=parseFloat(i.amount)||0, ret=invGetReturn(i), total=invGetTotal(i);
+  const paid=invGetPaid(i), bal=invGetBal(i);
+  const now=new Date().toLocaleDateString('en-NG',{day:'2-digit',month:'long',year:'numeric'});
+  const win=window.open('','_blank','width=800,height=900');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Investment Agreement</title>
+  <style>body{font-family:Arial,sans-serif;padding:32px;color:#1e293b;max-width:700px;margin:0 auto}
+  h1{color:#7c3aed;font-size:1.4rem;margin-bottom:4px}.brand{font-size:1.6rem;font-weight:900;color:#0f2342}
+  .brand span{color:#c8973a}.section{margin-top:20px;border-top:1px solid #e2e8f0;padding-top:12px}
+  .section h3{font-size:.85rem;text-transform:uppercase;color:#7c3aed;font-weight:800;letter-spacing:.08em;margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:8px}
+  td{padding:7px 10px;border-bottom:1px solid #f1f5f9}td:first-child{font-weight:700;color:#64748b;width:40%}
+  .summary-box{background:#f5f3ff;border:2px solid #7c3aed;border-radius:8px;padding:14px;margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center}
+  .sv{font-size:1rem;font-weight:800;color:#0f2342}.sl{font-size:.63rem;text-transform:uppercase;color:#64748b;margin-top:2px}
+  .sig-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px}
+  .sig-line{border-top:2px solid #1e293b;padding-top:6px;font-size:.78rem;color:#64748b}
+  .terms{font-size:.72rem;color:#64748b;margin-top:16px;background:#f8fafc;border-radius:6px;padding:12px;line-height:1.6}
+  @media print{body{padding:16px}}
+  </style></head><body>
+  <div class="brand">Loan<span>Vault</span> Pro</div>
+  <h1>Investment Agreement &amp; Investor Statement</h1>
+  <p style="font-size:.8rem;color:#64748b">Statement Date: ${now} &bull; Ref: ${i.invId}</p>
+  <div class="section"><h3>Investor Information</h3>
+  <table><tr><td>Full Name</td><td>${i.name}</td></tr>
+  <tr><td>Phone</td><td>${i.phone}</td></tr>
+  <tr><td>Address</td><td>${i.address||'--'}</td></tr>
+  <tr><td>Occupation</td><td>${i.occupation||'--'}</td></tr>
+  <tr><td>ID Type</td><td>${i.idtype||'--'}</td></tr>
+  <tr><td>ID Number</td><td>${i.idnum||'--'}</td></tr>
+  <tr><td>Branch</td><td>${getBranchName(i.branchId)}</td></tr></table></div>
+  <div class="section"><h3>Investment Details</h3>
+  <table><tr><td>Investment Amount</td><td>&#8358;${fmt(amt)}</td></tr>
+  <tr><td>Return Rate</td><td>${i.plan}%</td></tr>
+  <tr><td>Expected Return</td><td>&#8358;${fmt(ret)}</td></tr>
+  <tr><td>Total at Maturity</td><td><strong>&#8358;${fmt(total)}</strong></td></tr>
+  <tr><td>Duration</td><td>${i.duration||'--'}</td></tr>
+  <tr><td>Start Date</td><td>${i.startdate||'--'}</td></tr>
+  <tr><td>Maturity Date</td><td><strong>${i.maturityDate||'--'}</strong></td></tr>
+  <tr><td>Status</td><td>${i.status}</td></tr></table></div>
+  <div class="summary-box">
+  <div><div class="sv">&#8358;${fmt(amt)}</div><div class="sl">Principal</div></div>
+  <div><div class="sv" style="color:#7c3aed">&#8358;${fmt(ret)}</div><div class="sl">Expected Return</div></div>
+  <div><div class="sv" style="color:var(--green,#16a34a)">&#8358;${fmt(paid)}</div><div class="sl">Returns Paid</div></div>
+  <div><div class="sv" style="color:#dc2626">&#8358;${fmt(bal)}</div><div class="sl">Outstanding</div></div></div>
+  <div class="section"><h3>Return Payment History</h3>
+  ${(i.payments||[]).length===0?'<p style="color:#64748b;font-size:.82rem">No return payments recorded yet.</p>':
+  '<table><tr><td style="font-weight:800">#</td><td style="font-weight:800">Date</td><td style="font-weight:800">Amount</td><td style="font-weight:800">Method</td></tr>'+
+  (i.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td>'+p.date+'</td><td>&#8358;'+fmt(p.amount)+'</td><td>'+(p.method||'--')+'</td></tr>').join('')+
+  '</table>'}</div>
+  <div class="terms"><strong>Terms & Conditions:</strong> The investor agrees to the investment terms as stated above. Returns will be paid on or before the maturity date. Early withdrawal may be subject to penalty charges as agreed upon. This agreement is binding upon both parties.</div>
+  <div class="sig-row">
+  <div><div style="height:60px"></div><div class="sig-line">Investor Signature &bull; Date: ___________</div></div>
+  <div><div style="height:60px"></div><div class="sig-line">Authorised Officer &bull; Date: ___________</div></div>
+  </div>
+  <script>setTimeout(()=>window.print(),400)<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// ===== EXPORT INVESTMENT EXCEL =====
+function exportInvestmentExcel(){
+  if(typeof XLSX==='undefined'){toast('Excel library not loaded','e');return}
+  const rows=scopedINV().map(i=>({
+    'Investment ID':i.invId,'Name':i.name,'Phone':i.phone,'Address':i.address,
+    'Occupation':i.occupation,'ID Type':i.idtype,'ID Number':i.idnum,
+    'Branch':getBranchName(i.branchId),'Amount':i.amount,'Plan':i.plan+'%',
+    'Expected Return':invGetReturn(i),'Total at Maturity':invGetTotal(i),
+    'Returns Paid':invGetPaid(i),'Outstanding':invGetBal(i),
+    'Duration':i.duration,'Start Date':i.startdate,'Maturity Date':i.maturityDate,
+    'Status':i.status,'Created By':i.createdBy
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Investments');
+  XLSX.writeFile(wb,'Investments_Export_'+td()+'.xlsx');
+  toast('Investment Excel exported!','s');
+}
+
 </script>
 
 <!-- FLOATING ACTION BUTTON -->
@@ -2555,6 +3542,8 @@ function downloadCalcPage(){
   <button class="fab-item" onclick="showPage('repayments');toggleFab()">&#128176; Record Payment</button>
   <button class="fab-item" onclick="showPage('calculator');toggleFab()">&#129518; Calculator</button>
   <button class="fab-item" onclick="showPage('notifications');toggleFab()">&#128276; Alerts</button>
+  <button class="fab-item" onclick="showPage('new-easybuy');toggleFab()">&#128722; New EasyBuy</button>
+  <button class="fab-item" onclick="showPage('new-investment');toggleFab()">&#128200; New Investment</button>
   <button class="fab-item" onclick="exportExcel();toggleFab()">&#128190; Export Excel</button>
 </div>
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">&#8679;</button>
