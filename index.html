@@ -449,14 +449,21 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
             <div class="fg"><label>Product Description</label><input id="eb-proddesc" placeholder="Model, colour, specs…"/></div>
             <div class="fg"><label>Product Price (&#8358;) *</label><input required type="number" id="eb-price" placeholder="0" oninput="ebCalc()"/></div>
             <div class="fg"><label>Initial Payment (&#8358;) *</label><input required type="number" id="eb-initial" placeholder="0" oninput="ebCalc()"/></div>
-            <div class="fg"><label>Payment Plan *</label><select required id="eb-plan" onchange="ebCalc()"><option value="">Select plan</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option><option>Lump Sum</option></select></div>
+            <div class="fg"><label>Payment Plan *</label><select required id="eb-plan" onchange="ebCalc()"><option value="">Select plan</option><option>Daily</option><option>Weekly</option><option>Bi-weekly</option><option>Monthly</option><option>Lump Sum</option></select></div>
             <div class="fg"><label>Duration *</label>
               <div style="display:flex;gap:6px">
                 <input type="number" id="eb-dur-n" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="ebCalc()"/>
                 <select id="eb-dur-u" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="ebCalc()"><option value="weeks">Weeks</option><option value="months" selected>Months</option></select>
               </div>
             </div>
-            <div class="fg"><label>Agreement Date *</label><input required type="date" id="eb-agrdate"/></div>
+<div class="fg"><label>Agreement Date *</label>
+              <div style="display:flex;gap:4px;flex-wrap:wrap">
+                <select id="eb-agrdate-d" required style="flex:1;min-width:60px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("eb-agrdate");ebCalc()"><option value="">Day</option></select>
+                <select id="eb-agrdate-m" required style="flex:2;min-width:90px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("eb-agrdate");ebCalc()"><option value="">Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+                <select id="eb-agrdate-y" required style="flex:1.3;min-width:70px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("eb-agrdate");ebCalc()"><option value="">Year</option></select>
+              </div>
+              <input type="hidden" id="eb-agrdate"/>
+            </div>
             <div class="fg"><label>Status</label><select id="eb-status"><option value="Active">Active</option><option value="Completed">Completed</option><option value="Defaulted">Defaulted</option></select></div>
           </div>
           <!-- EasyBuy live calc -->
@@ -541,7 +548,14 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
                 <select id="inv-dur-u" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="invCalc()"><option value="months" selected>Months</option><option value="years">Years</option></select>
               </div>
             </div>
-            <div class="fg"><label>Start Date *</label><input required type="date" id="inv-startdate" oninput="invCalc()"/></div>
+<div class="fg"><label>Start Date *</label>
+              <div style="display:flex;gap:4px;flex-wrap:wrap">
+                <select id="inv-startdate-d" required style="flex:1;min-width:60px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("inv-startdate");invCalc()"><option value="">Day</option></select>
+                <select id="inv-startdate-m" required style="flex:2;min-width:90px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("inv-startdate");invCalc()"><option value="">Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+                <select id="inv-startdate-y" required style="flex:1.3;min-width:70px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("inv-startdate");invCalc()"><option value="">Year</option></select>
+              </div>
+              <input type="hidden" id="inv-startdate"/>
+            </div>
             <div class="fg"><label>Status</label><select id="inv-status"><option value="Active">Active</option><option value="Completed">Completed</option><option value="Withdrawn">Withdrawn</option></select></div>
           </div>
           <!-- Investment live calc -->
@@ -665,7 +679,14 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
               </div>
               <input type="hidden" id="f-duration"/>
             </div>
-            <div class="fg"><label>Application Date *</label><input required type="date" id="f-appdate" onchange="liveCalc()"/></div>
+<div class="fg"><label>Application Date *</label>
+              <div style="display:flex;gap:4px;flex-wrap:wrap">
+                <select id="f-appdate-d" required style="flex:1;min-width:60px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("f-appdate");liveCalc()"><option value="">Day</option></select>
+                <select id="f-appdate-m" required style="flex:2;min-width:90px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("f-appdate");liveCalc()"><option value="">Month</option><option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option><option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option></select>
+                <select id="f-appdate-y" required style="flex:1.3;min-width:70px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField("f-appdate");liveCalc()"><option value="">Year</option></select>
+              </div>
+              <input type="hidden" id="f-appdate"/>
+            </div>
             <div class="fg"><label>Loan Status</label>
               <select id="f-status">
                 <option value="Pending">Pending</option><option value="Approved">Approved</option>
@@ -1391,6 +1412,7 @@ function startApp(){
   document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
 
+  populateAllYearDropdowns();
   loadAll();
 }
 
@@ -1456,6 +1478,7 @@ async function loadAll(){
     allInvestments=invSnap.docs.map(d=>({id:d.id,...d.data()}));
     populateAllBranchDropdowns();
     populateEBINVBranchDropdowns();
+    populateAllYearDropdowns();
     chkNotifBadge();
     populateLoginBranchSelect();
     hideLoader();
@@ -1908,6 +1931,7 @@ function submitForm(e){
   e.preventDefault();
   const branchId = v('f-branch') || (currentSession.role==='staff'?currentSession.branchId:'');
   if(!branchId){toast('Please select a branch','e');return}
+  if(!v('f-appdate')){toast('Please select the application date','e');return}
   const dn=v('f-dur-n'),du=v('f-dur-u'),appdate=v('f-appdate');
   const matISO=getMaturityISO(appdate,dn,du);
   const matStr=getMaturity(appdate,dn,du);
@@ -1944,6 +1968,9 @@ function resetForm(){
   document.getElementById('f-docs-list').innerHTML='';
   ['dob-d','dob-m','dob-y'].forEach(id=>{const el=document.getElementById(id);if(el)el.value=''});
   document.getElementById('f-dob').value='';
+  // Clear application date dropdowns
+  ['f-appdate-d','f-appdate-m','f-appdate-y'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('f-appdate').value='';
   const box=document.getElementById('calc-box');if(box)box.style.display='none';
   const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
   ['f-photo-prev','g1-photo-prev','g2-photo-prev'].forEach(id=>{const el=document.getElementById(id);if(el)el.src=blank});
@@ -2872,7 +2899,8 @@ function invGetBal(i){ return Math.max(0, invGetTotal(i) - invGetPaid(i)); }
 function ebGetMaturity(agrdate, dn, du){
   if(!agrdate||!dn) return '--';
   const d=new Date(agrdate), n=parseInt(dn)||0;
-  if(du==='weeks') d.setDate(d.getDate()+n*7);
+  if(du==='days') d.setDate(d.getDate()+n);
+  else if(du==='weeks') d.setDate(d.getDate()+n*7);
   else d.setMonth(d.getMonth()+n);
   return d.toISOString().slice(0,10);
 }
@@ -2898,11 +2926,17 @@ function ebCalc(){
   let inst='--';
   if(plan&&dn&&plan!=='Lump Sum'){
     const n=parseInt(dn)||1;
-    let periods=plan==='Weekly'?n*4:plan==='Bi-weekly'?n*2:n;
-    if(du==='weeks'){
-      periods=plan==='Weekly'?n:plan==='Bi-weekly'?Math.ceil(n/2):Math.ceil(n/4);
+    let periods;
+    if(plan==='Daily'){
+      periods=du==='weeks'?n*7:n; // n days or n weeks worth of days
+    } else if(plan==='Weekly'){
+      periods=du==='weeks'?n:du==='months'?n*4:Math.ceil(n/7);
+    } else if(plan==='Bi-weekly'){
+      periods=du==='weeks'?Math.ceil(n/2):du==='months'?n*2:Math.ceil(n/14);
+    } else if(plan==='Monthly'){
+      periods=du==='months'?n:du==='weeks'?Math.ceil(n/4):Math.ceil(n/30);
     }
-    if(periods>0) inst='&#8358;'+fmt(balance/periods)+' '+plan.toLowerCase();
+    if(periods&&periods>0) inst='&#8358;'+fmt(balance/periods)+' '+plan.toLowerCase();
   } else if(plan==='Lump Sum') inst='&#8358;'+fmt(balance)+' lump sum';
   document.getElementById('eb-c-price').innerHTML='&#8358;'+fmt(price);
   document.getElementById('eb-c-init').innerHTML='&#8358;'+fmt(init);
@@ -2914,7 +2948,8 @@ function ebCalc(){
 function invCalc(){
   const amt=parseFloat(v('inv-amount'))||0;
   const rate=parseFloat(v('inv-plan'))||0;
-  const dn=v('inv-dur-n'), du=v('inv-dur-u'), startdate=v('inv-startdate');
+  const dn=v('inv-dur-n'), du=v('inv-dur-u');
+  const startdate=v('inv-startdate'); // reads from hidden field
   const box=document.getElementById('inv-calc-box');
   if(!amt||!rate){if(box)box.style.display='none';return;}
   if(box)box.style.display='block';
@@ -3028,6 +3063,7 @@ function submitEasyBuy(e){
   e.preventDefault();
   const branchId=currentSession.role==='staff'?currentSession.branchId:v('eb-branch');
   if(!branchId){toast('Please select a branch','e');return}
+  if(!v('eb-agrdate')){toast('Please select the agreement date','e');return}
   const dn=v('eb-dur-n'), du=v('eb-dur-u'), agrdate=v('eb-agrdate');
   const dueDate=ebGetMaturity(agrdate,dn,du);
   const price=parseFloat(v('eb-price'))||0, init=parseFloat(v('eb-initial'))||0;
@@ -3057,6 +3093,9 @@ function resetEBForm(){
   const dd=document.getElementById('eb-docs-data');if(dd)dd.value='[]';
   const dl=document.getElementById('eb-docs-list');if(dl)dl.innerHTML='';
   const box=document.getElementById('eb-calc-box');if(box)box.style.display='none';
+  // Clear date dropdowns
+  ['eb-agrdate-d','eb-agrdate-m','eb-agrdate-y'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('eb-agrdate').value='';
   populateEBINVBranchDropdowns();
 }
 function delEB(id){
@@ -3307,6 +3346,7 @@ function submitInvestment(e){
   e.preventDefault();
   const branchId=currentSession.role==='staff'?currentSession.branchId:v('inv-branch');
   if(!branchId){toast('Please select a branch','e');return}
+  if(!v('inv-startdate')){toast('Please select the start date','e');return}
   const dn=v('inv-dur-n'), du=v('inv-dur-u'), startdate=v('inv-startdate');
   const maturityDate=invGetMaturity(startdate,dn,du);
   const amt=parseFloat(v('inv-amount'))||0, rate=parseFloat(v('inv-plan'))||0;
@@ -3336,6 +3376,9 @@ function resetINVForm(){
   const dd=document.getElementById('inv-docs-data');if(dd)dd.value='[]';
   const dl=document.getElementById('inv-docs-list');if(dl)dl.innerHTML='';
   const box=document.getElementById('inv-calc-box');if(box)box.style.display='none';
+  // Clear date dropdowns
+  ['inv-startdate-d','inv-startdate-m','inv-startdate-y'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
+  document.getElementById('inv-startdate').value='';
   populateEBINVBranchDropdowns();
 }
 function delINV(id){
@@ -3531,6 +3574,48 @@ function exportInvestmentExcel(){
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Investments');
   XLSX.writeFile(wb,'Investments_Export_'+td()+'.xlsx');
   toast('Investment Excel exported!','s');
+}
+
+
+// ===== DATE DROPDOWN SYNC =====
+// Converts day/month/year selects into a hidden ISO date field
+function syncDateField(prefix){
+  const d=document.getElementById(prefix+'-d');
+  const m=document.getElementById(prefix+'-m');
+  const y=document.getElementById(prefix+'-y');
+  const hidden=document.getElementById(prefix);
+  if(d&&m&&y&&hidden&&d.value&&m.value&&y.value){
+    hidden.value=y.value+'-'+m.value+'-'+d.value.padStart(2,'0');
+  } else if(hidden){
+    hidden.value='';
+  }
+}
+
+// Populate all date dropdown year selects across all forms
+function populateAllYearDropdowns(){
+  const now=new Date().getFullYear();
+  // IDs of all year selects: prefix-y
+  const yearSelIds=['f-appdate-y','eb-agrdate-y','inv-startdate-y'];
+  yearSelIds.forEach(selId=>{
+    const sel=document.getElementById(selId);
+    if(!sel||sel.children.length>1)return; // already populated
+    for(let y=now+5;y>=2000;y--){
+      const o=document.createElement('option');
+      o.value=y;o.textContent=y;
+      sel.appendChild(o);
+    }
+  });
+  // Day selects
+  const daySelIds=['f-appdate-d','eb-agrdate-d','inv-startdate-d'];
+  daySelIds.forEach(selId=>{
+    const sel=document.getElementById(selId);
+    if(!sel||sel.children.length>1)return;
+    for(let i=1;i<=31;i++){
+      const o=document.createElement('option');
+      o.value=String(i).padStart(2,'0');o.textContent=i;
+      sel.appendChild(o);
+    }
+  });
 }
 
 </script>
