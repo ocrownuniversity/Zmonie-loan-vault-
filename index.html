@@ -2477,7 +2477,6 @@ function saveUser(){
     }
     closeModal('user-modal');
     renderUsers();
-    fillLoginBranchSelect();
     populateLoginBranchSelect();
     toast(id?'Staff account updated!':'Staff account "'+username+'" created for branch: '+getBranchName(data.branchId),'s');
   }).catch(e=>{
