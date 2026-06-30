@@ -106,6 +106,7 @@ tbody tr:hover{background:#f8fafc}
 .b-completed{background:#dbeafe;color:#1e40af}
 .b-overdue{background:#fce7f3;color:#9d174d}
 .b-admin{background:#ede9fe;color:#5b21b6}
+.b-manager{background:#fef3c7;color:#92400e}
 .b-staff{background:#e0f2fe;color:#0369a1}
 .b-active{background:#dcfce7;color:#166534}
 .b-inactive{background:#fee2e2;color:#991b1b}
@@ -1039,7 +1040,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
           <input type="text" id="usr-srch" placeholder="Search staff..." oninput="renderUsers()"/>
           <select id="usr-br" onchange="renderUsers()"><option value="">All Branches</option></select>
           <select id="usr-role" onchange="renderUsers()">
-            <option value="">All Roles</option><option value="staff">Staff</option><option value="admin">Admin</option>
+            <option value="">All Roles</option><option value="staff">Staff</option><option value="manager">Manager</option><option value="admin">Admin</option>
           </select>
         </div>
         <div id="users-list"></div>
@@ -1177,6 +1178,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
         <div class="fg"><label>Role *</label>
           <select id="um-role" onchange="toggleBranchField()">
             <option value="staff">Staff</option>
+            <option value="manager">Manager</option>
             <option value="admin">Admin</option>
           </select>
         </div>
@@ -1354,7 +1356,9 @@ function getMaturityISO(appdate,dn,du){
 // ===== SCOPED LOANS (branch filter) =====
 function getScopedLoans(){
   if(currentSession.role === 'admin') return allLoans;
-  return allLoans.filter(l => l.branchId === currentSession.branchId);
+  if(currentSession.role === 'manager') return allLoans.filter(l => l.branchId === currentSession.branchId);
+  // staff: only loans they created
+  return allLoans.filter(l => l.branchId === currentSession.branchId && (l.createdBy === currentSession.username || l.createdBy === currentSession.userId));
 }
 
 // ===== LOGIN TABS =====
@@ -1394,7 +1398,7 @@ function staffLogin(){
     u.username && u.username.toLowerCase()===username &&
     u.password === pass &&
     u.branchId === branchId &&
-    u.role === 'staff' &&
+    (u.role === 'staff' || u.role === 'manager') &&
     u.status !== 'inactive'
   );
   if(!user){document.getElementById('lerr').textContent='Invalid credentials or access denied.';return}
@@ -1410,9 +1414,11 @@ function startApp(){
   document.getElementById('hdr-date').textContent=new Date().toLocaleDateString('en-NG',{weekday:'short',day:'2-digit',month:'short',year:'numeric'});
 
   const isAdmin = currentSession.role === 'admin';
+  const isManager = currentSession.role === 'manager';
+  const isStaff = currentSession.role === 'staff';
 
   // Role pill
-  document.getElementById('role-pill').textContent = isAdmin ? 'ADMIN' : 'STAFF';
+  document.getElementById('role-pill').textContent = isAdmin ? 'ADMIN' : isManager ? 'MANAGER' : 'STAFF';
 
   // Branch badge — use innerHTML so emoji renders correctly
   const branchBadge = document.getElementById('branch-badge');
@@ -1423,19 +1429,20 @@ function startApp(){
     branchBadge.style.display = 'none';
   }
 
-  // Admin-only nav buttons — referenced by ID
+  // Admin-only nav buttons
   const navBranches = document.getElementById('nav-branches');
   const navUsers = document.getElementById('nav-users');
   if(navBranches) navBranches.style.display = isAdmin ? '' : 'none';
-  if(navUsers) navUsers.style.display = isAdmin ? '' : 'none';
+  // Manager can also access Staff page (to add/edit staff on their branch)
+  if(navUsers) navUsers.style.display = (isAdmin || isManager) ? '' : 'none';
 
-  // Admin-only dashboard card
+  // Admin-only dashboard branch summary card
   const bsCard = document.getElementById('branch-summary-card');
   if(bsCard) bsCard.style.display = isAdmin ? '' : 'none';
 
-  // Hide new-staff-btn from staff users
+  // New Staff button: admin sees all roles, manager sees it but restricted in save
   const newStaffBtn = document.getElementById('new-staff-btn');
-  if(newStaffBtn) newStaffBtn.style.display = isAdmin ? '' : 'none';
+  if(newStaffBtn) newStaffBtn.style.display = (isAdmin || isManager) ? '' : 'none';
 
   // Field-level visibility
   document.querySelectorAll('.admin-only-input').forEach(el=>el.style.display=isAdmin?'':'none');
@@ -1465,10 +1472,13 @@ function doLogout(){
 
 // ===== NAV =====
 function showPage(id){
-  // Guard: non-admin cannot access admin-only pages
-  if((id==='branches'||id==='users')&&currentSession.role!=='admin'){
+  // Guard: branches = admin only; users = admin + manager
+  if(id==='branches' && currentSession.role!=='admin'){
     toast('Admin access only','e');
-    // Redirect staff to dashboard instead
+    id='dashboard';
+  }
+  if(id==='users' && currentSession.role!=='admin' && currentSession.role!=='manager'){
+    toast('Access denied','e');
     id='dashboard';
   }
   document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
@@ -1577,7 +1587,8 @@ function renderDash(){
     } else {
       const hr=new Date().getHours();
       const greet=hr<12?'Good morning':hr<17?'Good afternoon':'Good evening';
-      bar.innerHTML='&#x1F44B; '+greet+', <strong>'+(currentSession.name||currentSession.username)+'</strong> &mdash; &#x1F3E6; '+currentSession.branchName;
+      const roleLabel=currentSession.role==='manager'?'Manager':'Staff';
+      bar.innerHTML='&#x1F44B; '+greet+', <strong>'+(currentSession.name||currentSession.username)+'</strong> ['+roleLabel+'] &mdash; &#x1F3E6; '+currentSession.branchName;
       bar.style.display='block';
     }
   }
@@ -1713,7 +1724,7 @@ function viewBranchDetail(branchId){
     ${bUsers.length===0?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:10px">No staff assigned.</p>':
       bUsers.map(u=>`<div class="user-card">
         <div class="user-avatar">${(u.name||'?')[0].toUpperCase()}</div>
-        <div class="user-info"><h4>${u.name||'—'}</h4><p>${u.username} &bull; <span class="badge b-${u.role==='admin'?'admin':'staff'}">${u.role}</span></p></div>
+        <div class="user-info"><h4>${u.name||'—'}</h4><p>${u.username} &bull; <span class="badge b-${u.role==='admin'?'admin':u.role==='manager'?'manager':'staff'}">${u.role}</span></p></div>
         <span class="badge b-${u.status==='active'?'active':'inactive'}">${u.status||'active'}</span>
       </div>`).join('')}
     <div class="sh">Loans</div>
@@ -1877,7 +1888,7 @@ function editStatus(id){
   // Branch guard
   const l=allLoans.find(x=>x.id===id);
   if(!l)return;
-  if(currentSession.role==='staff'&&l.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  if(currentSession.role==='staff'&&(l.branchId!==currentSession.branchId||l.createdBy!==currentSession.username)){toast('Access denied','e');return}
   stId=id;document.getElementById('st-sel').value=l.status||'Pending';showModal('status-modal');
 }
 function saveStatus(){
@@ -1893,7 +1904,7 @@ function saveStatus(){
 function delApp(id){
   const l=allLoans.find(x=>x.id===id);
   if(!l)return;
-  if(currentSession.role==='staff'&&l.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  if(currentSession.role==='staff'&&(l.branchId!==currentSession.branchId||l.createdBy!==currentSession.username)){toast('Access denied','e');return}
   if(!confirm('Permanently delete this applicant?'))return;
   db.collection('loans').doc(id).delete().then(()=>{
     allLoans=allLoans.filter(l=>l.id!==id);
@@ -2047,7 +2058,7 @@ function docsUpload(inp,listId,dataId){
 function viewProfile(id){
   curId=id;
   const l=allLoans.find(x=>x.id===id);if(!l)return;
-  if(currentSession.role==='staff'&&l.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  if(currentSession.role==='staff'&&(l.branchId!==currentSession.branchId||l.createdBy!==currentSession.username)){toast('Access denied','e');return}
   const pr=parseFloat(l.amount)||0,ir=pr*24/100,tr=pr+ir;
   const paid=getPaid(l),bal=getBal(l),pct=tr>0?Math.min(100,Math.round(paid/tr*100)):0;
   const cls=pct<30?'dng':pct<70?'warn':'';
@@ -2315,18 +2326,22 @@ function deleteBranch(id){
 
 // ===== USER MANAGEMENT =====
 function renderUsers(){
-  // Double-check: only admin can manage staff
-  if(currentSession.role!=='admin'){
+  const isAdmin=currentSession.role==='admin';
+  const isManager=currentSession.role==='manager';
+  if(!isAdmin && !isManager){
     const el=document.getElementById('users-list');
-    if(el)el.innerHTML='<p style="text-align:center;color:var(--red);padding:20px;font-weight:700">Access denied. Admin only.</p>';
-    const btn=document.getElementById('new-staff-btn');
-    if(btn)btn.style.display='none';
+    if(el)el.innerHTML='<p style="text-align:center;color:var(--red);padding:20px;font-weight:700">Access denied.</p>';
     return;
   }
   const q=v('usr-srch').toLowerCase(),br=v('usr-br'),role=v('usr-role');
   let list=allUsers.filter(u=>{
     if(q&&!(u.name||'').toLowerCase().includes(q)&&!(u.username||'').toLowerCase().includes(q))return false;
-    if(br&&u.branchId!==br)return false;
+    // Manager only sees staff on their own branch (not other managers or admins)
+    if(currentSession.role==='manager'){
+      if(u.branchId!==currentSession.branchId) return false;
+      if(u.role==='admin'||u.role==='manager') return false;
+    }
+    if(currentSession.role==='admin'&&br&&u.branchId!==br)return false;
     if(role&&u.role!==role)return false;
     return true;
   });
@@ -2335,7 +2350,7 @@ function renderUsers(){
   el.innerHTML=list.map(u=>`<div class="user-card">
     <div class="user-avatar" style="${u.role==='admin'?'background:var(--purple)':''}">${(u.name||'?')[0].toUpperCase()}</div>
     <div class="user-info">
-      <h4>${u.name||'—'} <span class="badge b-${u.role==='admin'?'admin':'staff'}">${u.role||'staff'}</span></h4>
+      <h4>${u.name||'—'} <span class="badge b-${u.role==='admin'?'admin':u.role==='manager'?'manager':'staff'}">${u.role||'staff'}</span></h4>
       <p>@${u.username||'—'} &bull; &#127970; ${getBranchName(u.branchId)} ${u.phone?'&bull; '+u.phone:''}</p>
     </div>
     <span class="badge b-${u.status==='active'?'active':'inactive'}">${u.status||'active'}</span>
@@ -2347,11 +2362,32 @@ function renderUsers(){
 }
 function toggleBranchField(){
   const role=document.getElementById('um-role').value;
-  const fg=document.getElementById('um-branch-fg');
+  const fg=document.getElementById('um-branch-fg')||document.getElementById('um-branch-wrap');
   if(fg)fg.style.display=role==='admin'?'none':'';
 }
+function setupUserModalForRole(){
+  const roleSelect=document.getElementById('um-role');
+  if(!roleSelect)return;
+  if(currentSession.role==='manager'){
+    // Manager can only create staff
+    Array.from(roleSelect.options).forEach(opt=>{
+      opt.style.display=(opt.value===''||opt.value==='staff')?'':'none';
+    });
+    roleSelect.value='staff';
+    roleSelect.disabled=true;
+    // Lock branch to manager's own branch
+    const brSel=document.getElementById('um-branch');
+    if(brSel){brSel.value=currentSession.branchId;brSel.disabled=true;}
+  } else {
+    Array.from(roleSelect.options).forEach(opt=>{opt.style.display='';});
+    roleSelect.disabled=false;
+    const brSel=document.getElementById('um-branch');
+    if(brSel)brSel.disabled=false;
+  }
+  toggleBranchField();
+}
 function openUserModal(editId){
-  if(currentSession.role!=='admin'){toast('Admin access only','e');return}
+  if(currentSession.role!=='admin' && currentSession.role!=='manager'){toast('Access denied','e');return}
   editUserId=editId||null;
   document.getElementById('um-title').textContent=editId?'Edit Staff Account':'New Staff Account';
   // Populate branch dropdown in modal
@@ -2377,12 +2413,12 @@ function openUserModal(editId){
     document.getElementById('um-status').value='active';
     if(passFg){passFg.querySelector('label').textContent='Password *'}
   }
-  toggleBranchField();
+  setupUserModalForRole();
   showModal('user-modal');
 }
 function editUser(id){openUserModal(id)}
 function saveUser(){
-  if(currentSession.role!=='admin'){toast('Admin access only','e');return}
+  if(currentSession.role!=='admin' && currentSession.role!=='manager'){toast('Access denied','e');return}
   const name=document.getElementById('um-name').value.trim();
   const username=document.getElementById('um-username').value.trim().toLowerCase();
   const pass=document.getElementById('um-pass').value;
@@ -2894,8 +2930,16 @@ function downloadCalcPage(){
 let allEasyBuys = [], allInvestments = [], ebCurId = null, invCurId = null;
 
 // Scoped helpers
-function scopedEB(){ return currentSession.role==='admin' ? allEasyBuys : allEasyBuys.filter(e=>e.branchId===currentSession.branchId); }
-function scopedINV(){ return currentSession.role==='admin' ? allInvestments : allInvestments.filter(i=>i.branchId===currentSession.branchId); }
+function scopedEB(){
+  if(currentSession.role==='admin') return allEasyBuys;
+  if(currentSession.role==='manager') return allEasyBuys.filter(e=>e.branchId===currentSession.branchId);
+  return allEasyBuys.filter(e=>e.branchId===currentSession.branchId && (e.createdBy===currentSession.username||e.createdBy===currentSession.userId));
+}
+function scopedINV(){
+  if(currentSession.role==='admin') return allInvestments;
+  if(currentSession.role==='manager') return allInvestments.filter(i=>i.branchId===currentSession.branchId);
+  return allInvestments.filter(i=>i.branchId===currentSession.branchId && (i.createdBy===currentSession.username||i.createdBy===currentSession.userId));
+}
 
 function ebGenId(){ return 'EB-'+Date.now().toString().slice(-7); }
 function invGenId(){ return 'INV-'+Date.now().toString().slice(-7); }
