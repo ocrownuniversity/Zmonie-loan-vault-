@@ -2422,8 +2422,8 @@ function saveUser(){
   const name=document.getElementById('um-name').value.trim();
   const username=document.getElementById('um-username').value.trim().toLowerCase();
   const pass=document.getElementById('um-pass').value;
-  const role=document.getElementById('um-role').value;
-  const branchId=document.getElementById('um-branch').value;
+  let role=document.getElementById('um-role').value;
+  let branchId=document.getElementById('um-branch').value;
   const phone=document.getElementById('um-phone').value.trim();
   const status=document.getElementById('um-status').value;
   const id=editUserId;
@@ -2431,26 +2431,69 @@ function saveUser(){
   if(!name){toast('Name is required','e');return}
   if(!username){toast('Username is required','e');return}
   if(!id&&!pass){toast('Password is required','e');return}
-  if(role==='staff'&&!branchId){toast('Select a branch for staff','e');return}
+
+  // Manager restrictions: force role=staff and lock branch to manager's own branch
+  if(currentSession.role==='manager'){
+    role='staff';
+    branchId=currentSession.branchId;
+  }
+
+  // Branch is required for both staff AND manager roles (only admin has no branch)
+  if((role==='staff'||role==='manager')&&!branchId){
+    toast('Please select a branch','e');
+    return;
+  }
 
   // Check duplicate username
   const dup=allUsers.find(u=>u.username===username&&u.id!==id);
-  if(dup){toast('Username already taken','e');return}
+  if(dup){toast('Username "'+username+'" is already taken','e');return}
 
-  const data={name,username,role,branchId:role==='staff'?branchId:'',phone,status,updatedAt:new Date().toISOString()};
+  // FIX: previously branchId was wiped to '' for any role except exactly 'staff'.
+  // Now branchId is kept for both staff and manager roles, only cleared for admin.
+  const data={
+    name, username, role,
+    branchId: role==='admin' ? '' : branchId,
+    phone, status,
+    updatedAt:new Date().toISOString()
+  };
   if(pass)data.password=pass;
 
-  const op=id?db.collection('staff_users').doc(id).set(data,{merge:true}):db.collection('staff_users').add({...data,createdAt:new Date().toISOString()});
+  console.log('[LoanVault] Saving staff_users doc:', data);
+
+  showLoader('Saving staff account...');
+  const op = id
+    ? db.collection('staff_users').doc(id).set(data,{merge:true})
+    : db.collection('staff_users').add({...data,createdAt:new Date().toISOString()});
+
   op.then(ref=>{
-    if(id){const u=allUsers.find(x=>x.id===id);if(u)Object.assign(u,data);}
-    else allUsers.push({id:ref.id,...data,createdAt:new Date().toISOString()});
-    closeModal('user-modal');renderUsers();
-    toast(id?'Staff account updated!':'Staff account created!','s');
-  }).catch(e=>toast('Error: '+e.message,'e'));
+    hideLoader();
+    if(id){
+      const u=allUsers.find(x=>x.id===id);
+      if(u)Object.assign(u,data);
+    } else {
+      const newId = ref.id;
+      allUsers.push({id:newId,...data,createdAt:new Date().toISOString()});
+      console.log('[LoanVault] Staff saved with Firestore ID:', newId);
+    }
+    closeModal('user-modal');
+    renderUsers();
+    fillLoginBranchSelect();
+    populateLoginBranchSelect();
+    toast(id?'Staff account updated!':'Staff account "'+username+'" created for branch: '+getBranchName(data.branchId),'s');
+  }).catch(e=>{
+    hideLoader();
+    console.error('[LoanVault] FIRESTORE SAVE FAILED:', e);
+    toast('Save failed: '+e.message+' (check Firestore rules)','e');
+  });
 }
+
 function deleteUser(id){
-  if(currentSession.role!=='admin'){toast('Admin access only','e');return}
-  if(id===currentSession.userId){toast("You can't delete your own account",'e');return}
+  if(currentSession.role!=='admin' && currentSession.role!=='manager'){toast('Access denied','e');return}
+  if(id===currentSession.userId){toast("You cannot delete your own account",'e');return}
+  if(currentSession.role==='manager'){
+    const u=allUsers.find(x=>x.id===id);
+    if(!u||u.branchId!==currentSession.branchId||u.role!=='staff'){toast('You can only delete staff on your branch','e');return}
+  }
   if(!confirm('Delete this staff account?'))return;
   db.collection('staff_users').doc(id).delete().then(()=>{
     allUsers=allUsers.filter(u=>u.id!==id);renderUsers();toast('Account deleted.','w');
