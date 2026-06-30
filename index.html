@@ -292,6 +292,21 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
 .dash-module-card p{font-size:.72rem;opacity:.8;margin-top:2px}
 .dash-module-card .dmc-stat{font-size:1.5rem;font-weight:800;margin-top:8px}
 
+
+/* ===== MONTHLY INTEREST SCHEDULE ===== */
+.mi-schedule{margin-top:14px}
+.mi-month-row{display:flex;align-items:center;gap:10px;padding:9px 12px;border-radius:8px;border:1.5px solid var(--border);margin-bottom:6px;background:#fff;transition:.2s}
+.mi-month-row.paid{background:#f0fdf4;border-color:#86efac}
+.mi-month-row.overdue{background:#fff1f2;border-color:#fca5a5}
+.mi-month-num{width:28px;height:28px;border-radius:50%;background:var(--bg);border:2px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:.7rem;font-weight:800;color:var(--navy);flex-shrink:0}
+.mi-month-num.paid{background:#16a34a;border-color:#16a34a;color:#fff}
+.mi-month-num.overdue{background:#dc2626;border-color:#dc2626;color:#fff}
+.mi-month-info{flex:1;min-width:0}
+.mi-month-info strong{font-size:.8rem;color:var(--navy);display:block}
+.mi-month-info span{font-size:.7rem;color:var(--muted)}
+.mi-paid-info{font-size:.72rem;color:var(--green);font-weight:700;text-align:right;min-width:80px}
+.mi-paid-info.overdue-text{color:var(--red)}
+
 </style>
 </head>
 <body>
@@ -541,7 +556,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
           <div class="sh">&#128181; Investment Details</div>
           <div class="form-grid">
             <div class="fg"><label>Investment Amount (&#8358;) *</label><input required type="number" id="inv-amount" placeholder="0" oninput="invCalc()"/></div>
-            <div class="fg"><label>Investment Plan *</label><select required id="inv-plan" onchange="invCalc()"><option value="">Select plan</option><option value="10">10% Return</option><option value="15">15% Return</option><option value="20">20% Return</option><option value="25">25% Return</option><option value="30">30% Return</option></select></div>
+            <div class="fg"><label>Investment Plan *</label><select required id="inv-plan" onchange="invCalc()"><option value="">Select plan</option><option value="10" selected>10% Per Annum (Monthly Interest)</option><option value="15">15% Per Annum</option><option value="20">20% Per Annum</option><option value="25">25% Per Annum</option></select></div>
             <div class="fg"><label>Duration *</label>
               <div style="display:flex;gap:6px">
                 <input type="number" id="inv-dur-n" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="invCalc()"/>
@@ -567,6 +582,26 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
               <div class="calc-item hl"><div class="cv" id="inv-c-total">&#8358;0</div><div class="cl">Total at Maturity</div></div>
               <div class="calc-item"><div class="cv" id="inv-c-mat">--</div><div class="cl">Maturity Date</div></div>
             </div>
+          </div>
+          <!-- Monthly interest display -->
+          <div id="inv-monthly-box" style="display:none;background:#ede9fe;border:1.5px solid #c4b5fd;border-radius:10px;padding:14px;margin:10px 0">
+            <div style="font-size:.72rem;font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#5b21b6;margin-bottom:10px">&#128200; Monthly Interest Breakdown (10% per annum)</div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:8px">
+              <div style="background:#fff;border-radius:8px;padding:9px;text-align:center;border:1px solid #ddd6fe"><div style="font-size:.95rem;font-weight:800;color:#5b21b6" id="inv-monthly-amt">&#8358;0</div><div style="font-size:.6rem;color:#64748b;text-transform:uppercase;margin-top:2px">Monthly Interest</div></div>
+              <div style="background:#fff;border-radius:8px;padding:9px;text-align:center;border:1px solid #ddd6fe"><div style="font-size:.95rem;font-weight:800;color:#0f2342" id="inv-monthly-periods">0</div><div style="font-size:.6rem;color:#64748b;text-transform:uppercase;margin-top:2px">Total Months</div></div>
+              <div style="background:#fff;border-radius:8px;padding:9px;text-align:center;border:1px solid #ddd6fe"><div style="font-size:.95rem;font-weight:800;color:#16a34a" id="inv-monthly-total">&#8358;0</div><div style="font-size:.6rem;color:#64748b;text-transform:uppercase;margin-top:2px">Total Interest</div></div>
+              <div style="background:#fff;border-radius:8px;padding:9px;text-align:center;border:1px solid #ddd6fe"><div style="font-size:.95rem;font-weight:800;color:#0f2342" id="inv-monthly-principal">&#8358;0</div><div style="font-size:.6rem;color:#64748b;text-transform:uppercase;margin-top:2px">Principal at Maturity</div></div>
+            </div>
+          </div>
+          <div class="sh">&#128101; Next of Kin Details</div>
+          <div class="form-grid">
+            <div class="fg"><label>Next of Kin Full Name *</label><input required id="inv-nok-name" placeholder="Full name of next of kin"/></div>
+            <div class="fg"><label>Relationship *</label><input required id="inv-nok-rel" placeholder="e.g. Wife, Brother, Son"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="inv-nok-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Address</label><input id="inv-nok-addr" placeholder="Next of kin address"/></div>
+            <div class="fg"><label>Occupation</label><input id="inv-nok-occ" placeholder="Next of kin occupation"/></div>
+            <div class="fg"><label>ID Type</label><select id="inv-nok-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
+            <div class="fg"><label>ID Number</label><input id="inv-nok-idnum" placeholder="Next of kin ID number"/></div>
           </div>
           <div class="btn-row">
             <button type="submit" class="btn btn-navy">&#128190; Save Investment Record</button>
@@ -2947,18 +2982,36 @@ function ebCalc(){
 // ===== Investment LIVE CALC =====
 function invCalc(){
   const amt=parseFloat(v('inv-amount'))||0;
-  const rate=parseFloat(v('inv-plan'))||0;
   const dn=v('inv-dur-n'), du=v('inv-dur-u');
   const startdate=v('inv-startdate'); // reads from hidden field
   const box=document.getElementById('inv-calc-box');
-  if(!amt||!rate){if(box)box.style.display='none';return;}
+  const mbox=document.getElementById('inv-monthly-box');
+  if(!amt){if(box)box.style.display='none';if(mbox)mbox.style.display='none';return;}
+  // Fixed 10% per annum = monthly interest model
+  const annualRate=10;
+  const monthlyRate=annualRate/12/100; // 0.8333% per month
+  // Convert duration to months
+  const n=parseInt(dn)||0;
+  const totalMonths=du==='years'?n*12:n;
+  const monthlyInterest=amt*monthlyRate;
+  const totalInterest=monthlyInterest*totalMonths;
+  const total=amt+totalInterest;
+  const mat=invGetMaturity(startdate,dn,du);
+  const matDisplay=mat&&mat!=='--'?new Date(mat).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}):'--';
+  // Update main calc box
   if(box)box.style.display='block';
-  const ret=amt*(rate/100), total=amt+ret;
-  const mat=invGetMaturity(startdate, dn, du);
   document.getElementById('inv-c-amt').innerHTML='&#8358;'+fmt(amt);
-  document.getElementById('inv-c-ret').innerHTML='&#8358;'+fmt(ret);
+  document.getElementById('inv-c-ret').innerHTML='&#8358;'+fmt(totalInterest);
   document.getElementById('inv-c-total').innerHTML='&#8358;'+fmt(total);
-  document.getElementById('inv-c-mat').textContent=mat!=='--'?new Date(mat).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}):'--';
+  document.getElementById('inv-c-mat').textContent=matDisplay;
+  // Update monthly breakdown box
+  if(mbox&&totalMonths>0){
+    mbox.style.display='block';
+    document.getElementById('inv-monthly-amt').innerHTML='&#8358;'+fmt(monthlyInterest);
+    document.getElementById('inv-monthly-periods').textContent=totalMonths+' month'+(totalMonths!==1?'s':'');
+    document.getElementById('inv-monthly-total').innerHTML='&#8358;'+fmt(totalInterest);
+    document.getElementById('inv-monthly-principal').innerHTML='&#8358;'+fmt(amt);
+  } else if(mbox){mbox.style.display='none';}
 }
 
 // ===== POPULATE BRANCH DROPDOWNS FOR EB/INV =====
@@ -3297,18 +3350,20 @@ function exportEasyBuyExcel(){
 function renderINVStats(){
   const list=scopedINV();
   const totalAmt=list.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
-  const totalReturn=list.reduce((s,i)=>s+invGetReturn(i),0);
-  const totalPaid=list.reduce((s,i)=>s+invGetPaid(i),0);
-  const outstanding=list.reduce((s,i)=>s+invGetBal(i),0);
+  const totalInterest=list.reduce((s,i)=>s+invGetTotalInterest(i),0);
+  const totalInterestPaid=list.reduce((s,i)=>s+invTotalInterestPaid(i),0);
+  const outstanding=totalInterest-totalInterestPaid;
   const active=list.filter(i=>i.status==='Active').length;
+  const overdueCount=list.filter(i=>invIsInterestOverdue(i)).length;
   const el=document.getElementById('inv-stat-grid');if(!el)return;
   el.innerHTML=
     '<div class="stat-card" style="border-color:var(--purple)"><div class="stat-val">'+list.length+'</div><div class="stat-lbl">Total Investors</div></div>'+
     '<div class="stat-card" style="border-color:var(--blue)"><div class="stat-val">&#8358;'+fmt(totalAmt)+'</div><div class="stat-lbl">Total Invested</div></div>'+
-    '<div class="stat-card" style="border-color:var(--amber)"><div class="stat-val">&#8358;'+fmt(totalReturn)+'</div><div class="stat-lbl">Expected Returns</div></div>'+
-    '<div class="stat-card" style="border-color:var(--green)"><div class="stat-val">&#8358;'+fmt(totalPaid)+'</div><div class="stat-lbl">Returns Paid</div></div>'+
-    '<div class="stat-card" style="border-color:var(--red)"><div class="stat-val">&#8358;'+fmt(outstanding)+'</div><div class="stat-lbl">Outstanding Returns</div></div>'+
-    '<div class="stat-card" style="border-color:var(--purple)"><div class="stat-val">'+active+'</div><div class="stat-lbl">Active</div></div>';
+    '<div class="stat-card" style="border-color:var(--amber)"><div class="stat-val">&#8358;'+fmt(totalInterest)+'</div><div class="stat-lbl">Total Interest Due</div></div>'+
+    '<div class="stat-card" style="border-color:var(--green)"><div class="stat-val">&#8358;'+fmt(totalInterestPaid)+'</div><div class="stat-lbl">Interest Paid</div></div>'+
+    '<div class="stat-card" style="border-color:var(--red)"><div class="stat-val">&#8358;'+fmt(outstanding)+'</div><div class="stat-lbl">Interest Outstanding</div></div>'+
+    '<div class="stat-card" style="border-color:var(--purple)"><div class="stat-val">'+active+'</div><div class="stat-lbl">Active</div></div>'+
+    (overdueCount>0?'<div class="stat-card" style="border-color:var(--red)"><div class="stat-val" style="color:var(--red)">'+overdueCount+'</div><div class="stat-lbl">Overdue Interest</div></div>':'');
 }
 function renderINV(list){
   const tb=document.getElementById('inv-tbody');if(!tb)return;
@@ -3321,11 +3376,11 @@ function renderINV(list){
       '<td>'+i.phone+'</td>'+
       '<td><span style="font-size:.68rem;background:#f5f3ff;padding:2px 6px;border-radius:4px;border:1px solid #ddd6fe">'+getBranchName(i.branchId)+'</span></td>'+
       '<td style="font-weight:700">&#8358;'+fmt(amt)+'</td>'+
-      '<td>'+( i.plan||'--')+'% Return</td>'+
-      '<td style="color:#7c3aed;font-weight:700">&#8358;'+fmt(ret)+'</td>'+
+      '<td>'+( i.plan||'--')+'% p.a.</td>'+
+      '<td style="color:#7c3aed;font-weight:700">&#8358;'+fmt(invGetMonthlyInterest(i))+'/mo</td>'+
       '<td>'+(i.startdate||'--')+'</td>'+
       '<td style="font-weight:700">'+(i.maturityDate||'--')+'</td>'+
-      '<td>'+invBdg(i.status)+'</td>'+
+      '<td>'+invBdg(i.status)+(invIsInterestOverdue(i)?'<span class="ndot" title="Interest overdue"></span>':'')+'</td>'+
       '<td><div style="display:flex;gap:3px;flex-wrap:wrap">'+
         '<button class="btn btn-out btn-sm" onclick="viewINVProfile(\''+i.id+'\')">&#128100;</button>'+
         '<button class="btn btn-purple btn-sm" onclick="openINVPayModal(\''+i.id+'\')">&#128176;</button>'+
@@ -3350,22 +3405,40 @@ function submitInvestment(e){
   const dn=v('inv-dur-n'), du=v('inv-dur-u'), startdate=v('inv-startdate');
   const maturityDate=invGetMaturity(startdate,dn,du);
   const amt=parseFloat(v('inv-amount'))||0, rate=parseFloat(v('inv-plan'))||0;
+  const totalMonths=du==='years'?(parseInt(dn)||0)*12:(parseInt(dn)||0);
+  const monthlyInterest=amt*(rate/12/100);
+  const totalInterest=monthlyInterest*totalMonths;
+  // Build monthly interest schedule
+  const monthlySchedule=buildMonthlySchedule(startdate,totalMonths,monthlyInterest);
   const data={
     invId:invGenId(), name:v('inv-name'), phone:v('inv-phone'), address:v('inv-address'),
     occupation:v('inv-occ'), idtype:v('inv-idtype'), idnum:v('inv-idnum'),
     branchId, branchName:getBranchName(branchId),
     amount:amt, plan:rate, duration:dn+' '+du,
     durationNum:dn, durationUnit:du,
-    expectedReturn:amt*(rate/100), totalAtMaturity:amt+(amt*(rate/100)),
+    monthlyInterest, totalMonths,
+    expectedReturn:totalInterest, totalAtMaturity:amt+totalInterest,
     startdate, maturityDate, status:v('inv-status'),
+    nok:{
+      name:v('inv-nok-name'), relationship:v('inv-nok-rel'),
+      phone:v('inv-nok-phone'), address:v('inv-nok-addr'),
+      occupation:v('inv-nok-occ'), idtype:v('inv-nok-idtype'), idnum:v('inv-nok-idnum')
+    },
     photo:document.getElementById('inv-photo-data').value,
     docs:sjd(document.getElementById('inv-docs-data').value),
-    payments:[], createdBy:currentSession.username||'admin',
+    monthlySchedule, payments:[], createdBy:currentSession.username||'admin',
     createdAt:new Date().toISOString()
   };
   db.collection('investments').add(data).then(ref=>{
-    allInvestments.unshift({id:ref.id,...data});
-    toast('Investment record saved!','s');resetINVForm();showPage('investment');
+    const saved={id:ref.id,...data};
+    allInvestments.unshift(saved);
+    toast('Investment record saved! Code: '+data.invId,'s');
+    resetINVForm();
+    showPage('investment');
+    // Auto-show the generated code in a styled alert
+    setTimeout(()=>{
+      showInvCode(saved);
+    },600);
   }).catch(e=>toast('Error: '+e.message,'e'));
 }
 function resetINVForm(){
@@ -3375,6 +3448,7 @@ function resetINVForm(){
   const pd=document.getElementById('inv-photo-data');if(pd)pd.value='';
   const dd=document.getElementById('inv-docs-data');if(dd)dd.value='[]';
   const dl=document.getElementById('inv-docs-list');if(dl)dl.innerHTML='';
+  const mb=document.getElementById('inv-monthly-box');if(mb)mb.style.display='none';
   const box=document.getElementById('inv-calc-box');if(box)box.style.display='none';
   // Clear date dropdowns
   ['inv-startdate-d','inv-startdate-m','inv-startdate-y'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
@@ -3394,6 +3468,12 @@ function delINV(id){
 function viewINVProfile(id){
   invCurId=id;
   const i=allInvestments.find(x=>x.id===id);if(!i)return;
+  // Ensure monthlySchedule exists (legacy records)
+  if(!i.monthlySchedule||i.monthlySchedule.length===0){
+    const totalMonths=i.totalMonths||(parseInt(i.durationNum)||0);
+    const mi=invGetMonthlyInterest(i);
+    i.monthlySchedule=buildMonthlySchedule(i.startdate,totalMonths,mi);
+  }
   const amt=parseFloat(i.amount)||0, ret=invGetReturn(i), total=invGetTotal(i);
   const paid=invGetPaid(i), bal=invGetBal(i);
   const pct=total>0?Math.min(100,Math.round(paid/total*100)):0;
@@ -3529,6 +3609,15 @@ function printINVAgreement(){
   <tr><td>ID Type</td><td>${i.idtype||'--'}</td></tr>
   <tr><td>ID Number</td><td>${i.idnum||'--'}</td></tr>
   <tr><td>Branch</td><td>${getBranchName(i.branchId)}</td></tr></table></div>
+  <div class="section"><h3>Next of Kin Information</h3>
+  <table>
+  <tr><td>Full Name</td><td>${(i.nok&&i.nok.name)||'--'}</td></tr>
+  <tr><td>Relationship</td><td>${(i.nok&&i.nok.relationship)||'--'}</td></tr>
+  <tr><td>Phone</td><td>${(i.nok&&i.nok.phone)||'--'}</td></tr>
+  <tr><td>Address</td><td>${(i.nok&&i.nok.address)||'--'}</td></tr>
+  <tr><td>Occupation</td><td>${(i.nok&&i.nok.occupation)||'--'}</td></tr>
+  <tr><td>ID</td><td>${(i.nok&&i.nok.idtype)||''} ${(i.nok&&i.nok.idnum)||''}</td></tr>
+  </table></div>
   <div class="section"><h3>Investment Details</h3>
   <table><tr><td>Investment Amount</td><td>&#8358;${fmt(amt)}</td></tr>
   <tr><td>Return Rate</td><td>${i.plan}%</td></tr>
@@ -3544,9 +3633,9 @@ function printINVAgreement(){
   <div><div class="sv" style="color:var(--green,#16a34a)">&#8358;${fmt(paid)}</div><div class="sl">Returns Paid</div></div>
   <div><div class="sv" style="color:#dc2626">&#8358;${fmt(bal)}</div><div class="sl">Outstanding</div></div></div>
   <div class="section"><h3>Return Payment History</h3>
-  ${(i.payments||[]).length===0?'<p style="color:#64748b;font-size:.82rem">No return payments recorded yet.</p>':
-  '<table><tr><td style="font-weight:800">#</td><td style="font-weight:800">Date</td><td style="font-weight:800">Amount</td><td style="font-weight:800">Method</td></tr>'+
-  (i.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td>'+p.date+'</td><td>&#8358;'+fmt(p.amount)+'</td><td>'+(p.method||'--')+'</td></tr>').join('')+
+  ${(i.monthlySchedule||[]).length===0?'<p style="color:#64748b;font-size:.82rem">No monthly schedule recorded.</p>':
+  '<table><tr style="background:#f5f3ff"><td style="font-weight:800;padding:7px">#</td><td style="font-weight:800;padding:7px">Due Date</td><td style="font-weight:800;padding:7px">Amount</td><td style="font-weight:800;padding:7px">Status</td><td style="font-weight:800;padding:7px">Paid Date</td></tr>'+
+  (i.monthlySchedule||[]).map(m=>'<tr style="background:'+(m.paid?'#f0fdf4':'#fff')+'"><td style="padding:6px 8px">'+m.month+'</td><td style="padding:6px 8px">'+m.dueDate+'</td><td style="padding:6px 8px">&#8358;'+fmt(m.amount)+'</td><td style="padding:6px 8px;color:'+(m.paid?'#16a34a':'#dc2626')+';font-weight:700">'+(m.paid?'&#10003; Paid':'Pending')+'</td><td style="padding:6px 8px">'+(m.paidDate||'--')+'</td></tr>').join('')+
   '</table>'}</div>
   <div class="terms"><strong>Terms & Conditions:</strong> The investor agrees to the investment terms as stated above. Returns will be paid on or before the maturity date. Early withdrawal may be subject to penalty charges as agreed upon. This agreement is binding upon both parties.</div>
   <div class="sig-row">
@@ -3568,7 +3657,14 @@ function exportInvestmentExcel(){
     'Expected Return':invGetReturn(i),'Total at Maturity':invGetTotal(i),
     'Returns Paid':invGetPaid(i),'Outstanding':invGetBal(i),
     'Duration':i.duration,'Start Date':i.startdate,'Maturity Date':i.maturityDate,
-    'Status':i.status,'Created By':i.createdBy
+    'Status':i.status,'Created By':i.createdBy,
+    'NOK Name':(i.nok&&i.nok.name)||'',
+    'NOK Relationship':(i.nok&&i.nok.relationship)||'',
+    'NOK Phone':(i.nok&&i.nok.phone)||'',
+    'Monthly Interest':invGetMonthlyInterest(i),
+    'Months Paid':invMonthsPaid(i),
+    'Months Pending':invMonthsUnpaid(i),
+    'Total Interest Paid':invTotalInterestPaid(i)
   }));
   const ws=XLSX.utils.json_to_sheet(rows);
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Investments');
@@ -3616,6 +3712,200 @@ function populateAllYearDropdowns(){
       sel.appendChild(o);
     }
   });
+}
+
+
+// ===== BUILD MONTHLY INTEREST SCHEDULE =====
+function buildMonthlySchedule(startdate, totalMonths, monthlyInterest){
+  if(!startdate||!totalMonths) return [];
+  const schedule=[];
+  for(let i=0;i<totalMonths;i++){
+    const d=new Date(startdate);
+    d.setMonth(d.getMonth()+i+1);
+    schedule.push({
+      month:i+1,
+      dueDate:d.toISOString().slice(0,10),
+      amount:monthlyInterest,
+      paid:false,
+      paidDate:'',
+      paidBy:''
+    });
+  }
+  return schedule;
+}
+
+// Count paid months
+function invMonthsPaid(inv){ return (inv.monthlySchedule||[]).filter(m=>m.paid).length; }
+function invMonthsUnpaid(inv){ return (inv.monthlySchedule||[]).filter(m=>!m.paid).length; }
+function invTotalInterestPaid(inv){ return (inv.monthlySchedule||[]).filter(m=>m.paid).reduce((s,m)=>s+(parseFloat(m.amount)||0),0); }
+function invIsInterestOverdue(inv){
+  if(!inv.monthlySchedule) return false;
+  const today=new Date().toISOString().slice(0,10);
+  return inv.monthlySchedule.some(m=>!m.paid&&m.dueDate<today);
+}
+
+// Override invGetReturn to use schedule
+function invGetMonthlyInterest(inv){ return parseFloat(inv.monthlyInterest)||((parseFloat(inv.amount)||0)*(parseFloat(inv.plan)||10)/12/100); }
+function invGetTotalInterest(inv){ return invGetMonthlyInterest(inv)*(inv.totalMonths||(inv.monthlySchedule||[]).length||(parseInt(inv.durationNum)||0)); }
+
+
+// ===== RENDER MONTHLY INTEREST SCHEDULE HTML =====
+function renderMonthlyScheduleHTML(inv){
+  var schedule=inv.monthlySchedule||[];
+  if(schedule.length===0){
+    return '<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:12px">No monthly schedule.</p>';
+  }
+  var today=new Date().toISOString().slice(0,10);
+  var html='';
+  for(var idx=0;idx<schedule.length;idx++){
+    var m=schedule[idx];
+    var isPaid=m.paid;
+    var isOverdue=(!m.paid && m.dueDate<today);
+    var rowCls=isPaid?'paid':isOverdue?'overdue':'';
+    var numCls=isPaid?'paid':isOverdue?'overdue':'';
+    var dueDisplay=m.dueDate?new Date(m.dueDate).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}):'--';
+    var paidDisplay=m.paidDate?new Date(m.paidDate).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}):'';
+    var actionHtml='';
+    if(isPaid){
+      actionHtml='<div class="mi-paid-info">✓ Paid<br/><span style="font-size:.68rem;color:var(--muted)">'+(m.paidBy||'')+'</span></div>';
+    } else {
+      var btnCls='btn btn-sm '+(isOverdue?'btn-red':'btn-green')+' no-print';
+      var btnLabel=isOverdue?'Overdue':'Mark Paid';
+      actionHtml='<button class="'+btnCls+'" data-invid="'+invCurId+'" data-idx="'+idx+'" onclick="markMonthPaidBtn(this)">'+btnLabel+'</button>';
+    }
+    html+='<div class="mi-month-row '+rowCls+'">'+
+      '<div class="mi-month-num '+numCls+'">'+m.month+'</div>'+
+      '<div class="mi-month-info">'+
+        '<strong>Month '+m.month+' &mdash; &#8358;'+fmt(m.amount)+'</strong>'+
+        '<span>Due: '+dueDisplay+(paidDisplay?' &bull; Paid: '+paidDisplay:'')+'</span>'+
+      '</div>'+
+      actionHtml+
+    '</div>';
+  }
+  var paidCount=0;
+  for(var j=0;j<schedule.length;j++){if(schedule[j].paid)paidCount++;}
+  var totalInterestPaid=invTotalInterestPaid(inv);
+  var totalInterest=inv.expectedReturn||invGetTotalInterest(inv);
+  var pct=totalInterest>0?Math.min(100,Math.round(totalInterestPaid/totalInterest*100)):0;
+  return '<div style="margin-bottom:10px">'+
+    '<div style="display:flex;justify-content:space-between;font-size:.75rem;margin-bottom:4px">'+
+    '<span style="font-weight:700">'+paidCount+' of '+schedule.length+' months paid</span>'+
+    '<span style="color:var(--green);font-weight:700">&#8358;'+fmt(totalInterestPaid)+' / &#8358;'+fmt(totalInterest)+'</span>'+
+    '</div>'+
+    '<div class="pbar-wrap"><div class="pbar-fill" style="width:'+pct+'%;background:#7c3aed"></div></div>'+
+    '</div>'+
+    '<div class="mi-schedule">'+html+'</div>';
+}
+
+function markMonthPaidBtn(btn){
+  var invId=btn.getAttribute('data-invid');
+  var idx=parseInt(btn.getAttribute('data-idx'));
+  markMonthPaid(invId,idx);
+}
+
+
+// ===== MARK MONTHLY INTEREST AS PAID =====
+function markMonthPaid(invId, monthIdx){
+  const inv=allInvestments.find(x=>x.id===invId);if(!inv)return;
+  if(currentSession.role==='staff'&&inv.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  const schedule=[...(inv.monthlySchedule||[])];
+  if(schedule[monthIdx]&&schedule[monthIdx].paid){toast('Already marked as paid','w');return}
+  if(!schedule[monthIdx]){toast('Month not found','e');return}
+  const today=new Date().toISOString().slice(0,10);
+  schedule[monthIdx]={...schedule[monthIdx],paid:true,paidDate:today,paidBy:currentSession.username||'admin'};
+  // Check if all months paid → auto complete
+  const allPaid=schedule.every(m=>m.paid);
+  const newStatus=allPaid?'Completed':inv.status;
+  db.collection('investments').doc(invId).set({monthlySchedule:schedule,status:newStatus},{merge:true}).then(()=>{
+    inv.monthlySchedule=schedule;inv.status=newStatus;
+    renderINV(scopedINV());renderINVStats();renderDashModules();
+    toast('Month '+(monthIdx+1)+' interest marked as paid!'+(allPaid?' All months paid — Completed!':''),'s');
+    viewINVProfile(invId); // refresh modal
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ===== UPDATE openINVPayModal to show monthly schedule =====
+function openINVPayModal(id){
+  invCurId=id;
+  const i=allInvestments.find(x=>x.id===id);if(!i)return;
+  if(currentSession.role==='staff'&&i.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  // Ensure schedule exists
+  if(!i.monthlySchedule||i.monthlySchedule.length===0){
+    const totalMonths=i.totalMonths||(parseInt(i.durationNum)||0);
+    const mi=invGetMonthlyInterest(i);
+    i.monthlySchedule=buildMonthlySchedule(i.startdate,totalMonths,mi);
+  }
+  const paidCount=invMonthsPaid(i);
+  const unpaidCount=invMonthsUnpaid(i);
+  const totalPaid=invTotalInterestPaid(i);
+  const mi=invGetMonthlyInterest(i);
+  document.getElementById('inv-pay-title').textContent='Monthly Interest — '+i.name;
+  document.getElementById('inv-pay-body').innerHTML=
+    '<div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:14px">'+
+    '<div style="font-weight:700;margin-bottom:6px">'+i.name+' &bull; '+i.invId+'</div>'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;text-align:center">'+
+    '<div style="background:#fff;border-radius:8px;padding:8px;border:1px solid var(--border)"><div style="font-size:.9rem;font-weight:800;color:#7c3aed">&#8358;'+fmt(mi)+'</div><div style="font-size:.62rem;color:var(--muted);text-transform:uppercase">Monthly Interest</div></div>'+
+    '<div style="background:#fff;border-radius:8px;padding:8px;border:1px solid var(--border)"><div style="font-size:.9rem;font-weight:800;color:var(--green)">'+paidCount+'</div><div style="font-size:.62rem;color:var(--muted);text-transform:uppercase">Months Paid</div></div>'+
+    '<div style="background:#fff;border-radius:8px;padding:8px;border:1px solid var(--border)"><div style="font-size:.9rem;font-weight:800;color:'+( unpaidCount>0?'var(--red)':'var(--green)')+'">'+unpaidCount+'</div><div style="font-size:.62rem;color:var(--muted);text-transform:uppercase">Months Pending</div></div>'+
+    '</div></div>'+
+    '<div class="sh" style="margin-top:4px">Monthly Schedule — Click to Mark Paid</div>'+
+    renderMonthlyScheduleHTML(i);
+  showModal('inv-pay-modal');
+}
+
+
+// ===== SHOW INVESTMENT CODE AFTER SAVING =====
+function showInvCode(inv){
+  const amt=parseFloat(inv.amount)||0;
+  const mi=invGetMonthlyInterest(inv);
+  const total=inv.totalAtMaturity||amt;
+  const win=window.open('','_blank','width=480,height=560');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Investment Code</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:Arial,sans-serif;background:#f5f3ff;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px}
+    .card{background:#fff;border-radius:16px;padding:28px 24px;max-width:400px;width:100%;box-shadow:0 8px 40px rgba(124,58,237,.18);text-align:center}
+    .brand{font-size:1.3rem;font-weight:900;color:#0f2342;margin-bottom:4px}.brand span{color:#c8973a}
+    .icon{font-size:3rem;margin:16px 0 8px}
+    .code-box{background:linear-gradient(135deg,#7c3aed,#4c1d95);border-radius:12px;padding:18px;margin:16px 0;color:#fff}
+    .code-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;opacity:.8;margin-bottom:6px}
+    .code-val{font-size:1.8rem;font-weight:900;letter-spacing:.08em}
+    .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:14px 0;text-align:left}
+    .info-item{background:#f5f3ff;border-radius:8px;padding:9px;border:1px solid #ddd6fe}
+    .info-item label{font-size:.6rem;text-transform:uppercase;color:#7c3aed;font-weight:800;letter-spacing:.04em;display:block;margin-bottom:2px}
+    .info-item p{font-size:.82rem;font-weight:700;color:#0f2342}
+    .btn{display:block;width:100%;padding:12px;border:none;border-radius:10px;font-size:.88rem;font-weight:800;cursor:pointer;margin-top:8px;font-family:Arial}
+    .btn-print{background:#7c3aed;color:#fff}
+    .btn-close{background:#f1f5f9;color:#1e293b}
+    .note{font-size:.72rem;color:#64748b;margin-top:12px;line-height:1.5}
+    @media print{.btn{display:none}body{background:#fff}.card{box-shadow:none}}
+  </style></head><body>
+  <div class="card">
+    <div class="brand">Loan<span>Vault</span> Pro</div>
+    <div class="icon">&#128200;</div>
+    <p style="font-size:.82rem;color:#64748b;margin-bottom:4px">Investment Successfully Registered</p>
+    <div class="code-box">
+      <div class="code-lbl">Investment Reference Code</div>
+      <div class="code-val">${inv.invId}</div>
+    </div>
+    <div class="info-grid">
+      <div class="info-item"><label>Investor</label><p>${inv.name}</p></div>
+      <div class="info-item"><label>Phone</label><p>${inv.phone}</p></div>
+      <div class="info-item"><label>Amount</label><p>&#8358;${fmt(amt)}</p></div>
+      <div class="info-item"><label>Plan</label><p>${inv.plan}% p.a.</p></div>
+      <div class="info-item"><label>Monthly Interest</label><p>&#8358;${fmt(mi)}</p></div>
+      <div class="info-item"><label>Duration</label><p>${inv.duration||'--'}</p></div>
+      <div class="info-item"><label>Start Date</label><p>${inv.startdate||'--'}</p></div>
+      <div class="info-item"><label>Maturity Date</label><p>${inv.maturityDate||'--'}</p></div>
+    </div>
+    <div class="note">Please give this code to the investor and keep a record of it. This code is used to track all monthly interest payments.</div>
+    <button class="btn btn-print" onclick="window.print()">&#128424; Print This Code</button>
+    <button class="btn btn-close" onclick="window.close()">Close</button>
+  </div>
+  </body></html>`);
+  win.document.close();
 }
 
 </script>
