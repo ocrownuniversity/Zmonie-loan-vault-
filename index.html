@@ -1403,7 +1403,7 @@ function staffLogin(){
   );
   if(!user){document.getElementById('lerr').textContent='Invalid credentials or access denied.';return}
   const branch = allBranches.find(b=>b.id===branchId);
-  currentSession={role:'staff',userId:user.id,username:user.username,branchId:user.branchId,branchName:branch?branch.name:'Branch',name:user.name};
+  currentSession={role:user.role,userId:user.id,username:user.username,branchId:user.branchId,branchName:branch?branch.name:'Branch',name:user.name};
   startApp();
 }
 
@@ -3073,15 +3073,16 @@ function invCalc(){
   const box=document.getElementById('inv-calc-box');
   const mbox=document.getElementById('inv-monthly-box');
   if(!amt){if(box)box.style.display='none';if(mbox)mbox.style.display='none';return;}
-  // Fixed 10% per annum = monthly interest model
-  const annualRate=10;
-  const monthlyRate=annualRate/12/100; // 0.8333% per month
-  // Convert duration to months
+  // CORRECT MODEL: 10% of PRINCIPAL is paid out EVERY MONTH (not 10% per annum spread out)
+  // e.g. ₦500,000 invested → ₦50,000 every month, for as many months as chosen.
+  // On the final month, investor collects: that month's 10% interest + the principal back.
+  const monthlyRatePercent=10; // 10% flat every month
+  const monthlyInterest=amt*(monthlyRatePercent/100);
   const n=parseInt(dn)||0;
   const totalMonths=du==='years'?n*12:n;
-  const monthlyInterest=amt*monthlyRate;
   const totalInterest=monthlyInterest*totalMonths;
-  const total=amt+totalInterest;
+  const finalMonthPayout=monthlyInterest+amt; // last month = interest + principal back
+  const total=amt+totalInterest; // principal + all monthly interest paid out across the term
   const mat=invGetMaturity(startdate,dn,du);
   const matDisplay=mat&&mat!=='--'?new Date(mat).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}):'--';
   // Update main calc box
@@ -3490,12 +3491,13 @@ function submitInvestment(e){
   if(!v('inv-startdate')){toast('Please select the start date','e');return}
   const dn=v('inv-dur-n'), du=v('inv-dur-u'), startdate=v('inv-startdate');
   const maturityDate=invGetMaturity(startdate,dn,du);
-  const amt=parseFloat(v('inv-amount'))||0, rate=parseFloat(v('inv-plan'))||0;
+  const amt=parseFloat(v('inv-amount'))||0, rate=parseFloat(v('inv-plan'))||10;
   const totalMonths=du==='years'?(parseInt(dn)||0)*12:(parseInt(dn)||0);
-  const monthlyInterest=amt*(rate/12/100);
+  // CORRECT MODEL: rate% of principal paid out EVERY month (flat, not annualized)
+  const monthlyInterest=amt*(rate/100);
   const totalInterest=monthlyInterest*totalMonths;
-  // Build monthly interest schedule
-  const monthlySchedule=buildMonthlySchedule(startdate,totalMonths,monthlyInterest);
+  // Build monthly interest schedule — final month includes principal payout
+  const monthlySchedule=buildMonthlySchedule(startdate,totalMonths,monthlyInterest,amt);
   const data={
     invId:invGenId(), name:v('inv-name'), phone:v('inv-phone'), address:v('inv-address'),
     occupation:v('inv-occ'), idtype:v('inv-idtype'), idnum:v('inv-idnum'),
@@ -3604,7 +3606,8 @@ function viewINVProfile(id){
       (i.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td style="color:#7c3aed;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.method||'--')+'</td><td>'+(p.note||'--')+'</td><td>'+(p.recordedBy||'--')+'</td></tr>').join('')+
       '</tbody></table></div>')+
     '<div class="btn-row no-print">'+
-    '<button class="btn btn-purple" onclick="openINVPayModal(\''+i.id+'\');closeModal(\'inv-profile-modal\')">&#128176; Record Return Payment</button>'+
+    '<button class="btn btn-purple" onclick="openINVPayModal(\''+i.id+'\');closeModal(\'inv-profile-modal\')">&#128176; Record Monthly Interest</button>'+
+    (i.status==='Active'?'<button class="btn btn-amber" onclick="openEarlyWithdrawal(\''+i.id+'\')">&#9888; Early Withdrawal (10% Penalty)</button>':'')+
     '<button class="btn btn-out btn-sm" onclick="printINVAgreement()">&#128424; Print Statement</button>'+
     '</div>';
   showModal('inv-profile-modal');
@@ -3802,16 +3805,22 @@ function populateAllYearDropdowns(){
 
 
 // ===== BUILD MONTHLY INTEREST SCHEDULE =====
-function buildMonthlySchedule(startdate, totalMonths, monthlyInterest){
+function buildMonthlySchedule(startdate, totalMonths, monthlyInterest, principal){
   if(!startdate||!totalMonths) return [];
   const schedule=[];
   for(let i=0;i<totalMonths;i++){
     const d=new Date(startdate);
     d.setMonth(d.getMonth()+i+1);
+    const isFinalMonth=(i+1)===totalMonths;
+    // Final month payout = that month's interest + principal returned
+    const amount=isFinalMonth ? monthlyInterest+(principal||0) : monthlyInterest;
     schedule.push({
       month:i+1,
       dueDate:d.toISOString().slice(0,10),
-      amount:monthlyInterest,
+      amount:amount,
+      interestPortion:monthlyInterest,
+      principalPortion:isFinalMonth?(principal||0):0,
+      isFinalMonth:isFinalMonth,
       paid:false,
       paidDate:'',
       paidBy:''
@@ -3831,8 +3840,55 @@ function invIsInterestOverdue(inv){
 }
 
 // Override invGetReturn to use schedule
-function invGetMonthlyInterest(inv){ return parseFloat(inv.monthlyInterest)||((parseFloat(inv.amount)||0)*(parseFloat(inv.plan)||10)/12/100); }
+function invGetMonthlyInterest(inv){ return parseFloat(inv.monthlyInterest)||((parseFloat(inv.amount)||0)*(parseFloat(inv.plan)||10)/100); }
 function invGetTotalInterest(inv){ return invGetMonthlyInterest(inv)*(inv.totalMonths||(inv.monthlySchedule||[]).length||(parseInt(inv.durationNum)||0)); }
+
+// ===== EARLY WITHDRAWAL (10% PENALTY ON PRINCIPAL) =====
+function invCalcEarlyWithdrawal(inv){
+  const principal=parseFloat(inv.amount)||0;
+  const penalty=principal*0.10; // 10% deducted from investment money
+  const payout=principal-penalty;
+  const interestAlreadyPaid=invTotalInterestPaid(inv);
+  return {
+    principal, penalty, payout,
+    interestAlreadyPaid,
+    totalReceived: payout+interestAlreadyPaid
+  };
+}
+
+function openEarlyWithdrawal(invId){
+  const inv=allInvestments.find(x=>x.id===invId);if(!inv)return;
+  if(currentSession.role==='staff'&&(inv.branchId!==currentSession.branchId||inv.createdBy!==currentSession.username)){toast('Access denied','e');return}
+  if(inv.status!=='Active'){toast('Only active investments can be withdrawn early','w');return}
+  const calc=invCalcEarlyWithdrawal(inv);
+  const monthsRemaining=invMonthsUnpaid(inv);
+  const confirmMsg='Early Withdrawal for '+inv.name+' ('+inv.invId+')\n\n'+
+    'Principal: ₦'+fmt(calc.principal)+'\n'+
+    '10% Early Withdrawal Penalty: -₦'+fmt(calc.penalty)+'\n'+
+    'Amount Payable Now: ₦'+fmt(calc.payout)+'\n\n'+
+    'This investment has '+monthsRemaining+' month(s) of interest remaining that will be forfeited.\n\n'+
+    'Proceed with early withdrawal?';
+  if(!confirm(confirmMsg))return;
+  const today=new Date().toISOString().slice(0,10);
+  const withdrawalRecord={
+    date:today,
+    principal:calc.principal,
+    penalty:calc.penalty,
+    payout:calc.payout,
+    processedBy:currentSession.username||'admin'
+  };
+  db.collection('investments').doc(invId).set({
+    status:'Withdrawn',
+    earlyWithdrawal:withdrawalRecord
+  },{merge:true}).then(()=>{
+    inv.status='Withdrawn';
+    inv.earlyWithdrawal=withdrawalRecord;
+    renderINV(scopedINV());renderINVStats();renderDashModules();
+    toast('Early withdrawal processed. Payout: ₦'+fmt(calc.payout),'s');
+    closeModal('inv-profile-modal');
+    closeModal('inv-pay-modal');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
 
 
 // ===== RENDER MONTHLY INTEREST SCHEDULE HTML =====
