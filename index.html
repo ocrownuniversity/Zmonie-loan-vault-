@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>LoanVault Pro - Loans, EasyBuy &amp; Investment</title>
+<title>Zmonie Management Software - Loans, EasyBuy &amp; Investment</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
 <style>
 :root{
@@ -315,7 +315,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
 <!-- ===== LOGIN ===== -->
 <div id="login-screen">
   <div class="login-card">
-    <div class="login-logo">Loan<span>Vault</span></div>
+    <div class="login-logo">Zmo<span>nie</span></div>
     <div class="login-sub">Branch Management System v3.0<br/>Secure multi-branch loan platform</div>
     <div class="login-tabs">
       <button class="ltab active" id="ltab-admin" onclick="switchLoginTab('admin')">&#128081; Admin</button>
@@ -342,7 +342,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
       <button class="btn btn-navy" onclick="staffLogin()" style="width:100%;justify-content:center;padding:12px">&#128274; Sign In</button>
     </div>
     <div class="login-err" id="lerr"></div>
-    <div style="font-size:.68rem;color:var(--muted);margin-top:12px">LoanVault v3.0 &bull; Branch Edition</div>
+    <div style="font-size:.68rem;color:var(--muted);margin-top:12px">Zmonie v3.0 &bull; Branch Edition</div>
   </div>
 </div>
 
@@ -350,7 +350,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
 <div id="app">
   <header>
     <div style="display:flex;align-items:center;flex-wrap:wrap;gap:4px">
-      <div class="hbrand">Loan<span>Vault</span></div>
+      <div class="hbrand">Zmo<span>nie</span></div>
       <div class="hpill" id="role-pill">PRO</div>
       <div class="branch-badge" id="branch-badge" style="display:none"></div>
     </div>
@@ -840,7 +840,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
     <div class="page-section" id="page-calculator">
       <!-- Print header (only shows when printing) -->
       <div class="calc-print-header">
-        <h2>LoanVault Pro &mdash; Loan Calculation Report</h2>
+        <h2>Zmonie Management Software &mdash; Loan Calculation Report</h2>
         <p>Generated on <span id="calc-print-date"></span> &bull; 24% Fixed Interest Rate</p>
       </div>
 
@@ -1069,7 +1069,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
         <div class="card" style="margin-bottom:0">
           <div class="card-title">&#8505; System Information</div>
           <div class="info-grid" style="margin-top:0">
-            <div class="iitem"><label>System</label><p>LoanVault v3.0</p></div>
+            <div class="iitem"><label>System</label><p>Zmonie v3.0</p></div>
             <div class="iitem"><label>Interest Rate</label><p>24% Fixed</p></div>
             <div class="iitem"><label>Total Borrowers</label><p id="si-total">&#8212;</p></div>
             <div class="iitem"><label>Branches</label><p id="si-branches">&#8212;</p></div>
@@ -1277,7 +1277,7 @@ firebase.initializeApp({
 const db = firebase.firestore();
 
 // ===== STATE =====
-let ADMIN_PIN = localStorage.getItem('lv_pin') || '1990';
+let ADMIN_PIN = localStorage.getItem('zm_pin') || '1990';
 let pinBuf = '', allLoans = [], allBranches = [], allUsers = [];
 let curId = null, stId = null, editBranchId = null, editUserId = null;
 
@@ -2458,7 +2458,7 @@ function saveUser(){
   };
   if(pass)data.password=pass;
 
-  console.log('[LoanVault] Saving staff_users doc:', data);
+  console.log('[Zmonie] Saving staff_users doc:', data);
 
   showLoader('Saving staff account...');
   const op = id
@@ -2473,7 +2473,7 @@ function saveUser(){
     } else {
       const newId = ref.id;
       allUsers.push({id:newId,...data,createdAt:new Date().toISOString()});
-      console.log('[LoanVault] Staff saved with Firestore ID:', newId);
+      console.log('[Zmonie] Staff saved with Firestore ID:', newId);
     }
     closeModal('user-modal');
     renderUsers();
@@ -2481,7 +2481,7 @@ function saveUser(){
     toast(id?'Staff account updated!':'Staff account "'+username+'" created for branch: '+getBranchName(data.branchId),'s');
   }).catch(e=>{
     hideLoader();
-    console.error('[LoanVault] FIRESTORE SAVE FAILED:', e);
+    console.error('[Zmonie] FIRESTORE SAVE FAILED:', e);
     toast('Save failed: '+e.message+' (check Firestore rules)','e');
   });
 }
@@ -2523,7 +2523,7 @@ function changePin(){
   if(old!==ADMIN_PIN){toast('Current PIN is incorrect','e');return}
   if(!nw||nw.length<4){toast('New PIN must be at least 4 digits','e');return}
   if(nw!==cf){toast('PINs do not match','e');return}
-  ADMIN_PIN=nw;localStorage.setItem('lv_pin',nw);
+  ADMIN_PIN=nw;localStorage.setItem('zm_pin',nw);
   document.getElementById('s-old').value='';document.getElementById('s-new').value='';document.getElementById('s-conf').value='';
   toast('PIN updated successfully!','s');
 }
@@ -2549,7 +2549,7 @@ function exportExcel(){
   });
   const ws=XLSX.utils.json_to_sheet(rows);
   const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Loans');
-  XLSX.writeFile(wb,'LoanVault_Export_'+td()+'.xlsx');
+  XLSX.writeFile(wb,'Zmonie_Export_'+td()+'.xlsx');
   toast('Excel exported!','s');
 }
 
@@ -2557,7 +2557,7 @@ function exportExcel(){
 function backupData(){
   const blob=new Blob([JSON.stringify({loans:allLoans,branches:allBranches,users:allUsers.map(u=>{const{password,...rest}=u;return rest}),exportDate:new Date().toISOString(),version:'3.0'})],{type:'application/json'});
   const a=document.createElement('a');a.href=URL.createObjectURL(blob);
-  a.download='LoanVault_Backup_'+td()+'.json';a.click();
+  a.download='Zmonie_Backup_'+td()+'.json';a.click();
   toast('Backup downloaded!','s');
 }
 function restoreData(inp){
@@ -2651,7 +2651,7 @@ function copyCalcResult(){
   const du=document.getElementById('sc-du').value;
   const inst=getInstall(tr,plan,dn,du);
   const md=getMaturity(td(),dn,du);
-  let text='LOAN CALCULATION — LoanVault Pro\n';
+  let text='LOAN CALCULATION — Zmonie Management Software\n';
   text+='================================\n';
   text+='Principal:        \u20A6'+fmt(pr)+'\n';
   text+='Interest (24%):   \u20A6'+fmt(ir)+'\n';
@@ -2887,7 +2887,7 @@ function downloadCalcPage(){
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
-<title>Loan Calculation — &#8358;${fmt(pr)} — LoanVault Pro</title>
+<title>Loan Calculation — &#8358;${fmt(pr)} — Zmonie Management Software</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=DM+Serif+Display&display=swap" rel="stylesheet"/>
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
@@ -2921,7 +2921,7 @@ function downloadCalcPage(){
 <body>
 <div class="page">
   <div class="header">
-    <div class="header-brand">Loan<span>Vault</span> <span style="font-size:.7rem;opacity:.6;font-family:Inter">Pro</span></div>
+    <div class="header-brand">Zmo<span>nie</span> <span style="font-size:.7rem;opacity:.6;font-family:Inter">Pro</span></div>
     <div class="header-sub">Loan Calculation Report &bull; Generated ${now} &bull; 24% Fixed Interest</div>
   </div>
   <div class="body">
@@ -2946,7 +2946,7 @@ function downloadCalcPage(){
   </div>
   <div class="footer">
     <div>
-      <p><strong>LoanVault Pro</strong> — Branch Management System</p>
+      <p><strong>Zmonie Management Software</strong> — Branch Management System</p>
       <p style="margin-top:3px">This document was generated automatically. Verify all figures before disbursement.</p>
     </div>
     <button class="print-btn" onclick="window.print()">&#128424; Print</button>
@@ -3375,7 +3375,7 @@ function printEBAgreement(){
   .terms{font-size:.72rem;color:#64748b;margin-top:16px;background:#f8fafc;border-radius:6px;padding:12px;line-height:1.6}
   @media print{body{padding:16px}}
   </style></head><body>
-  <div class="brand">Loan<span>Vault</span> Pro</div>
+  <div class="brand">Zmo<span>nie</span> Pro</div>
   <h1>EasyBuy Hire-Purchase Agreement</h1>
   <p style="font-size:.8rem;color:#64748b">Agreement Date: ${e.agrdate||now} &bull; ID: ${e.ebId} &bull; Generated: ${now}</p>
   <div class="section"><h3>Customer Information</h3>
@@ -3687,7 +3687,7 @@ function printINVAgreement(){
   .terms{font-size:.72rem;color:#64748b;margin-top:16px;background:#f8fafc;border-radius:6px;padding:12px;line-height:1.6}
   @media print{body{padding:16px}}
   </style></head><body>
-  <div class="brand">Loan<span>Vault</span> Pro</div>
+  <div class="brand">Zmo<span>nie</span> Pro</div>
   <h1>Investment Agreement &amp; Investor Statement</h1>
   <p style="font-size:.8rem;color:#64748b">Statement Date: ${now} &bull; Ref: ${i.invId}</p>
   <div class="section"><h3>Investor Information</h3>
@@ -4025,7 +4025,7 @@ function showInvCode(inv){
     @media print{.btn{display:none}body{background:#fff}.card{box-shadow:none}}
   </style></head><body>
   <div class="card">
-    <div class="brand">Loan<span>Vault</span> Pro</div>
+    <div class="brand">Zmo<span>nie</span> Pro</div>
     <div class="icon">&#128200;</div>
     <p style="font-size:.82rem;color:#64748b;margin-bottom:4px">Investment Successfully Registered</p>
     <div class="code-box">
