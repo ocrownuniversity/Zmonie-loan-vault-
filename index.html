@@ -308,6 +308,18 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
 .mi-paid-info{font-size:.72rem;color:var(--green);font-weight:700;text-align:right;min-width:80px}
 .mi-paid-info.overdue-text{color:var(--red)}
 
+
+/* ===== FIXED DEPOSIT MODULE ===== */
+.fd-badge{background:linear-gradient(135deg,#0369a1,#0284c7)}
+.mod-header.fd{background:linear-gradient(135deg,#0369a1,#012d5a)}
+.b-fd-active{background:#e0f2fe;color:#0369a1}
+.b-fd-matured{background:#dcfce7;color:#166534}
+.b-fd-withdrawn{background:#fef3c7;color:#92400e}
+.b-fd-early{background:#fee2e2;color:#991b1b}
+.dash-module-card.fd{background:linear-gradient(135deg,#0369a1,#012d5a)}
+.fd-cert-page{display:none}
+@media print{.fd-cert-page{display:block!important}}
+
 </style>
 </head>
 <body>
@@ -370,6 +382,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
     <button class="nb" onclick="showPage('notifications')">&#128276; Alerts</button>
     <button class="nb" onclick="showPage('easybuy')">&#128722; EasyBuy</button>
     <button class="nb" onclick="showPage('investment')">&#128200; Investment</button>
+    <button class="nb" onclick="showPage('fixeddeposit')">&#127974; Fixed Deposit</button>
     <button class="nb" id="nav-branches" onclick="showPage('branches')" style="display:none">&#x1F3E6; Branches</button>
     <button class="nb" id="nav-users" onclick="showPage('users')" style="display:none">&#x1F464; Staff</button>
     <button class="nb" onclick="showPage('settings')">&#9881; Settings</button>
@@ -607,6 +620,130 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
           <div class="btn-row">
             <button type="submit" class="btn btn-navy">&#128190; Save Investment Record</button>
             <button type="button" class="btn btn-out" onclick="resetINVForm()">&#8635; Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- FIXED DEPOSIT PAGE -->
+    <div class="page-section" id="page-fixeddeposit">
+      <div class="mod-header fd">
+        <div class="mod-icon">&#127974;</div>
+        <div><h2>Fixed Deposit Module</h2><p>5% flat interest &bull; Capital protected</p></div>
+        <div style="margin-left:auto;display:flex;gap:8px">
+          <button class="btn btn-sm no-print" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="exportFDExcel()">&#128190; Excel</button>
+          <button class="btn btn-sm no-print" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="showPage('new-fixeddeposit')">&#43; New Fixed Deposit</button>
+        </div>
+      </div>
+      <div class="stat-grid" id="fd-stat-grid"></div>
+      <div class="card">
+        <div class="card-title"><span>&#127974; Fixed Deposit Records</span></div>
+        <div class="search-row">
+          <input type="text" id="fd-srch" placeholder="Search name, phone, FD ID..." oninput="searchFD()"/>
+          <select id="fd-fst" onchange="searchFD()"><option value="">All Status</option><option>Active</option><option>Matured</option><option>Withdrawn</option><option>Early Withdrawal</option></select>
+          <select id="fd-fbr" onchange="searchFD()" style="display:none"><option value="">All Branches</option></select>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>FD ID</th><th>Name</th><th>Phone</th><th>Branch</th><th>Principal</th><th>Interest (5%)</th><th>Total at Maturity</th><th>Start Date</th><th>Maturity Date</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="fd-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- NEW FIXED DEPOSIT -->
+    <div class="page-section" id="page-new-fixeddeposit">
+      <div class="card">
+        <div class="card-title">&#127974; New Fixed Deposit
+          <button class="btn btn-out btn-sm no-print" onclick="showPage('fixeddeposit')">&#8592; Back</button>
+        </div>
+        <form id="fd-form" onsubmit="submitFD(event)">
+          <div class="sh">&#128100; Customer Information</div>
+          <div class="form-grid">
+            <div class="fg"><label>Full Name *</label><input required id="fd-name" placeholder="Customer full name"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="fd-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Address *</label><input required id="fd-address" placeholder="Residential address"/></div>
+            <div class="fg"><label>Occupation</label><input id="fd-occ" placeholder="Occupation"/></div>
+            <div class="fg"><label>ID Type</label>
+              <select id="fd-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select>
+            </div>
+            <div class="fg"><label>ID Number</label><input id="fd-idnum" placeholder="ID number"/></div>
+          </div>
+          <div class="sh">&#128101; Next of Kin</div>
+          <div class="form-grid">
+            <div class="fg"><label>Next of Kin Full Name *</label><input required id="fd-nok-name" placeholder="Full name"/></div>
+            <div class="fg"><label>Relationship *</label><input required id="fd-nok-rel" placeholder="e.g. Wife, Son"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="fd-nok-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Address</label><input id="fd-nok-addr" placeholder="Next of kin address"/></div>
+            <div class="fg"><label>Occupation</label><input id="fd-nok-occ" placeholder="Occupation"/></div>
+            <div class="fg"><label>ID Type</label>
+              <select id="fd-nok-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select>
+            </div>
+            <div class="fg"><label>ID Number</label><input id="fd-nok-idnum" placeholder="ID number"/></div>
+          </div>
+          <div class="sh">&#127970; Branch</div>
+          <div class="form-grid">
+            <div class="fg"><label>Branch *</label><select id="fd-branch" required><option value="">-- Select Branch --</option></select></div>
+          </div>
+          <div class="sh">&#128247; Customer Photo &amp; Documents</div>
+          <div class="form-grid">
+            <div class="fg"><label>Customer Photo</label>
+              <div class="photo-up" onclick="document.getElementById('fd-photo-file').click()">
+                <img id="fd-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload photo</p>
+              </div>
+              <input type="file" id="fd-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'fd-photo-prev','fd-photo-data')"/>
+              <input type="hidden" id="fd-photo-data"/>
+            </div>
+            <div class="fg"><label>Documents</label>
+              <input type="file" id="fd-docs-file" multiple accept="image/*,.pdf" onchange="docsUpload(this,'fd-docs-list','fd-docs-data')"/>
+              <div id="fd-docs-list" class="flist"></div>
+              <input type="hidden" id="fd-docs-data" value="[]"/>
+            </div>
+          </div>
+          <div class="sh">&#128181; Fixed Deposit Details</div>
+          <div class="form-grid">
+            <div class="fg"><label>Principal Amount (&#8358;) *</label><input required type="number" id="fd-amount" placeholder="0" oninput="fdCalc()"/></div>
+            <div class="fg"><label>Interest Rate</label><input value="5% Flat" readonly style="background:var(--bg);font-weight:700;border-color:#0369a1;color:#0369a1"/></div>
+            <div class="fg"><label>Duration *</label>
+              <div style="display:flex;gap:6px">
+                <input type="number" id="fd-dur-n" placeholder="e.g. 6" min="1" style="flex:1;padding:9px 10px;border:1.5px solid var(--border);border-radius:8px;font-size:.87rem;font-family:inherit" oninput="fdCalc()"/>
+                <select id="fd-dur-u" style="flex:1;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.84rem;font-family:inherit" onchange="fdCalc()">
+                  <option value="months" selected>Months</option>
+                  <option value="years">Years</option>
+                </select>
+              </div>
+            </div>
+            <div class="fg"><label>Start Date *</label>
+              <div style="display:flex;gap:4px;flex-wrap:wrap">
+                <select id="fd-startdate-d" required style="flex:1;min-width:60px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField('fd-startdate');fdCalc()"><option value="">Day</option></select>
+                <select id="fd-startdate-m" required style="flex:2;min-width:90px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField('fd-startdate');fdCalc()">
+                  <option value="">Month</option>
+                  <option value="01">January</option><option value="02">February</option><option value="03">March</option><option value="04">April</option><option value="05">May</option><option value="06">June</option>
+                  <option value="07">July</option><option value="08">August</option><option value="09">September</option><option value="10">October</option><option value="11">November</option><option value="12">December</option>
+                </select>
+                <select id="fd-startdate-y" required style="flex:1.3;min-width:70px;padding:9px 5px;border:1.5px solid var(--border);border-radius:8px;font-size:.83rem;font-family:inherit" onchange="syncDateField('fd-startdate');fdCalc()"><option value="">Year</option></select>
+              </div>
+              <input type="hidden" id="fd-startdate"/>
+            </div>
+            <div class="fg"><label>Status</label>
+              <select id="fd-status"><option value="Active">Active</option><option value="Matured">Matured</option></select>
+            </div>
+          </div>
+          <!-- FD Live Calc -->
+          <div class="calc-box" id="fd-calc-box" style="display:none;background:linear-gradient(135deg,#0369a1,#012d5a)">
+            <div class="calc-title">&#127974; Fixed Deposit Summary — 5% Flat Interest</div>
+            <div class="calc-grid">
+              <div class="calc-item"><div class="cv" id="fd-c-amt">&#8358;0</div><div class="cl">Principal</div></div>
+              <div class="calc-item"><div class="cv" id="fd-c-int">&#8358;0</div><div class="cl">Interest (5%)</div></div>
+              <div class="calc-item hl"><div class="cv" id="fd-c-total">&#8358;0</div><div class="cl">Total at Maturity</div></div>
+              <div class="calc-item"><div class="cv" id="fd-c-mat">--</div><div class="cl">Maturity Date</div></div>
+            </div>
+            <div class="calc-row"><span>Early Withdrawal Penalty (5% of principal)</span><strong id="fd-c-penalty">&#8358;0</strong></div>
+            <div class="calc-row"><span>Early Withdrawal Payout</span><strong id="fd-c-earlypay">&#8358;0</strong></div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-navy">&#128190; Save Fixed Deposit</button>
+            <button type="button" class="btn btn-out" onclick="resetFDForm()">&#8635; Reset</button>
           </div>
         </form>
       </div>
@@ -1259,6 +1396,20 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
   </div>
 </div>
 
+<!-- FD PROFILE MODAL -->
+<div class="overlay" id="fd-profile-modal">
+  <div class="modal" style="max-width:740px">
+    <div class="mhead">
+      <h3 id="fd-pm-title">Fixed Deposit Record</h3>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-out btn-sm no-print" onclick="printFDCertificate()">&#128424; Print Certificate</button>
+        <button class="mclose no-print" onclick="closeModal('fd-profile-modal')">&times;</button>
+      </div>
+    </div>
+    <div class="mbody" id="fd-pm-body"></div>
+  </div>
+</div>
+
 <div id="toast"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
@@ -1498,6 +1649,8 @@ function showPage(id){
   if(id==='new-easybuy'){populateEBINVBranchDropdowns();resetEBForm()}
   if(id==='investment'){populateEBINVBranchDropdowns();renderINVStats();renderINV(scopedINV())}
   if(id==='new-investment'){populateEBINVBranchDropdowns();resetINVForm()}
+  if(id==='fixeddeposit'){populateFDBranchDropdowns();renderFDStats();renderFD(scopedFD())}
+  if(id==='new-fixeddeposit'){populateFDBranchDropdowns();resetFDForm()}
   if(id==='settings'){
     document.getElementById('si-total').textContent=getScopedLoans().length;
     document.getElementById('si-branches').textContent=allBranches.length;
@@ -1509,18 +1662,20 @@ function showPage(id){
 async function loadAll(){
   showLoader('Loading data...');
   try{
-    const [brSnap,usSnap,lnSnap,ebSnap,invSnap]=await Promise.all([
+    const [brSnap,usSnap,lnSnap,ebSnap,invSnap,fdSnap]=await Promise.all([
       db.collection('branches').get(),
       db.collection('staff_users').get(),
       db.collection('loans').get(),
       db.collection('easybuy').get(),
-      db.collection('investments').get()
+      db.collection('investments').get(),
+      db.collection('fixeddeposits').get()
     ]);
     allBranches=brSnap.docs.map(d=>({id:d.id,...d.data()}));
     allUsers=usSnap.docs.map(d=>({id:d.id,...d.data()}));
     allLoans=lnSnap.docs.map(d=>({id:d.id,...d.data()}));
     allEasyBuys=ebSnap.docs.map(d=>({id:d.id,...d.data()}));
     allInvestments=invSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allFDs=fdSnap.docs.map(d=>({id:d.id,...d.data()}));
     populateAllBranchDropdowns();
     populateEBINVBranchDropdowns();
     populateAllYearDropdowns();
@@ -3127,26 +3282,31 @@ function populateEBINVBranchDropdowns(){
 
 // ===== RENDER DASHBOARD MODULE CARDS =====
 function renderDashModules(){
-  const ebList=scopedEB(), invList=scopedINV();
-  const ebActive=ebList.filter(e=>e.status==='Active').length;
-  const ebBal=ebList.reduce((s,e)=>s+ebGetBal(e),0);
-  const invAmt=invList.reduce((s,i)=>s+(parseFloat(i.amount)||0),0);
-  const invActive=invList.filter(i=>i.status==='Active').length;
-  const el=document.getElementById('dash-modules');
+  var ebList=scopedEB(), invList=scopedINV(), fdList=scopedFD();
+  var ebActive=ebList.filter(function(e){return e.status==='Active';}).length;
+  var ebBal=ebList.reduce(function(s,e){return s+ebGetBal(e);},0);
+  var invAmt=invList.reduce(function(s,i){return s+(parseFloat(i.amount)||0);},0);
+  var invActive=invList.filter(function(i){return i.status==='Active';}).length;
+  var fdAmt=fdList.reduce(function(s,f){return s+(parseFloat(f.amount)||0);},0);
+  var fdActive=fdList.filter(function(f){return f.status==='Active';}).length;
+  var el=document.getElementById('dash-modules');
   if(!el)return;
-  el.innerHTML=
-    '<div class="dash-module-card eb" onclick="showPage(\'easybuy\')">'+
-    '<div class="dmc-icon">&#128722;</div>'+
-    '<h3>EasyBuy</h3><p>Hire-purchase management</p>'+
-    '<div class="dmc-stat">'+ebList.length+'</div>'+
-    '<div style="font-size:.7rem;opacity:.8;margin-top:2px">'+ebActive+' active &bull; &#8358;'+fmt(ebBal)+' outstanding</div>'+
-    '</div>'+
-    '<div class="dash-module-card inv" onclick="showPage(\'investment\')">'+
-    '<div class="dmc-icon">&#128200;</div>'+
-    '<h3>Investment</h3><p>Investor management</p>'+
-    '<div class="dmc-stat">'+invList.length+'</div>'+
-    '<div style="font-size:.7rem;opacity:.8;margin-top:2px">'+invActive+' active &bull; &#8358;'+fmt(invAmt)+' invested</div>'+
-    '</div>';
+  var ebCard=document.createElement('div');
+  ebCard.className='dash-module-card eb';
+  ebCard.onclick=function(){showPage('easybuy');};
+  ebCard.innerHTML='<div class="dmc-icon">&#128722;</div><h3>EasyBuy</h3><p>Hire-purchase management</p><div class="dmc-stat">'+ebList.length+'</div><div style="font-size:.7rem;opacity:.8;margin-top:2px">'+ebActive+' active &bull; &#8358;'+fmt(ebBal)+' outstanding</div>';
+  var invCard=document.createElement('div');
+  invCard.className='dash-module-card inv';
+  invCard.onclick=function(){showPage('investment');};
+  invCard.innerHTML='<div class="dmc-icon">&#128200;</div><h3>Investment</h3><p>Investor management</p><div class="dmc-stat">'+invList.length+'</div><div style="font-size:.7rem;opacity:.8;margin-top:2px">'+invActive+' active &bull; &#8358;'+fmt(invAmt)+' invested</div>';
+  var fdCard=document.createElement('div');
+  fdCard.className='dash-module-card fd';
+  fdCard.onclick=function(){showPage('fixeddeposit');};
+  fdCard.innerHTML='<div class="dmc-icon">&#127974;</div><h3>Fixed Deposit</h3><p>5% flat interest</p><div class="dmc-stat">'+fdList.length+'</div><div style="font-size:.7rem;opacity:.8;margin-top:2px">'+fdActive+' active &bull; &#8358;'+fmt(fdAmt)+' total</div>';
+  el.innerHTML='';
+  el.appendChild(ebCard);
+  el.appendChild(invCard);
+  el.appendChild(fdCard);
 }
 
 // ===== RENDER EASYBUY LIST =====
@@ -4048,6 +4208,488 @@ function showInvCode(inv){
   </div>
   </body></html>`);
   win.document.close();
+}
+
+
+
+// =====================================================
+// ===== FIXED DEPOSIT MODULE =====
+// =====================================================
+var allFDs = [];
+
+function scopedFD(){
+  if(currentSession.role==='admin') return allFDs;
+  if(currentSession.role==='manager') return allFDs.filter(function(f){return f.branchId===currentSession.branchId;});
+  return allFDs.filter(function(f){return f.branchId===currentSession.branchId&&(f.createdBy===currentSession.username||f.createdBy===currentSession.userId);});
+}
+
+function fdGenId(){ return 'FD-'+Date.now().toString().slice(-7); }
+
+function fdBdg(s){
+  var m={Active:'b-fd-active',Matured:'b-fd-matured',Withdrawn:'b-fd-withdrawn','Early Withdrawal':'b-fd-early'};
+  return '<span class="badge '+(m[s]||'b-fd-active')+'">'+s+'</span>';
+}
+
+// FD helpers — 5% flat on principal
+function fdGetInterest(fd){ return (parseFloat(fd.amount)||0)*0.05; }
+function fdGetTotal(fd){ return (parseFloat(fd.amount)||0)+fdGetInterest(fd); }
+function fdGetMaturity(startdate,dn,du){
+  if(!startdate||!dn) return '--';
+  var d=new Date(startdate),n=parseInt(dn)||0;
+  if(du==='years') d.setFullYear(d.getFullYear()+n);
+  else d.setMonth(d.getMonth()+n);
+  return d.toISOString().slice(0,10);
+}
+function fdIsMatured(fd){
+  if(!fd.maturityDate) return false;
+  return new Date(fd.maturityDate)<=new Date()&&fd.status==='Active';
+}
+
+// Early withdrawal: 5% penalty on principal, interest forfeited
+function fdCalcEarlyWithdrawal(fd){
+  var principal=parseFloat(fd.amount)||0;
+  var penalty=principal*0.05;
+  var payout=principal-penalty;
+  return {principal:principal,penalty:penalty,payout:payout};
+}
+
+// Live calc on form
+function fdCalc(){
+  var amt=parseFloat(document.getElementById('fd-amount').value)||0;
+  var dn=document.getElementById('fd-dur-n').value;
+  var du=document.getElementById('fd-dur-u').value;
+  var startdate=document.getElementById('fd-startdate').value;
+  var box=document.getElementById('fd-calc-box');
+  if(!amt){if(box)box.style.display='none';return;}
+  if(box)box.style.display='block';
+  var interest=amt*0.05;
+  var total=amt+interest;
+  var penalty=amt*0.05;
+  var earlyPay=amt-penalty;
+  var mat=fdGetMaturity(startdate,dn,du);
+  var matDisplay=mat&&mat!=='--'?new Date(mat).toLocaleDateString('en-NG',{day:'2-digit',month:'short',year:'numeric'}):'--';
+  document.getElementById('fd-c-amt').innerHTML='&#8358;'+fmt(amt);
+  document.getElementById('fd-c-int').innerHTML='&#8358;'+fmt(interest);
+  document.getElementById('fd-c-total').innerHTML='&#8358;'+fmt(total);
+  document.getElementById('fd-c-mat').textContent=matDisplay;
+  document.getElementById('fd-c-penalty').innerHTML='&#8358;'+fmt(penalty);
+  document.getElementById('fd-c-earlypay').innerHTML='&#8358;'+fmt(earlyPay);
+}
+
+// Populate branch dropdowns
+function populateFDBranchDropdowns(){
+  var fdBr=document.getElementById('fd-branch');
+  if(fdBr){
+    fdBr.innerHTML='<option value="">-- Select Branch --</option>';
+    allBranches.forEach(function(b){
+      var o=document.createElement('option');
+      o.value=b.id;
+      o.textContent=b.name+(b.code?' ('+b.code+')':'');
+      fdBr.appendChild(o);
+    });
+    if(currentSession.role==='staff'||currentSession.role==='manager'){fdBr.value=currentSession.branchId;fdBr.disabled=true;}
+    else fdBr.disabled=false;
+  }
+  // Admin filter
+  var fdFbr=document.getElementById('fd-fbr');
+  if(fdFbr){
+    fdFbr.style.display=currentSession.role==='admin'?'':'none';
+    fdFbr.innerHTML='<option value="">All Branches</option>';
+    allBranches.forEach(function(b){var o=document.createElement('option');o.value=b.id;o.textContent=b.name;fdFbr.appendChild(o);});
+  }
+  // Also populate year dropdown for start date
+  var ySel=document.getElementById('fd-startdate-y');
+  if(ySel&&ySel.children.length<=1){
+    var now=new Date().getFullYear();
+    for(var yr=now+5;yr>=2000;yr--){var o=document.createElement('option');o.value=yr;o.textContent=yr;ySel.appendChild(o);}
+  }
+  var dSel=document.getElementById('fd-startdate-d');
+  if(dSel&&dSel.children.length<=1){
+    for(var dd=1;dd<=31;dd++){var o=document.createElement('option');o.value=String(dd).padStart(2,'0');o.textContent=dd;dSel.appendChild(o);}
+  }
+}
+
+// Render FD stats
+function renderFDStats(){
+  var list=scopedFD();
+  var totalAmt=list.reduce(function(s,f){return s+(parseFloat(f.amount)||0);},0);
+  var totalInt=list.reduce(function(s,f){return s+fdGetInterest(f);},0);
+  var totalAtMat=list.reduce(function(s,f){return s+fdGetTotal(f);},0);
+  var active=list.filter(function(f){return f.status==='Active';}).length;
+  var matured=list.filter(function(f){return f.status==='Matured'||fdIsMatured(f);}).length;
+  var el=document.getElementById('fd-stat-grid');if(!el)return;
+  el.innerHTML=
+    '<div class="stat-card" style="border-color:#0369a1"><div class="stat-val">'+list.length+'</div><div class="stat-lbl">Total FDs</div></div>'+
+    '<div class="stat-card" style="border-color:var(--blue)"><div class="stat-val">&#8358;'+fmt(totalAmt)+'</div><div class="stat-lbl">Total Deposited</div></div>'+
+    '<div class="stat-card" style="border-color:var(--amber)"><div class="stat-val">&#8358;'+fmt(totalInt)+'</div><div class="stat-lbl">Total Interest (5%)</div></div>'+
+    '<div class="stat-card" style="border-color:var(--navy2)"><div class="stat-val">&#8358;'+fmt(totalAtMat)+'</div><div class="stat-lbl">Total at Maturity</div></div>'+
+    '<div class="stat-card" style="border-color:#0369a1"><div class="stat-val">'+active+'</div><div class="stat-lbl">Active</div></div>'+
+    '<div class="stat-card" style="border-color:var(--green)"><div class="stat-val">'+matured+'</div><div class="stat-lbl">Matured</div></div>';
+}
+
+// Render FD table
+function renderFD(list){
+  var tb=document.getElementById('fd-tbody');if(!tb)return;
+  if(list.length===0){tb.innerHTML='<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No fixed deposit records found.</td></tr>';return;}
+  tb.innerHTML=list.map(function(f){
+    var amt=parseFloat(f.amount)||0;
+    var interest=fdGetInterest(f);
+    var total=fdGetTotal(f);
+    var isMat=fdIsMatured(f);
+    var displayStatus=isMat&&f.status==='Active'?'Matured':f.status;
+    return '<tr '+(isMat?'style="background:#f0fdf4"':'')+'>'+
+      '<td><strong>'+f.fdId+'</strong></td>'+
+      '<td>'+(f.photo?'<img src="'+f.photo+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;border:1px solid #0369a1" alt=""/>':'')+f.name+'</td>'+
+      '<td>'+f.phone+'</td>'+
+      '<td><span style="font-size:.68rem;background:#e0f2fe;padding:2px 6px;border-radius:4px;border:1px solid #bae6fd">'+getBranchName(f.branchId)+'</span></td>'+
+      '<td style="font-weight:700">&#8358;'+fmt(amt)+'</td>'+
+      '<td style="color:#0369a1;font-weight:700">&#8358;'+fmt(interest)+'</td>'+
+      '<td style="font-weight:800;color:var(--navy)">&#8358;'+fmt(total)+'</td>'+
+      '<td>'+(f.startdate||'--')+'</td>'+
+      '<td style="font-weight:700">'+(f.maturityDate||'--')+'</td>'+
+      '<td>'+fdBdg(displayStatus)+(isMat&&f.status==='Active'?'<span class="ndot" title="Matured!"></span>':'')+'</td>'+
+      '<td><div style="display:flex;gap:3px;flex-wrap:wrap">'+
+        '<button class="btn btn-out btn-sm" onclick="viewFDProfile(\''+f.id+'\')">&#128100;</button>'+
+        (f.status==='Active'?'<button class="btn btn-amber btn-sm" onclick="openFDEarlyWithdrawal(\''+f.id+'\')">&#9888;</button>':'')  +
+        (f.status==='Active'&&fdIsMatured(f)?'<button class="btn btn-green btn-sm" onclick="markFDMatured(\''+f.id+'\')">&#10003; Mature</button>':'')+
+        '<button class="btn btn-red btn-sm" onclick="delFD(\''+f.id+'\')">&#128465;</button>'+
+      '</div></td></tr>';
+  }).join('');
+}
+
+function searchFD(){
+  var q=document.getElementById('fd-srch').value.toLowerCase();
+  var st=document.getElementById('fd-fst').value;
+  var br=document.getElementById('fd-fbr').value;
+  var list=scopedFD().filter(function(f){
+    return (f.name||'').toLowerCase().includes(q)||(f.phone||'').includes(q)||(f.fdId||'').toLowerCase().includes(q);
+  });
+  if(st) list=list.filter(function(f){return f.status===st;});
+  if(br&&currentSession.role==='admin') list=list.filter(function(f){return f.branchId===br;});
+  renderFD(list);
+}
+
+// Submit FD
+function submitFD(e){
+  e.preventDefault();
+  var branchId=currentSession.role==='staff'||currentSession.role==='manager'?currentSession.branchId:document.getElementById('fd-branch').value;
+  if(!branchId){toast('Please select a branch','e');return}
+  var startdate=document.getElementById('fd-startdate').value;
+  if(!startdate){toast('Please select the start date','e');return}
+  var dn=document.getElementById('fd-dur-n').value;
+  var du=document.getElementById('fd-dur-u').value;
+  if(!dn){toast('Please enter duration','e');return}
+  var amt=parseFloat(document.getElementById('fd-amount').value)||0;
+  var maturityDate=fdGetMaturity(startdate,dn,du);
+  var data={
+    fdId:fdGenId(),
+    name:document.getElementById('fd-name').value.trim(),
+    phone:document.getElementById('fd-phone').value.trim(),
+    address:document.getElementById('fd-address').value.trim(),
+    occupation:document.getElementById('fd-occ').value.trim(),
+    idtype:document.getElementById('fd-idtype').value,
+    idnum:document.getElementById('fd-idnum').value.trim(),
+    nok:{
+      name:document.getElementById('fd-nok-name').value.trim(),
+      relationship:document.getElementById('fd-nok-rel').value.trim(),
+      phone:document.getElementById('fd-nok-phone').value.trim(),
+      address:document.getElementById('fd-nok-addr').value.trim(),
+      occupation:document.getElementById('fd-nok-occ').value.trim(),
+      idtype:document.getElementById('fd-nok-idtype').value,
+      idnum:document.getElementById('fd-nok-idnum').value.trim()
+    },
+    branchId:branchId,
+    branchName:getBranchName(branchId),
+    amount:amt,
+    interestRate:5,
+    interest:fdGetInterest({amount:amt}),
+    totalAtMaturity:fdGetTotal({amount:amt}),
+    duration:dn+' '+du,
+    durationNum:dn,
+    durationUnit:du,
+    startdate:startdate,
+    maturityDate:maturityDate,
+    status:document.getElementById('fd-status').value,
+    photo:document.getElementById('fd-photo-data').value,
+    docs:sjd(document.getElementById('fd-docs-data').value),
+    createdBy:currentSession.username||'admin',
+    createdAt:new Date().toISOString()
+  };
+  showLoader('Saving Fixed Deposit...');
+  db.collection('fixeddeposits').add(data).then(function(ref){
+    hideLoader();
+    allFDs.unshift({id:ref.id,data:data});
+    allFDs[0]=Object.assign({id:ref.id},data);
+    allFDs.shift();
+    allFDs.unshift(Object.assign({id:ref.id},data));
+    // remove duplicates
+    var seen={};
+    allFDs=allFDs.filter(function(f){if(seen[f.id])return false;seen[f.id]=true;return true;});
+    toast('Fixed Deposit saved! Code: '+data.fdId,'s');
+    setTimeout(function(){showFDCode(Object.assign({id:ref.id},data));},600);
+    resetFDForm();
+    showPage('fixeddeposit');
+  }).catch(function(err){hideLoader();toast('Save failed: '+err.message,'e');});
+}
+
+function resetFDForm(){
+  var form=document.getElementById('fd-form');if(form)form.reset();
+  var blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+  var pp=document.getElementById('fd-photo-prev');if(pp)pp.src=blank;
+  var pd=document.getElementById('fd-photo-data');if(pd)pd.value='';
+  var dd=document.getElementById('fd-docs-data');if(dd)dd.value='[]';
+  var dl=document.getElementById('fd-docs-list');if(dl)dl.innerHTML='';
+  var box=document.getElementById('fd-calc-box');if(box)box.style.display='none';
+  ['fd-startdate-d','fd-startdate-m','fd-startdate-y'].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+  var hid=document.getElementById('fd-startdate');if(hid)hid.value='';
+  populateFDBranchDropdowns();
+}
+
+function delFD(id){
+  if(!confirm('Delete this fixed deposit record?'))return;
+  db.collection('fixeddeposits').doc(id).delete().then(function(){
+    allFDs=allFDs.filter(function(f){return f.id!==id;});
+    renderFD(scopedFD());renderFDStats();renderDashModules();
+    toast('Fixed deposit deleted.','w');
+  }).catch(function(e){toast('Error: '+e.message,'e');});
+}
+
+function markFDMatured(id){
+  if(!confirm('Mark this fixed deposit as Matured and notify the investor?'))return;
+  db.collection('fixeddeposits').doc(id).set({status:'Matured'},{merge:true}).then(function(){
+    var f=allFDs.find(function(x){return x.id===id;});if(f)f.status='Matured';
+    renderFD(scopedFD());renderFDStats();
+    toast('Fixed deposit marked as Matured!','s');
+  }).catch(function(e){toast('Error: '+e.message,'e');});
+}
+
+// Early withdrawal
+function openFDEarlyWithdrawal(id){
+  var fd=allFDs.find(function(x){return x.id===id;});if(!fd)return;
+  var calc=fdCalcEarlyWithdrawal(fd);
+  var msg='EARLY WITHDRAWAL — '+fd.name+' ('+fd.fdId+')\n\n'+
+    'Principal: \u20A6'+fmt(calc.principal)+'\n'+
+    '5% Early Withdrawal Penalty: -\u20A6'+fmt(calc.penalty)+'\n'+
+    'Amount Payable Now: \u20A6'+fmt(calc.payout)+'\n\n'+
+    'The 5% interest (\u20A6'+fmt(fdGetInterest(fd))+') will also be forfeited.\n\n'+
+    'Proceed with early withdrawal?';
+  if(!confirm(msg))return;
+  var today=new Date().toISOString().slice(0,10);
+  db.collection('fixeddeposits').doc(id).set({
+    status:'Early Withdrawal',
+    earlyWithdrawal:{date:today,principal:calc.principal,penalty:calc.penalty,payout:calc.payout,processedBy:currentSession.username||'admin'}
+  },{merge:true}).then(function(){
+    var f=allFDs.find(function(x){return x.id===id;});
+    if(f){f.status='Early Withdrawal';f.earlyWithdrawal={date:today,principal:calc.principal,penalty:calc.penalty,payout:calc.payout};}
+    renderFD(scopedFD());renderFDStats();renderDashModules();
+    toast('Early withdrawal processed. Payout: \u20A6'+fmt(calc.payout),'s');
+    closeModal('fd-profile-modal');
+  }).catch(function(e){toast('Error: '+e.message,'e');});
+}
+
+// View FD profile
+function viewFDProfile(id){
+  var f=allFDs.find(function(x){return x.id===id;});if(!f)return;
+  if(currentSession.role==='staff'&&(f.branchId!==currentSession.branchId||f.createdBy!==currentSession.username)){toast('Access denied','e');return}
+  var amt=parseFloat(f.amount)||0;
+  var interest=fdGetInterest(f);
+  var total=fdGetTotal(f);
+  var isMat=fdIsMatured(f);
+  var displayStatus=isMat&&f.status==='Active'?'Matured':f.status;
+  var blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+  var calc=fdCalcEarlyWithdrawal(f);
+  document.getElementById('fd-pm-title').textContent='Fixed Deposit — '+f.name;
+  var html=
+    '<div class="prof-hd" style="background:linear-gradient(135deg,#0369a1,#012d5a)">'+
+    '<img class="prof-photo" src="'+(f.photo||blank)+'" alt="" style="border-color:#7dd3fc"/>'+
+    '<div style="flex:1"><div style="font-size:1.05rem;font-weight:800">'+f.name+'</div>'+
+    '<div style="opacity:.75;font-size:.81rem">'+f.phone+' &bull; '+(f.occupation||'')+'</div>'+
+    '<div style="opacity:.65;font-size:.73rem;margin-top:3px">&#127970; '+getBranchName(f.branchId)+'</div>'+
+    '<div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">'+fdBdg(displayStatus)+
+    '<span style="font-size:.72rem;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px">'+f.fdId+'</span></div></div></div>'+
+    '<div style="background:linear-gradient(135deg,#0369a1,#012d5a);border-radius:10px;padding:14px;margin-bottom:14px;color:#fff">'+
+    '<h4 style="font-size:.82rem;font-weight:800;margin-bottom:6px">&#127974; Fixed Deposit — 5% Flat Interest</h4>'+
+    '<p style="font-size:.72rem;opacity:.8">Duration: '+f.duration+' &bull; Start: '+f.startdate+' &bull; Maturity: '+f.maturityDate+'</p></div>'+
+    '<div class="repay-sum">'+
+    '<div class="rs"><div class="rv">&#8358;'+fmt(amt)+'</div><div class="rl">Principal</div></div>'+
+    '<div class="rs"><div class="rv" style="color:#0369a1">&#8358;'+fmt(interest)+'</div><div class="rl">Interest (5%)</div></div>'+
+    '<div class="rs"><div class="rv" style="color:var(--navy)">&#8358;'+fmt(total)+'</div><div class="rl">Total at Maturity</div></div>'+
+    '<div class="rs"><div class="rv" style="color:var(--red)">&#8358;'+fmt(calc.penalty)+'</div><div class="rl">Early Penalty (5%)</div></div>'+
+    '<div class="rs"><div class="rv" style="color:var(--amber)">&#8358;'+fmt(calc.payout)+'</div><div class="rl">Early Payout</div></div>'+
+    '</div>'+
+    (f.earlyWithdrawal?'<div style="background:#fff1f2;border:1px solid #fca5a5;border-radius:8px;padding:12px;margin-bottom:12px;font-size:.8rem">'+
+    '<strong style="color:var(--red)">&#9888; Early Withdrawal Processed</strong><br/>'+
+    'Date: '+f.earlyWithdrawal.date+' &bull; Penalty: &#8358;'+fmt(f.earlyWithdrawal.penalty)+' &bull; Payout: &#8358;'+fmt(f.earlyWithdrawal.payout)+'</div>':'')+
+    '<div class="sh">Customer Details</div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Full Name</label><p>'+f.name+'</p></div>'+
+    '<div class="iitem"><label>Phone</label><p>'+f.phone+'</p></div>'+
+    '<div class="iitem"><label>Address</label><p>'+(f.address||'--')+'</p></div>'+
+    '<div class="iitem"><label>Occupation</label><p>'+(f.occupation||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID Type</label><p>'+(f.idtype||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID Number</label><p>'+(f.idnum||'--')+'</p></div>'+
+    '<div class="iitem"><label>Start Date</label><p>'+f.startdate+'</p></div>'+
+    '<div class="iitem"><label>Maturity Date</label><p>'+f.maturityDate+'</p></div>'+
+    '<div class="iitem"><label>Branch</label><p>'+getBranchName(f.branchId)+'</p></div>'+
+    '</div>'+
+    '<div class="sh">Next of Kin</div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Name</label><p>'+((f.nok&&f.nok.name)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Relationship</label><p>'+((f.nok&&f.nok.relationship)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Phone</label><p>'+((f.nok&&f.nok.phone)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Address</label><p>'+((f.nok&&f.nok.address)||'--')+'</p></div>'+
+    '</div>'+
+    '<div class="btn-row no-print">'+
+    (f.status==='Active'?'<button class="btn btn-amber" onclick="openFDEarlyWithdrawal(\''+f.id+'\');closeModal(\'fd-profile-modal\')">&#9888; Early Withdrawal (5% Penalty)</button>':'')+
+    (f.status==='Active'&&fdIsMatured(f)?'<button class="btn btn-green" onclick="markFDMatured(\''+f.id+'\')">&#10003; Mark Matured</button>':'')+
+    '<button class="btn btn-out btn-sm" onclick="printFDCertificate()">&#128424; Print Certificate</button>'+
+    '</div>';
+  document.getElementById('fd-pm-body').innerHTML=html;
+  window._fdCurId=f.id;
+  showModal('fd-profile-modal');
+}
+
+// Print FD certificate
+function printFDCertificate(){
+  var id=window._fdCurId;
+  var f=allFDs.find(function(x){return x.id===id;});if(!f)return;
+  var amt=parseFloat(f.amount)||0;
+  var interest=fdGetInterest(f);
+  var total=fdGetTotal(f);
+  var calc=fdCalcEarlyWithdrawal(f);
+  var now=new Date().toLocaleDateString('en-NG',{day:'2-digit',month:'long',year:'numeric'});
+  var win=window.open('','_blank','width=800,height=900');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Fixed Deposit Certificate</title>'+
+  '<style>body{font-family:Arial,sans-serif;padding:32px;color:#1e293b;max-width:700px;margin:0 auto}'+
+  'h1{color:#0369a1;font-size:1.4rem;margin-bottom:4px}.brand{font-size:1.6rem;font-weight:900;color:#0f2342}.brand span{color:#c8973a}'+
+  '.cert-box{background:linear-gradient(135deg,#0369a1,#012d5a);border-radius:12px;padding:20px;color:#fff;margin:16px 0;text-align:center}'+
+  '.cert-code{font-size:2rem;font-weight:900;letter-spacing:.08em;margin:8px 0}'+
+  '.cert-sub{font-size:.78rem;opacity:.8}'+
+  '.summary-box{background:#e0f2fe;border:2px solid #0369a1;border-radius:8px;padding:14px;margin:16px 0;display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;text-align:center}'+
+  '.sv{font-size:1.05rem;font-weight:800;color:#0f2342}.sl{font-size:.62rem;text-transform:uppercase;color:#0369a1;margin-top:2px}'+
+  '.section{margin-top:18px;border-top:1px solid #e2e8f0;padding-top:12px}'+
+  '.section h3{font-size:.85rem;text-transform:uppercase;color:#0369a1;font-weight:800;letter-spacing:.08em;margin-bottom:8px}'+
+  'table{width:100%;border-collapse:collapse;font-size:.85rem}'+
+  'td{padding:7px 10px;border-bottom:1px solid #f1f5f9}td:first-child{font-weight:700;color:#64748b;width:40%}'+
+  '.sig-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px}'+
+  '.sig-line{border-top:2px solid #1e293b;padding-top:6px;font-size:.78rem;color:#64748b}'+
+  '.terms{font-size:.72rem;color:#64748b;margin-top:14px;background:#f8fafc;border-radius:6px;padding:12px;line-height:1.6}'+
+  '@media print{body{padding:16px}}</style></head><body>'+
+  '<div class="brand">Zmo<span>nie</span> Management Software</div>'+
+  '<h1>Fixed Deposit Certificate</h1>'+
+  '<p style="font-size:.8rem;color:#64748b">Issued: '+now+' &bull; Branch: '+getBranchName(f.branchId)+'</p>'+
+  '<div class="cert-box">'+
+  '<div class="cert-sub">Certificate Number</div>'+
+  '<div class="cert-code">'+f.fdId+'</div>'+
+  '<div class="cert-sub">This certifies that the below named person has a fixed deposit account</div>'+
+  '</div>'+
+  '<div class="summary-box">'+
+  '<div><div class="sv">&#8358;'+fmt(amt)+'</div><div class="sl">Principal</div></div>'+
+  '<div><div class="sv" style="color:#0369a1">&#8358;'+fmt(interest)+'</div><div class="sl">Interest (5%)</div></div>'+
+  '<div><div class="sv">&#8358;'+fmt(total)+'</div><div class="sl">Total at Maturity</div></div>'+
+  '</div>'+
+  '<div class="section"><h3>Depositor Information</h3>'+
+  '<table><tr><td>Full Name</td><td>'+f.name+'</td></tr>'+
+  '<tr><td>Phone</td><td>'+f.phone+'</td></tr>'+
+  '<tr><td>Address</td><td>'+(f.address||'--')+'</td></tr>'+
+  '<tr><td>Occupation</td><td>'+(f.occupation||'--')+'</td></tr>'+
+  '<tr><td>ID Type</td><td>'+(f.idtype||'--')+'</td></tr>'+
+  '<tr><td>ID Number</td><td>'+(f.idnum||'--')+'</td></tr></table></div>'+
+  '<div class="section"><h3>Next of Kin</h3>'+
+  '<table><tr><td>Full Name</td><td>'+((f.nok&&f.nok.name)||'--')+'</td></tr>'+
+  '<tr><td>Relationship</td><td>'+((f.nok&&f.nok.relationship)||'--')+'</td></tr>'+
+  '<tr><td>Phone</td><td>'+((f.nok&&f.nok.phone)||'--')+'</td></tr></table></div>'+
+  '<div class="section"><h3>Deposit Details</h3>'+
+  '<table><tr><td>FD Certificate No.</td><td><strong>'+f.fdId+'</strong></td></tr>'+
+  '<tr><td>Principal Amount</td><td>&#8358;'+fmt(amt)+'</td></tr>'+
+  '<tr><td>Interest Rate</td><td>5% Flat</td></tr>'+
+  '<tr><td>Interest Amount</td><td>&#8358;'+fmt(interest)+'</td></tr>'+
+  '<tr><td>Total at Maturity</td><td><strong>&#8358;'+fmt(total)+'</strong></td></tr>'+
+  '<tr><td>Duration</td><td>'+f.duration+'</td></tr>'+
+  '<tr><td>Start Date</td><td>'+f.startdate+'</td></tr>'+
+  '<tr><td>Maturity Date</td><td><strong>'+f.maturityDate+'</strong></td></tr>'+
+  '<tr><td>Early Withdrawal Penalty</td><td>5% of principal = &#8358;'+fmt(calc.penalty)+'</td></tr>'+
+  '<tr><td>Early Withdrawal Payout</td><td>&#8358;'+fmt(calc.payout)+'</td></tr>'+
+  '<tr><td>Status</td><td>'+f.status+'</td></tr></table></div>'+
+  '<div class="terms"><strong>Terms &amp; Conditions:</strong> 1. The deposit is fixed for the duration stated above. 2. The depositor shall receive '+
+  '&#8358;'+fmt(total)+' upon maturity. 3. Early withdrawal shall attract a 5% penalty on the principal amount, meaning the depositor receives &#8358;'+fmt(calc.payout)+' instead of &#8358;'+fmt(amt)+'. 4. Interest is forfeited on early withdrawal. 5. This certificate must be presented upon withdrawal.</div>'+
+  '<div class="sig-row">'+
+  '<div><div style="height:60px"></div><div class="sig-line">Depositor Signature &bull; Date: ___________</div></div>'+
+  '<div><div style="height:60px"></div><div class="sig-line">Authorised Officer &bull; Date: ___________</div></div>'+
+  '</div>'+
+  '<script>setTimeout(function(){window.print();},400);<\/script>'+
+  '</body></html>');
+  win.document.close();
+}
+
+// Show FD code popup after saving
+function showFDCode(fd){
+  var amt=parseFloat(fd.amount)||0;
+  var interest=fdGetInterest(fd);
+  var total=fdGetTotal(fd);
+  var win=window.open('','_blank','width=480,height=520');
+  win.document.write('<!DOCTYPE html><html><head><meta charset="UTF-8"/>'+
+  '<meta name="viewport" content="width=device-width,initial-scale=1.0"/>'+
+  '<title>FD Certificate Code</title>'+
+  '<style>*{box-sizing:border-box;margin:0;padding:0}body{font-family:Arial,sans-serif;background:#e0f2fe;display:flex;align-items:center;justify-content:center;min-height:100vh;padding:16px}'+
+  '.card{background:#fff;border-radius:16px;padding:28px 24px;max-width:400px;width:100%;box-shadow:0 8px 40px rgba(3,105,161,.2);text-align:center}'+
+  '.brand{font-size:1.3rem;font-weight:900;color:#0f2342;margin-bottom:4px}.brand span{color:#c8973a}'+
+  '.icon{font-size:3rem;margin:14px 0 6px}'+
+  '.code-box{background:linear-gradient(135deg,#0369a1,#012d5a);border-radius:12px;padding:18px;margin:14px 0;color:#fff}'+
+  '.code-lbl{font-size:.7rem;text-transform:uppercase;letter-spacing:.1em;opacity:.8;margin-bottom:6px}'+
+  '.code-val{font-size:1.8rem;font-weight:900;letter-spacing:.08em}'+
+  '.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0;text-align:left}'+
+  '.info-item{background:#e0f2fe;border-radius:8px;padding:9px;border:1px solid #bae6fd}'+
+  '.info-item label{font-size:.6rem;text-transform:uppercase;color:#0369a1;font-weight:800;display:block;margin-bottom:2px}'+
+  '.info-item p{font-size:.82rem;font-weight:700;color:#0f2342}'+
+  '.btn{display:block;width:100%;padding:11px;border:none;border-radius:10px;font-size:.88rem;font-weight:800;cursor:pointer;margin-top:8px}'+
+  '.btn-print{background:#0369a1;color:#fff}.btn-close{background:#f1f5f9;color:#1e293b}'+
+  '.note{font-size:.72rem;color:#64748b;margin-top:10px;line-height:1.5}'+
+  '@media print{.btn{display:none}body{background:#fff}.card{box-shadow:none}}</style></head><body>'+
+  '<div class="card">'+
+  '<div class="brand">Zmo<span>nie</span></div>'+
+  '<div class="icon">&#127974;</div>'+
+  '<p style="font-size:.8rem;color:#64748b">Fixed Deposit Successfully Registered</p>'+
+  '<div class="code-box"><div class="code-lbl">FD Certificate Number</div><div class="code-val">'+fd.fdId+'</div></div>'+
+  '<div class="info-grid">'+
+  '<div class="info-item"><label>Depositor</label><p>'+fd.name+'</p></div>'+
+  '<div class="info-item"><label>Phone</label><p>'+fd.phone+'</p></div>'+
+  '<div class="info-item"><label>Principal</label><p>&#8358;'+fmt(amt)+'</p></div>'+
+  '<div class="info-item"><label>Interest (5%)</label><p>&#8358;'+fmt(interest)+'</p></div>'+
+  '<div class="info-item"><label>Total at Maturity</label><p>&#8358;'+fmt(total)+'</p></div>'+
+  '<div class="info-item"><label>Duration</label><p>'+fd.duration+'</p></div>'+
+  '<div class="info-item"><label>Start Date</label><p>'+fd.startdate+'</p></div>'+
+  '<div class="info-item"><label>Maturity Date</label><p>'+fd.maturityDate+'</p></div>'+
+  '</div>'+
+  '<div class="note">Give this certificate number to the depositor. Present this number when making a withdrawal.</div>'+
+  '<button class="btn btn-print" onclick="window.print()">&#128424; Print Certificate Code</button>'+
+  '<button class="btn btn-close" onclick="window.close()">Close</button>'+
+  '</div></body></html>');
+  win.document.close();
+}
+
+// Export FD Excel
+function exportFDExcel(){
+  if(typeof XLSX==='undefined'){toast('Excel library not loaded','e');return}
+  var rows=scopedFD().map(function(f){
+    var amt=parseFloat(f.amount)||0;
+    return {
+      'FD ID':f.fdId,'Name':f.name,'Phone':f.phone,'Address':f.address,
+      'Occupation':f.occupation,'ID Type':f.idtype,'ID Number':f.idnum,
+      'Branch':getBranchName(f.branchId),
+      'Principal':amt,'Interest Rate':'5%','Interest Amount':fdGetInterest(f),
+      'Total at Maturity':fdGetTotal(f),
+      'Duration':f.duration,'Start Date':f.startdate,'Maturity Date':f.maturityDate,
+      'Status':f.status,
+      'Early Withdrawal Penalty':amt*0.05,'Early Payout':amt*0.95,
+      'NOK Name':(f.nok&&f.nok.name)||'','NOK Relationship':(f.nok&&f.nok.relationship)||'',
+      'NOK Phone':(f.nok&&f.nok.phone)||'','Created By':f.createdBy
+    };
+  });
+  var ws=XLSX.utils.json_to_sheet(rows);
+  var wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'FixedDeposits');
+  XLSX.writeFile(wb,'FixedDeposit_Export_'+new Date().toISOString().slice(0,10)+'.xlsx');
+  toast('Fixed Deposit Excel exported!','s');
 }
 
 </script>
