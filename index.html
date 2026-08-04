@@ -3759,6 +3759,16 @@ function viewINVProfile(id){
     '<div class="iitem"><label>Maturity Date</label><p>'+(i.maturityDate||'--')+'</p></div>'+
     '<div class="iitem"><label>Branch</label><p>'+getBranchName(i.branchId)+'</p></div>'+
     '</div>'+
+    '<div class="sh">&#128101; Next of Kin Details</div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Full Name</label><p>'+((i.nok&&i.nok.name)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Relationship</label><p>'+((i.nok&&i.nok.relationship)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Phone</label><p>'+((i.nok&&i.nok.phone)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Address</label><p>'+((i.nok&&i.nok.address)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Occupation</label><p>'+((i.nok&&i.nok.occupation)||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID Type</label><p>'+((i.nok&&i.nok.idtype)||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID Number</label><p>'+((i.nok&&i.nok.idnum)||'--')+'</p></div>'+
+    '</div>'+
     '<div class="sh">Return Payment History ('+(i.payments||[]).length+')</div>'+
     ((i.payments||[]).length===0
       ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No return payments recorded yet.</p>'
@@ -3766,11 +3776,45 @@ function viewINVProfile(id){
       (i.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td style="color:#7c3aed;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.method||'--')+'</td><td>'+(p.note||'--')+'</td><td>'+(p.recordedBy||'--')+'</td></tr>').join('')+
       '</tbody></table></div>')+
     '<div class="btn-row no-print">'+
+    '<button class="btn btn-navy" onclick="addAnotherInvestmentFor(\''+i.id+'\')">&#10133; Add Another Investment</button>'+
     '<button class="btn btn-purple" onclick="openINVPayModal(\''+i.id+'\');closeModal(\'inv-profile-modal\')">&#128176; Record Monthly Interest</button>'+
     (i.status==='Active'?'<button class="btn btn-amber" onclick="openEarlyWithdrawal(\''+i.id+'\')">&#9888; Early Withdrawal (10% Penalty)</button>':'')+
     '<button class="btn btn-out btn-sm" onclick="printINVAgreement()">&#128424; Print Statement</button>'+
     '</div>';
   showModal('inv-profile-modal');
+}
+
+// ===== ADD ANOTHER INVESTMENT FOR EXISTING INVESTOR =====
+// Pre-fills the "New Investment Registration" form with this investor's
+// personal & next-of-kin details so staff only need to enter the new
+// investment amount, plan, duration and start date.
+function addAnotherInvestmentFor(id){
+  const i=allInvestments.find(x=>x.id===id);if(!i)return;
+  closeModal('inv-profile-modal');
+  showPage('new-investment'); // resets the form first
+  const set=(elId,val)=>{const el=document.getElementById(elId);if(el)el.value=val||''};
+  set('inv-name',i.name);
+  set('inv-phone',i.phone);
+  set('inv-address',i.address);
+  set('inv-occ',i.occupation);
+  set('inv-idtype',i.idtype);
+  set('inv-idnum',i.idnum);
+  const branchSel=document.getElementById('inv-branch');
+  if(branchSel && i.branchId)branchSel.value=i.branchId;
+  if(i.photo){
+    const pp=document.getElementById('inv-photo-prev');if(pp)pp.src=i.photo;
+    const pd=document.getElementById('inv-photo-data');if(pd)pd.value=i.photo;
+  }
+  if(i.nok){
+    set('inv-nok-name',i.nok.name);
+    set('inv-nok-rel',i.nok.relationship);
+    set('inv-nok-phone',i.nok.phone);
+    set('inv-nok-addr',i.nok.address);
+    set('inv-nok-occ',i.nok.occupation);
+    set('inv-nok-idtype',i.nok.idtype);
+    set('inv-nok-idnum',i.nok.idnum);
+  }
+  toast('Investor details pre-filled. Enter the new investment amount, plan & dates.','s');
 }
 
 // ===== INVESTMENT PAYMENT MODAL =====
