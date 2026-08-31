@@ -622,6 +622,14 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
             <div class="fg"><label>Occupation</label><input id="inv-nok-occ" placeholder="Next of kin occupation"/></div>
             <div class="fg"><label>ID Type</label><select id="inv-nok-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
             <div class="fg"><label>ID Number</label><input id="inv-nok-idnum" placeholder="Next of kin ID number"/></div>
+            <div class="fg"><label>Next of Kin Photo</label>
+              <div class="photo-up" onclick="document.getElementById('inv-nok-photo-file').click()">
+                <img id="inv-nok-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload photo</p>
+              </div>
+              <input type="file" id="inv-nok-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'inv-nok-photo-prev','inv-nok-photo-data')"/>
+              <input type="hidden" id="inv-nok-photo-data"/>
+            </div>
           </div>
           <div class="btn-row">
             <button type="submit" class="btn btn-navy">&#128190; Save Investment Record</button>
@@ -1405,6 +1413,28 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
         <div class="fg"><label>Account Name *</label><input id="ivb-acctname" placeholder="Name on the account"/></div>
       </div>
       <button class="btn btn-navy" onclick="saveINVBankDetails()" style="width:100%;justify-content:center;padding:11px;margin-top:12px">&#128190; Save Bank Details</button>
+    </div>
+  </div>
+</div>
+
+<!-- INVESTMENT NEXT OF KIN PHOTO EDIT MODAL -->
+<div class="overlay" id="inv-nok-photo-modal">
+  <div class="modal" style="max-width:380px">
+    <div class="mhead">
+      <h3>&#128101; Next of Kin Photo</h3>
+      <button class="mclose" onclick="closeModal('inv-nok-photo-modal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <div class="fg">
+        <label>Next of Kin Photo</label>
+        <div class="photo-up" onclick="document.getElementById('ivn-photo-file').click()">
+          <img id="ivn-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+          <p>Click to upload photo</p>
+        </div>
+        <input type="file" id="ivn-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'ivn-photo-prev','ivn-photo-data')"/>
+        <input type="hidden" id="ivn-photo-data"/>
+      </div>
+      <button class="btn btn-navy" onclick="saveINVNokPhoto()" style="width:100%;justify-content:center;padding:11px;margin-top:12px">&#128190; Save Photo</button>
     </div>
   </div>
 </div>
@@ -3695,7 +3725,8 @@ function submitInvestment(e){
     nok:{
       name:v('inv-nok-name'), relationship:v('inv-nok-rel'),
       phone:v('inv-nok-phone'), address:v('inv-nok-addr'),
-      occupation:v('inv-nok-occ'), idtype:v('inv-nok-idtype'), idnum:v('inv-nok-idnum')
+      occupation:v('inv-nok-occ'), idtype:v('inv-nok-idtype'), idnum:v('inv-nok-idnum'),
+      photo:document.getElementById('inv-nok-photo-data').value
     },
     photo:document.getElementById('inv-photo-data').value,
     docs:sjd(document.getElementById('inv-docs-data').value),
@@ -3719,6 +3750,8 @@ function resetINVForm(){
   const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
   const pp=document.getElementById('inv-photo-prev');if(pp)pp.src=blank;
   const pd=document.getElementById('inv-photo-data');if(pd)pd.value='';
+  const nokpp=document.getElementById('inv-nok-photo-prev');if(nokpp)nokpp.src=blank;
+  const nokpd=document.getElementById('inv-nok-photo-data');if(nokpd)nokpd.value='';
   const dd=document.getElementById('inv-docs-data');if(dd)dd.value='[]';
   const dl=document.getElementById('inv-docs-list');if(dl)dl.innerHTML='';
   const mb=document.getElementById('inv-monthly-box');if(mb)mb.style.display='none';
@@ -3790,7 +3823,11 @@ function viewINVProfile(id){
     '<div class="iitem"><label>Account Number</label><p>'+(i.account||'--')+'</p></div>'+
     '<div class="iitem"><label>Account Name</label><p>'+(i.acctname||'--')+'</p></div>'+
     '</div>'+
-    '<div class="sh">&#128101; Next of Kin Details</div>'+
+    '<div class="sh">&#128101; Next of Kin Details <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openINVNokPhotoEdit(\''+i.id+'\')">&#9998; '+((i.nok&&i.nok.photo)?'Change Photo':'Add Photo')+'</button></div>'+
+    '<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">'+
+    '<img src="'+((i.nok&&i.nok.photo)||blank)+'" alt="" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:2px solid var(--border)"/>'+
+    '<div style="font-size:.78rem;color:var(--muted)">Next of Kin Photo</div>'+
+    '</div>'+
     '<div class="info-grid" style="margin-top:0">'+
     '<div class="iitem"><label>Full Name</label><p>'+((i.nok&&i.nok.name)||'--')+'</p></div>'+
     '<div class="iitem"><label>Relationship</label><p>'+((i.nok&&i.nok.relationship)||'--')+'</p></div>'+
@@ -3847,6 +3884,10 @@ function addAnotherInvestmentFor(id){
     set('inv-nok-occ',i.nok.occupation);
     set('inv-nok-idtype',i.nok.idtype);
     set('inv-nok-idnum',i.nok.idnum);
+    if(i.nok.photo){
+      const nokpp=document.getElementById('inv-nok-photo-prev');if(nokpp)nokpp.src=i.nok.photo;
+      const nokpd=document.getElementById('inv-nok-photo-data');if(nokpd)nokpd.value=i.nok.photo;
+    }
   }
   toast('Investor details pre-filled. Enter the new investment amount, plan & dates.','s');
 }
@@ -3868,6 +3909,28 @@ function saveINVBankDetails(){
     if(i){i.bank=bank;i.account=account;i.acctname=acctname}
     closeModal('inv-bank-modal');
     toast('Bank details saved!','s');
+    viewINVProfile(invCurId);
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ===== ADD/CHANGE NEXT OF KIN PHOTO FOR EXISTING INVESTMENT =====
+function openINVNokPhotoEdit(id){
+  const i=allInvestments.find(x=>x.id===id);if(!i)return;
+  invCurId=id;
+  const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+  document.getElementById('ivn-photo-prev').src=(i.nok&&i.nok.photo)||blank;
+  document.getElementById('ivn-photo-data').value=(i.nok&&i.nok.photo)||'';
+  showModal('inv-nok-photo-modal');
+}
+function saveINVNokPhoto(){
+  const photo=v('ivn-photo-data');
+  if(!photo){toast('Please upload a photo','e');return}
+  const i=allInvestments.find(x=>x.id===invCurId);if(!i)return;
+  const nok={...(i.nok||{}),photo};
+  db.collection('investments').doc(invCurId).set({nok},{merge:true}).then(()=>{
+    i.nok=nok;
+    closeModal('inv-nok-photo-modal');
+    toast('Next of kin photo saved!','s');
     viewINVProfile(invCurId);
   }).catch(e=>toast('Error: '+e.message,'e'));
 }
