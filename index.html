@@ -547,6 +547,12 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
             <div class="fg"><label>ID Type</label><select id="inv-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
             <div class="fg"><label>ID Number</label><input id="inv-idnum" placeholder="ID number"/></div>
           </div>
+          <div class="sh">&#127981; Investor Bank Details (for monthly return payment)</div>
+          <div class="form-grid">
+            <div class="fg"><label>Bank Name *</label><input required id="inv-bank" placeholder="e.g. GTBank, Access Bank"/></div>
+            <div class="fg"><label>Account Number *</label><input required id="inv-acct" placeholder="10-digit account number"/></div>
+            <div class="fg"><label>Account Name *</label><input required id="inv-acctname" placeholder="Name on the account"/></div>
+          </div>
           <div class="sh">&#127970; Branch</div>
           <div class="form-grid">
             <div class="fg"><label>Branch *</label><select id="inv-branch" required><option value="">-- Select Branch --</option></select></div>
@@ -1382,6 +1388,24 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
       </div>
     </div>
     <div class="mbody" id="inv-pm-body"></div>
+  </div>
+</div>
+
+<!-- INVESTMENT BANK DETAILS EDIT MODAL -->
+<div class="overlay" id="inv-bank-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="mhead">
+      <h3>&#127981; Investor Bank Details</h3>
+      <button class="mclose" onclick="closeModal('inv-bank-modal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <div class="form-grid">
+        <div class="fg"><label>Bank Name *</label><input id="ivb-bank" placeholder="e.g. GTBank, Access Bank"/></div>
+        <div class="fg"><label>Account Number *</label><input id="ivb-acct" placeholder="10-digit account number"/></div>
+        <div class="fg"><label>Account Name *</label><input id="ivb-acctname" placeholder="Name on the account"/></div>
+      </div>
+      <button class="btn btn-navy" onclick="saveINVBankDetails()" style="width:100%;justify-content:center;padding:11px;margin-top:12px">&#128190; Save Bank Details</button>
+    </div>
   </div>
 </div>
 
@@ -3661,6 +3685,7 @@ function submitInvestment(e){
   const data={
     invId:invGenId(), name:v('inv-name'), phone:v('inv-phone'), address:v('inv-address'),
     occupation:v('inv-occ'), idtype:v('inv-idtype'), idnum:v('inv-idnum'),
+    bank:v('inv-bank'), account:v('inv-acct'), acctname:v('inv-acctname'),
     branchId, branchName:getBranchName(branchId),
     amount:amt, plan:rate, duration:dn+' '+du,
     durationNum:dn, durationUnit:du,
@@ -3759,6 +3784,12 @@ function viewINVProfile(id){
     '<div class="iitem"><label>Maturity Date</label><p>'+(i.maturityDate||'--')+'</p></div>'+
     '<div class="iitem"><label>Branch</label><p>'+getBranchName(i.branchId)+'</p></div>'+
     '</div>'+
+    '<div class="sh">&#127981; Bank Details (Monthly Return Payment) <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openINVBankEdit(\''+i.id+'\')">&#9998; '+((i.bank||i.account)?'Edit':'Add')+'</button></div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Bank Name</label><p>'+(i.bank||'--')+'</p></div>'+
+    '<div class="iitem"><label>Account Number</label><p>'+(i.account||'--')+'</p></div>'+
+    '<div class="iitem"><label>Account Name</label><p>'+(i.acctname||'--')+'</p></div>'+
+    '</div>'+
     '<div class="sh">&#128101; Next of Kin Details</div>'+
     '<div class="info-grid" style="margin-top:0">'+
     '<div class="iitem"><label>Full Name</label><p>'+((i.nok&&i.nok.name)||'--')+'</p></div>'+
@@ -3799,6 +3830,9 @@ function addAnotherInvestmentFor(id){
   set('inv-occ',i.occupation);
   set('inv-idtype',i.idtype);
   set('inv-idnum',i.idnum);
+  set('inv-bank',i.bank);
+  set('inv-acct',i.account);
+  set('inv-acctname',i.acctname);
   const branchSel=document.getElementById('inv-branch');
   if(branchSel && i.branchId)branchSel.value=i.branchId;
   if(i.photo){
@@ -3815,6 +3849,27 @@ function addAnotherInvestmentFor(id){
     set('inv-nok-idnum',i.nok.idnum);
   }
   toast('Investor details pre-filled. Enter the new investment amount, plan & dates.','s');
+}
+
+// ===== EDIT/ADD BANK DETAILS FOR EXISTING INVESTMENT =====
+function openINVBankEdit(id){
+  const i=allInvestments.find(x=>x.id===id);if(!i)return;
+  invCurId=id;
+  document.getElementById('ivb-bank').value=i.bank||'';
+  document.getElementById('ivb-acct').value=i.account||'';
+  document.getElementById('ivb-acctname').value=i.acctname||'';
+  showModal('inv-bank-modal');
+}
+function saveINVBankDetails(){
+  const bank=v('ivb-bank'), account=v('ivb-acct'), acctname=v('ivb-acctname');
+  if(!bank||!account||!acctname){toast('Please fill in all bank fields','e');return}
+  db.collection('investments').doc(invCurId).set({bank,account,acctname},{merge:true}).then(()=>{
+    const i=allInvestments.find(x=>x.id===invCurId);
+    if(i){i.bank=bank;i.account=account;i.acctname=acctname}
+    closeModal('inv-bank-modal');
+    toast('Bank details saved!','s');
+    viewINVProfile(invCurId);
+  }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
 // ===== INVESTMENT PAYMENT MODAL =====
@@ -3902,6 +3957,10 @@ function printINVAgreement(){
   <tr><td>ID Type</td><td>${i.idtype||'--'}</td></tr>
   <tr><td>ID Number</td><td>${i.idnum||'--'}</td></tr>
   <tr><td>Branch</td><td>${getBranchName(i.branchId)}</td></tr></table></div>
+  <div class="section"><h3>Bank Details (Monthly Return Payment)</h3>
+  <table><tr><td>Bank Name</td><td>${i.bank||'--'}</td></tr>
+  <tr><td>Account Number</td><td>${i.account||'--'}</td></tr>
+  <tr><td>Account Name</td><td>${i.acctname||'--'}</td></tr></table></div>
   <div class="section"><h3>Next of Kin Information</h3>
   <table>
   <tr><td>Full Name</td><td>${(i.nok&&i.nok.name)||'--'}</td></tr>
@@ -3946,6 +4005,7 @@ function exportInvestmentExcel(){
   const rows=scopedINV().map(i=>({
     'Investment ID':i.invId,'Name':i.name,'Phone':i.phone,'Address':i.address,
     'Occupation':i.occupation,'ID Type':i.idtype,'ID Number':i.idnum,
+    'Bank Name':i.bank||'','Account Number':i.account||'','Account Name':i.acctname||'',
     'Branch':getBranchName(i.branchId),'Amount':i.amount,'Plan':i.plan+'%',
     'Expected Return':invGetReturn(i),'Total at Maturity':invGetTotal(i),
     'Returns Paid':invGetPaid(i),'Outstanding':invGetBal(i),
