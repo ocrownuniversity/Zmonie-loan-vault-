@@ -317,6 +317,12 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
 .b-fd-withdrawn{background:#fef3c7;color:#92400e}
 .b-fd-early{background:#fee2e2;color:#991b1b}
 .dash-module-card.fd{background:linear-gradient(135deg,#0369a1,#012d5a)}
+.mod-header.ctb{background:linear-gradient(135deg,#16a34a,#14532d)}
+.dash-module-card.ctb{background:linear-gradient(135deg,#16a34a,#14532d)}
+.b-ctb-active{background:#dcfce7;color:#166534}
+.b-ctb-completed{background:#dbeafe;color:#1e40af}
+.b-ctb-suspended{background:#fee2e2;color:#991b1b}
+.b-ctb-overdue{background:#fee2e2;color:#991b1b}
 .fd-cert-page{display:none}
 @media print{.fd-cert-page{display:block!important}}
 
@@ -382,9 +388,11 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
     <button class="nb" onclick="showPage('notifications')">&#128276; Alerts</button>
     <button class="nb" onclick="showPage('easybuy')">&#128722; EasyBuy</button>
     <button class="nb" onclick="showPage('investment')">&#128200; Investment</button>
+    <button class="nb" onclick="showPage('contribution')">&#128021; Contributions</button>
     <button class="nb" onclick="showPage('fixeddeposit')">&#127974; Fixed Deposit</button>
     <button class="nb" id="nav-branches" onclick="showPage('branches')" style="display:none">&#x1F3E6; Branches</button>
     <button class="nb" id="nav-users" onclick="showPage('users')" style="display:none">&#x1F464; Staff</button>
+    <button class="nb" id="nav-auditlog" onclick="showPage('auditlog')" style="display:none">&#128220; Audit Log</button>
     <button class="nb" onclick="showPage('settings')">&#9881; Settings</button>
   </nav>
   <main>
@@ -636,6 +644,132 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
             <button type="button" class="btn btn-out" onclick="resetINVForm()">&#8635; Reset</button>
           </div>
         </form>
+      </div>
+    </div>
+
+    <!-- CONTRIBUTION PAGE -->
+    <div class="page-section" id="page-contribution">
+      <div class="mod-header ctb"><div class="mod-icon">&#128021;</div><div><h2>Staff Contribution Management</h2><p>Daily, weekly &amp; monthly contributor savings tracking</p></div><div style="margin-left:auto;display:flex;gap:8px"><button class="btn btn-sm no-print" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="showPage('ctb-reports')">&#128196; Reports</button><button class="btn btn-sm no-print" style="background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.3)" onclick="showPage('new-contribution')">&#43; New Contributor</button></div></div>
+      <div class="stat-grid" id="ctb-stat-grid"></div>
+      <div class="card">
+        <div class="card-title">&#9203; Recent Contribution Activity</div>
+        <div id="ctb-activity-feed"></div>
+      </div>
+      <div class="card">
+        <div class="card-title"><span>&#128021; Contributor Records</span></div>
+        <div class="search-row">
+          <input type="text" id="ctb-srch" placeholder="Search name, phone, Contributor ID..." oninput="searchCTB()"/>
+          <select id="ctb-ftype" onchange="searchCTB()"><option value="">All Types</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select>
+          <select id="ctb-fst" onchange="searchCTB()"><option value="">All Status</option><option>Active</option><option>Completed</option><option>Suspended</option><option value="Overdue">Overdue Only</option></select>
+          <select id="ctb-fbr" onchange="searchCTB()" style="display:none"><option value="">All Branches</option></select>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>ID</th><th>Contributor</th><th>Phone</th><th>Branch</th><th>Type</th><th>Amount</th><th>Total Saved</th><th>Missed</th><th>Next Due</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="ctb-tbody"></tbody>
+        </table></div>
+      </div>
+    </div>
+
+    <!-- NEW CONTRIBUTOR REGISTRATION -->
+    <div class="page-section" id="page-new-contribution">
+      <div class="card">
+        <div class="card-title">&#128021; New Contributor Registration
+          <button class="btn btn-out btn-sm no-print" onclick="showPage('contribution')">&#8592; Back</button>
+        </div>
+        <form id="ctb-form" onsubmit="submitContribution(event)">
+          <div class="sh">&#128100; Contributor Information</div>
+          <div class="form-grid">
+            <div class="fg"><label>Full Name *</label><input required id="ctb-name" placeholder="Contributor full name"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="ctb-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Residential Address *</label><input required id="ctb-address" placeholder="Residential address"/></div>
+          </div>
+          <div class="sh">&#127970; Branch</div>
+          <div class="form-grid">
+            <div class="fg"><label>Branch *</label><select id="ctb-branch" required><option value="">-- Select Branch --</option></select></div>
+          </div>
+          <div class="sh">&#128247; Contributor Photo</div>
+          <div class="form-grid">
+            <div class="fg"><label>Passport Photograph</label>
+              <div class="photo-up" onclick="document.getElementById('ctb-photo-file').click()">
+                <img id="ctb-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload photo</p>
+              </div>
+              <input type="file" id="ctb-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'ctb-photo-prev','ctb-photo-data')"/>
+              <input type="hidden" id="ctb-photo-data"/>
+            </div>
+          </div>
+          <div class="sh">&#128176; Contribution Account</div>
+          <div class="form-grid">
+            <div class="fg"><label>Contribution Type *</label><select required id="ctb-type"><option value="">Select plan</option><option>Daily</option><option>Weekly</option><option>Monthly</option></select></div>
+            <div class="fg"><label>Contribution Amount (&#8358;) *</label><input required type="number" id="ctb-amount" placeholder="0"/></div>
+            <div class="fg"><label>Registration Date *</label><input required type="date" id="ctb-regdate" value=""/></div>
+            <div class="fg"><label>Status</label><select id="ctb-status"><option value="Active">Active</option><option value="Suspended">Suspended</option><option value="Completed">Completed</option></select></div>
+          </div>
+          <div class="sh">&#128101; Next of Kin Details</div>
+          <div class="form-grid">
+            <div class="fg"><label>Next of Kin Full Name *</label><input required id="ctb-nok-name" placeholder="Full name of next of kin"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="ctb-nok-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Residential Address</label><input id="ctb-nok-addr" placeholder="Next of kin address"/></div>
+            <div class="fg"><label>Next of Kin Photo</label>
+              <div class="photo-up" onclick="document.getElementById('ctb-nok-photo-file').click()">
+                <img id="ctb-nok-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload photo</p>
+              </div>
+              <input type="file" id="ctb-nok-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'ctb-nok-photo-prev','ctb-nok-photo-data')"/>
+              <input type="hidden" id="ctb-nok-photo-data"/>
+            </div>
+          </div>
+          <div class="btn-row">
+            <button type="submit" class="btn btn-navy" style="background:#16a34a">&#128190; Save Contributor</button>
+            <button type="button" class="btn btn-out" onclick="resetCTBForm()">&#8635; Reset</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- CONTRIBUTION REPORTS -->
+    <div class="page-section" id="page-ctb-reports">
+      <div class="card">
+        <div class="card-title">&#128196; Contribution Reports
+          <button class="btn btn-out btn-sm no-print" onclick="showPage('contribution')">&#8592; Back</button>
+        </div>
+        <div class="form-grid">
+          <div class="fg"><label>Report Type *</label><select id="ctbr-type">
+            <option value="daily">Daily Collections</option>
+            <option value="weekly">Weekly Collections</option>
+            <option value="monthly">Monthly Collections</option>
+            <option value="outstanding">Outstanding Contributions</option>
+            <option value="missed">Missed Contributions</option>
+            <option value="summary">Total Contributions Received (All Contributors)</option>
+          </select></div>
+          <div class="fg"><label>From Date</label><input type="date" id="ctbr-from"/></div>
+          <div class="fg"><label>To Date</label><input type="date" id="ctbr-to" value=""/></div>
+        </div>
+        <button class="btn btn-navy" style="background:#16a34a" onclick="generateCTBReport()">&#128269; Generate Report</button>
+        <div id="ctb-report-meta" style="margin-top:14px"></div>
+        <div class="tbl-wrap" style="margin-top:10px"><table>
+          <thead id="ctb-report-thead"></thead>
+          <tbody id="ctb-report-tbody"></tbody>
+        </table></div>
+        <div class="btn-row no-print" id="ctb-report-export-row" style="display:none">
+          <button class="btn btn-out btn-sm" onclick="exportCTBReportPDF()">&#128424; PDF (Print)</button>
+          <button class="btn btn-out btn-sm" onclick="exportCTBReportExcel()">&#128190; Excel</button>
+          <button class="btn btn-out btn-sm" onclick="exportCTBReportCSV()">&#128190; CSV</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUDIT LOG PAGE -->
+    <div class="page-section" id="page-auditlog">
+      <div class="card">
+        <div class="card-title"><span>&#128220; Staff Audit Log</span></div>
+        <div class="search-row">
+          <input type="text" id="al-srch" placeholder="Search staff name or action..." oninput="renderAuditLog()"/>
+        </div>
+        <div class="tbl-wrap"><table>
+          <thead><tr><th>Date</th><th>Time</th><th>Staff</th><th>Role</th><th>Action</th><th>Details</th></tr></thead>
+          <tbody id="al-tbody"></tbody>
+        </table></div>
       </div>
     </div>
 
@@ -1450,6 +1584,52 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
   </div>
 </div>
 
+<!-- CONTRIBUTOR PROFILE MODAL -->
+<div class="overlay" id="ctb-profile-modal">
+  <div class="modal" style="max-width:740px">
+    <div class="mhead">
+      <h3 id="ctb-pm-title">Contributor Profile</h3>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-out btn-sm no-print" onclick="printCTBStatement()">&#128424; Print Statement</button>
+        <button class="mclose no-print" onclick="closeModal('ctb-profile-modal')">&times;</button>
+      </div>
+    </div>
+    <div class="mbody" id="ctb-pm-body"></div>
+  </div>
+</div>
+
+<!-- RECORD CONTRIBUTION MODAL -->
+<div class="overlay" id="ctb-pay-modal">
+  <div class="modal" style="max-width:540px">
+    <div class="mhead">
+      <h3 id="ctb-pay-title">Record Contribution</h3>
+      <button class="mclose" onclick="closeModal('ctb-pay-modal')">&times;</button>
+    </div>
+    <div class="mbody" id="ctb-pay-body"></div>
+  </div>
+</div>
+
+<!-- EDIT CONTRIBUTOR MODAL -->
+<div class="overlay" id="ctb-edit-modal">
+  <div class="modal" style="max-width:480px">
+    <div class="mhead">
+      <h3>&#9998; Edit Contributor Record</h3>
+      <button class="mclose" onclick="closeModal('ctb-edit-modal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <div class="form-grid">
+        <div class="fg"><label>Full Name *</label><input id="ctbe-name"/></div>
+        <div class="fg"><label>Phone *</label><input id="ctbe-phone"/></div>
+        <div class="fg"><label>Address *</label><input id="ctbe-address"/></div>
+        <div class="fg"><label>Contribution Type *</label><select id="ctbe-type"><option>Daily</option><option>Weekly</option><option>Monthly</option></select></div>
+        <div class="fg"><label>Contribution Amount (&#8358;) *</label><input type="number" id="ctbe-amount"/></div>
+        <div class="fg"><label>Status *</label><select id="ctbe-status"><option value="Active">Active</option><option value="Suspended">Suspended</option><option value="Completed">Completed</option></select></div>
+      </div>
+      <button class="btn btn-navy" style="background:#16a34a;width:100%;justify-content:center;padding:11px;margin-top:12px" onclick="saveCTBEdit()">&#128190; Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- FD PROFILE MODAL -->
 <div class="overlay" id="fd-profile-modal">
   <div class="modal" style="max-width:740px">
@@ -1640,6 +1820,8 @@ function startApp(){
   if(navBranches) navBranches.style.display = isAdmin ? '' : 'none';
   // Manager can also access Staff page (to add/edit staff on their branch)
   if(navUsers) navUsers.style.display = (isAdmin || isManager) ? '' : 'none';
+  const navAuditlog = document.getElementById('nav-auditlog');
+  if(navAuditlog) navAuditlog.style.display = (isAdmin || isManager) ? '' : 'none';
 
   // Admin-only dashboard branch summary card
   const bsCard = document.getElementById('branch-summary-card');
@@ -1686,6 +1868,10 @@ function showPage(id){
     toast('Access denied','e');
     id='dashboard';
   }
+  if(id==='auditlog' && currentSession.role!=='admin' && currentSession.role!=='manager'){
+    toast('Access denied: Admin/Manager only','e');
+    id='dashboard';
+  }
   document.querySelectorAll('.page-section').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nb').forEach(b=>b.classList.remove('active'));
   const sec=document.getElementById('page-'+id);if(sec)sec.classList.add('active');
@@ -1703,6 +1889,17 @@ function showPage(id){
   if(id==='new-easybuy'){populateEBINVBranchDropdowns();resetEBForm()}
   if(id==='investment'){populateEBINVBranchDropdowns();renderINVStats();renderINV(scopedINV())}
   if(id==='new-investment'){populateEBINVBranchDropdowns();resetINVForm()}
+  if(id==='contribution'){populateCTBBranchDropdowns();renderCTBStats();renderCTB(scopedCTB());renderCTBActivity()}
+  if(id==='new-contribution'){populateCTBBranchDropdowns();resetCTBForm()}
+  if(id==='ctb-reports'){
+    document.getElementById('ctb-report-thead').innerHTML='';
+    document.getElementById('ctb-report-tbody').innerHTML='';
+    document.getElementById('ctb-report-meta').innerHTML='';
+    document.getElementById('ctb-report-export-row').style.display='none';
+  }
+  if(id==='auditlog'){
+    renderAuditLog();
+  }
   if(id==='fixeddeposit'){populateFDBranchDropdowns();renderFDStats();renderFD(scopedFD())}
   if(id==='new-fixeddeposit'){populateFDBranchDropdowns();resetFDForm()}
   if(id==='settings'){
@@ -1716,13 +1913,15 @@ function showPage(id){
 async function loadAll(){
   showLoader('Loading data...');
   try{
-    const [brSnap,usSnap,lnSnap,ebSnap,invSnap,fdSnap]=await Promise.all([
+    const [brSnap,usSnap,lnSnap,ebSnap,invSnap,fdSnap,ctbSnap,alSnap]=await Promise.all([
       db.collection('branches').get(),
       db.collection('staff_users').get(),
       db.collection('loans').get(),
       db.collection('easybuy').get(),
       db.collection('investments').get(),
-      db.collection('fixeddeposits').get()
+      db.collection('fixeddeposits').get(),
+      db.collection('contributions').get(),
+      db.collection('auditlogs').get()
     ]);
     allBranches=brSnap.docs.map(d=>({id:d.id,...d.data()}));
     allUsers=usSnap.docs.map(d=>({id:d.id,...d.data()}));
@@ -1730,8 +1929,11 @@ async function loadAll(){
     allEasyBuys=ebSnap.docs.map(d=>({id:d.id,...d.data()}));
     allInvestments=invSnap.docs.map(d=>({id:d.id,...d.data()}));
     allFDs=fdSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allContributions=ctbSnap.docs.map(d=>({id:d.id,...d.data()}));
+    allAuditLogs=alSnap.docs.map(d=>({id:d.id,...d.data()}));
     populateAllBranchDropdowns();
     populateEBINVBranchDropdowns();
+    populateCTBBranchDropdowns();
     populateAllYearDropdowns();
     chkNotifBadge();
     populateLoginBranchSelect();
@@ -3336,13 +3538,15 @@ function populateEBINVBranchDropdowns(){
 
 // ===== RENDER DASHBOARD MODULE CARDS =====
 function renderDashModules(){
-  var ebList=scopedEB(), invList=scopedINV(), fdList=scopedFD();
+  var ebList=scopedEB(), invList=scopedINV(), fdList=scopedFD(), ctbList=scopedCTB();
   var ebActive=ebList.filter(function(e){return e.status==='Active';}).length;
   var ebBal=ebList.reduce(function(s,e){return s+ebGetBal(e);},0);
   var invAmt=invList.reduce(function(s,i){return s+(parseFloat(i.amount)||0);},0);
   var invActive=invList.filter(function(i){return i.status==='Active';}).length;
   var fdAmt=fdList.reduce(function(s,f){return s+(parseFloat(f.amount)||0);},0);
   var fdActive=fdList.filter(function(f){return f.status==='Active';}).length;
+  var ctbActive=ctbList.filter(function(c){return c.status==='Active';}).length;
+  var ctbTotal=ctbList.reduce(function(s,c){return s+ctbGetPaidTotal(c);},0);
   var el=document.getElementById('dash-modules');
   if(!el)return;
   var ebCard=document.createElement('div');
@@ -3357,10 +3561,15 @@ function renderDashModules(){
   fdCard.className='dash-module-card fd';
   fdCard.onclick=function(){showPage('fixeddeposit');};
   fdCard.innerHTML='<div class="dmc-icon">&#127974;</div><h3>Fixed Deposit</h3><p>5% flat interest</p><div class="dmc-stat">'+fdList.length+'</div><div style="font-size:.7rem;opacity:.8;margin-top:2px">'+fdActive+' active &bull; &#8358;'+fmt(fdAmt)+' total</div>';
+  var ctbCard=document.createElement('div');
+  ctbCard.className='dash-module-card ctb';
+  ctbCard.onclick=function(){showPage('contribution');};
+  ctbCard.innerHTML='<div class="dmc-icon">&#128021;</div><h3>Contributions</h3><p>Staff contributor savings</p><div class="dmc-stat">'+ctbList.length+'</div><div style="font-size:.7rem;opacity:.8;margin-top:2px">'+ctbActive+' active &bull; &#8358;'+fmt(ctbTotal)+' saved</div>';
   el.innerHTML='';
   el.appendChild(ebCard);
   el.appendChild(invCard);
   el.appendChild(fdCard);
+  el.appendChild(ctbCard);
 }
 
 // ===== RENDER EASYBUY LIST =====
@@ -4859,6 +5068,529 @@ function exportFDExcel(){
   toast('Fixed Deposit Excel exported!','s');
 }
 
+// =====================================================
+// ===== STAFF CONTRIBUTION MANAGEMENT SYSTEM =====
+// =====================================================
+let allContributions=[], allAuditLogs=[], ctbCurId=null, ctbLastReport=null;
+const CTB_BLANK="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+
+function scopedCTB(){
+  if(currentSession.role==='admin') return allContributions;
+  if(currentSession.role==='manager') return allContributions.filter(c=>c.branchId===currentSession.branchId);
+  return allContributions.filter(c=>c.branchId===currentSession.branchId && (c.createdBy===currentSession.username||c.createdBy===currentSession.userId));
+}
+function ctbGenId(){ return 'CTB-'+Date.now().toString().slice(-7); }
+function ctbGenRef(){ return 'TXN-'+Date.now().toString().slice(-8)+Math.floor(Math.random()*90+10); }
+function ctbBdg(s){
+  const m={Active:'b-ctb-active',Completed:'b-ctb-completed',Suspended:'b-ctb-suspended'};
+  return '<span class="badge '+(m[s]||'b-pending')+'">'+(s||'Active')+'</span>';
+}
+
+// ----- Contribution math helpers -----
+function ctbGetPaidTotal(c){ return (c.payments||[]).reduce((s,p)=>s+(parseFloat(p.amount)||0),0); }
+function ctbGetPaidCount(c){ return (c.payments||[]).length; }
+function ctbPeriodsElapsed(c){
+  if(!c.regDate) return 0;
+  const start=new Date(c.regDate+'T00:00:00'); const now=new Date(); now.setHours(0,0,0,0);
+  if(now<start) return 0;
+  if(c.type==='Daily'){ return Math.max(0, Math.floor((now-start)/86400000)+1); }
+  if(c.type==='Weekly'){ const days=Math.floor((now-start)/86400000); return Math.max(0, Math.floor(days/7)+1); }
+  let months=(now.getFullYear()-start.getFullYear())*12+(now.getMonth()-start.getMonth());
+  if(now.getDate()>=start.getDate()) months+=1;
+  return Math.max(0,months);
+}
+function ctbMissedCount(c){
+  if(c.status!=='Active') return 0;
+  return Math.max(0, ctbPeriodsElapsed(c) - ctbGetPaidCount(c));
+}
+function ctbExpectedTotal(c){ return ctbPeriodsElapsed(c) * (parseFloat(c.amount)||0); }
+function ctbOutstanding(c){ return Math.max(0, ctbExpectedTotal(c) - ctbGetPaidTotal(c)); }
+function ctbLastPaymentDate(c){ const p=c.payments||[]; return p.length? p[p.length-1].date : null; }
+function ctbNextDue(c){
+  const p=c.payments||[];
+  if(!p.length) return c.regDate||null;
+  const d=new Date(p[p.length-1].date+'T00:00:00');
+  if(c.type==='Daily') d.setDate(d.getDate()+1);
+  else if(c.type==='Weekly') d.setDate(d.getDate()+7);
+  else d.setMonth(d.getMonth()+1);
+  return d.toISOString().slice(0,10);
+}
+function ctbIsOverdue(c){ return c.status==='Active' && ctbMissedCount(c)>0; }
+
+// ----- Branch dropdowns -----
+function populateCTBBranchDropdowns(){
+  const sel=document.getElementById('ctb-branch');
+  if(sel){
+    sel.innerHTML='<option value="">-- Select Branch --</option>';
+    allBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name+(b.code?' ('+b.code+')':'');sel.appendChild(o);});
+    if(currentSession.role==='staff'){sel.value=currentSession.branchId;sel.disabled=true;} else sel.disabled=false;
+  }
+  const fbr=document.getElementById('ctb-fbr');
+  if(fbr){
+    fbr.style.display=currentSession.role==='admin'?'':'none';
+    fbr.innerHTML='<option value="">All Branches</option>';
+    allBranches.forEach(b=>{const o=document.createElement('option');o.value=b.id;o.textContent=b.name;fbr.appendChild(o);});
+  }
+}
+
+// ----- Dashboard stats for the Contribution module -----
+function renderCTBStats(){
+  const list=scopedCTB();
+  const daily=list.filter(c=>c.type==='Daily').length;
+  const weekly=list.filter(c=>c.type==='Weekly').length;
+  const monthly=list.filter(c=>c.type==='Monthly').length;
+  const active=list.filter(c=>c.status==='Active').length;
+  const overdue=list.filter(c=>ctbIsOverdue(c)).length;
+  const totalSaved=list.reduce((s,c)=>s+ctbGetPaidTotal(c),0);
+  const today=td();
+  const todaysCollections=list.reduce((s,c)=>s+(c.payments||[]).filter(p=>p.date===today).reduce((a,p)=>a+(parseFloat(p.amount)||0),0),0);
+  const now=new Date(); const weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay()); weekStart.setHours(0,0,0,0);
+  const weekStartStr=weekStart.toISOString().slice(0,10);
+  const weekCollections=list.reduce((s,c)=>s+(c.payments||[]).filter(p=>p.date>=weekStartStr&&p.date<=today).reduce((a,p)=>a+(parseFloat(p.amount)||0),0),0);
+  const monthStartStr=today.slice(0,7)+'-01';
+  const monthCollections=list.reduce((s,c)=>s+(c.payments||[]).filter(p=>p.date>=monthStartStr&&p.date<=today).reduce((a,p)=>a+(parseFloat(p.amount)||0),0),0);
+  const el=document.getElementById('ctb-stat-grid');if(!el)return;
+  el.innerHTML=
+    '<div class="stat-card" style="border-color:#16a34a"><div class="stat-val">'+list.length+'</div><div class="stat-lbl">Total Contributors</div></div>'+
+    '<div class="stat-card" style="border-color:var(--blue)"><div class="stat-val">'+daily+'</div><div class="stat-lbl">Daily Contributors</div></div>'+
+    '<div class="stat-card" style="border-color:var(--purple)"><div class="stat-val">'+weekly+'</div><div class="stat-lbl">Weekly Contributors</div></div>'+
+    '<div class="stat-card" style="border-color:var(--amber)"><div class="stat-val">'+monthly+'</div><div class="stat-lbl">Monthly Contributors</div></div>'+
+    '<div class="stat-card" style="border-color:#16a34a"><div class="stat-val">&#8358;'+fmt(todaysCollections)+'</div><div class="stat-lbl">Today\'s Collections</div></div>'+
+    '<div class="stat-card" style="border-color:#16a34a"><div class="stat-val">&#8358;'+fmt(weekCollections)+'</div><div class="stat-lbl">This Week\'s Collections</div></div>'+
+    '<div class="stat-card" style="border-color:#16a34a"><div class="stat-val">&#8358;'+fmt(monthCollections)+'</div><div class="stat-lbl">This Month\'s Collections</div></div>'+
+    '<div class="stat-card" style="border-color:var(--green)"><div class="stat-val">'+active+'</div><div class="stat-lbl">Active Contributors</div></div>'+
+    (overdue>0?'<div class="stat-card" style="border-color:var(--red)"><div class="stat-val" style="color:var(--red)">'+overdue+'</div><div class="stat-lbl">Overdue Contributors</div></div>':'')+
+    '<div class="stat-card" style="border-color:var(--navy)"><div class="stat-val">&#8358;'+fmt(totalSaved)+'</div><div class="stat-lbl">Total Contributions Received</div></div>';
+}
+
+function renderCTBActivity(){
+  const el=document.getElementById('ctb-activity-feed');if(!el)return;
+  let acts=[];
+  scopedCTB().forEach(c=>{
+    (c.payments||[]).forEach(p=>{
+      acts.push({name:c.name,ctbId:c.ctbId,amount:p.amount,date:p.date,recordedBy:p.recordedBy,recordedAt:p.recordedAt||p.date,ref:p.ref});
+    });
+  });
+  acts.sort((a,b)=>new Date(b.recordedAt)-new Date(a.recordedAt));
+  acts=acts.slice(0,8);
+  if(!acts.length){el.innerHTML='<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No contribution activity yet.</p>';return;}
+  el.innerHTML='<div class="tbl-wrap"><table><thead><tr><th>Contributor</th><th>ID</th><th>Amount</th><th>Date</th><th>Recorded By</th><th>Ref</th></tr></thead><tbody>'+
+    acts.map(a=>'<tr><td>'+a.name+'</td><td>'+a.ctbId+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(a.amount)+'</td><td>'+a.date+'</td><td>'+(a.recordedBy||'--')+'</td><td>'+(a.ref||'--')+'</td></tr>').join('')+
+    '</tbody></table></div>';
+}
+
+// ----- Render / Search list -----
+function renderCTB(list){
+  const tb=document.getElementById('ctb-tbody');if(!tb)return;
+  tb.innerHTML=list.map(c=>{
+    const total=ctbGetPaidTotal(c), missed=ctbMissedCount(c), next=ctbNextDue(c), od=ctbIsOverdue(c);
+    return '<tr '+(od?'style="background:#fff5f5"':'')+'>'+
+      '<td><strong>'+c.ctbId+'</strong></td>'+
+      '<td>'+(c.photo?'<img src="'+c.photo+'" style="width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:middle;margin-right:4px;border:1px solid #16a34a" alt=""/>':'')+c.name+'</td>'+
+      '<td>'+c.phone+'</td>'+
+      '<td><span style="font-size:.68rem;background:#f0fdf4;padding:2px 6px;border-radius:4px;border:1px solid #bbf7d0">'+getBranchName(c.branchId)+'</span></td>'+
+      '<td>'+c.type+'</td>'+
+      '<td>&#8358;'+fmt(c.amount)+'</td>'+
+      '<td style="color:#16a34a;font-weight:700">&#8358;'+fmt(total)+'</td>'+
+      '<td style="color:'+(missed>0?'var(--red)':'var(--muted)')+'">'+missed+'</td>'+
+      '<td>'+(next||'--')+'</td>'+
+      '<td>'+ctbBdg(c.status)+(od?'<span class="ndot" title="Overdue"></span>':'')+'</td>'+
+      '<td><div style="display:flex;gap:3px;flex-wrap:wrap">'+
+        '<button class="btn btn-out btn-sm" onclick="viewCTBProfile(\''+c.id+'\')">&#128100;</button>'+
+        '<button class="btn btn-sm" style="background:#16a34a;color:#fff" onclick="openCTBPayModal(\''+c.id+'\')">&#128176;</button>'+
+        '<button class="btn btn-red btn-sm" onclick="delCTB(\''+c.id+'\')">&#128465;</button>'+
+      '</div></td></tr>';
+  }).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No contributor records found.</td></tr>';
+}
+function searchCTB(){
+  const q=v('ctb-srch').toLowerCase(), type=v('ctb-ftype'), st=v('ctb-fst'), br=v('ctb-fbr');
+  let list=scopedCTB().filter(c=>(c.name||'').toLowerCase().includes(q)||(c.phone||'').includes(q)||(c.ctbId||'').toLowerCase().includes(q));
+  if(type) list=list.filter(c=>c.type===type);
+  if(st==='Overdue') list=list.filter(c=>ctbIsOverdue(c));
+  else if(st) list=list.filter(c=>c.status===st);
+  if(br&&currentSession.role==='admin') list=list.filter(c=>c.branchId===br);
+  renderCTB(list);
+}
+
+// ----- Register contributor -----
+function submitContribution(e){
+  e.preventDefault();
+  const branchId=currentSession.role==='staff'?currentSession.branchId:v('ctb-branch');
+  if(!branchId){toast('Please select a branch','e');return}
+  if(!v('ctb-regdate')){toast('Please select the registration date','e');return}
+  const amount=parseFloat(v('ctb-amount'))||0;
+  if(!v('ctb-name')||!v('ctb-phone')||!v('ctb-address')||!v('ctb-type')||!amount){toast('Please fill in all required fields','e');return}
+  const data={
+    ctbId:ctbGenId(), name:v('ctb-name'), phone:v('ctb-phone'), address:v('ctb-address'),
+    photo:document.getElementById('ctb-photo-data').value,
+    branchId, branchName:getBranchName(branchId),
+    type:v('ctb-type'), amount, regDate:v('ctb-regdate'), status:v('ctb-status')||'Active',
+    nok:{ name:v('ctb-nok-name'), phone:v('ctb-nok-phone'), address:v('ctb-nok-addr'),
+      photo:document.getElementById('ctb-nok-photo-data').value },
+    payments:[], createdBy:currentSession.username||'admin',
+    createdByName:currentSession.name||currentSession.username,
+    createdAt:new Date().toISOString()
+  };
+  db.collection('contributions').add(data).then(ref=>{
+    const saved={id:ref.id,...data};
+    allContributions.unshift(saved);
+    logAudit('Contributor Registered', saved.name+' ('+saved.ctbId+') registered as a '+saved.type+' contributor at \u20a6'+fmt(saved.amount)+' per cycle.');
+    toast('Contributor registered! ID: '+data.ctbId,'s');
+    resetCTBForm();
+    showPage('contribution');
+  }).catch(ex=>toast('Error: '+ex.message,'e'));
+}
+function resetCTBForm(){
+  const form=document.getElementById('ctb-form');if(form)form.reset();
+  const pp=document.getElementById('ctb-photo-prev');if(pp)pp.src=CTB_BLANK;
+  const pd=document.getElementById('ctb-photo-data');if(pd)pd.value='';
+  const npp=document.getElementById('ctb-nok-photo-prev');if(npp)npp.src=CTB_BLANK;
+  const npd=document.getElementById('ctb-nok-photo-data');if(npd)npd.value='';
+  const rd=document.getElementById('ctb-regdate');if(rd)rd.value=td();
+  populateCTBBranchDropdowns();
+}
+function delCTB(id){
+  if(!confirm('Delete this contributor record? This cannot be undone.'))return;
+  const c=allContributions.find(x=>x.id===id);
+  db.collection('contributions').doc(id).delete().then(()=>{
+    allContributions=allContributions.filter(x=>x.id!==id);
+    if(c) logAudit('Contributor Deleted', c.name+' ('+c.ctbId+') record deleted.');
+    renderCTB(scopedCTB());renderCTBStats();renderCTBActivity();renderDashModules();
+    toast('Contributor deleted.','w');
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ----- Contributor profile -----
+function viewCTBProfile(id){
+  ctbCurId=id;
+  const c=allContributions.find(x=>x.id===id);if(!c)return;
+  const total=ctbGetPaidTotal(c), paidCount=ctbGetPaidCount(c), missed=ctbMissedCount(c),
+        next=ctbNextDue(c), last=ctbLastPaymentDate(c), periods=ctbPeriodsElapsed(c), outstanding=ctbOutstanding(c);
+  document.getElementById('ctb-pm-title').textContent='Contributor — '+c.name;
+  document.getElementById('ctb-pm-body').innerHTML=
+    '<div class="prof-hd" style="background:linear-gradient(135deg,#16a34a,#14532d)">'+
+    '<img class="prof-photo" src="'+(c.photo||CTB_BLANK)+'" alt="" style="border-color:#86efac"/>'+
+    '<div style="flex:1"><div style="font-size:1.05rem;font-weight:800">'+c.name+'</div>'+
+    '<div style="opacity:.75;font-size:.81rem">'+c.phone+' &bull; '+c.type+' Contributor</div>'+
+    '<div style="opacity:.65;font-size:.73rem;margin-top:3px">&#127970; '+getBranchName(c.branchId)+'</div>'+
+    '<div style="margin-top:6px;display:flex;gap:8px;flex-wrap:wrap">'+ctbBdg(c.status)+
+    '<span style="font-size:.72rem;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:10px">'+c.ctbId+'</span>'+
+    (ctbIsOverdue(c)?'<span class="badge b-ctb-overdue">OVERDUE</span>':'')+
+    '</div></div></div>'+
+    '<div class="repay-sum">'+
+    '<div class="rs"><div class="rv">&#8358;'+fmt(c.amount)+'</div><div class="rl">'+c.type+' Amount</div></div>'+
+    '<div class="rs"><div class="rv" style="color:#16a34a">&#8358;'+fmt(total)+'</div><div class="rl">Total Saved</div></div>'+
+    '<div class="rs"><div class="rv">'+paidCount+'</div><div class="rl">Payments Made</div></div>'+
+    '<div class="rs"><div class="rv" style="color:'+(missed>0?'var(--red)':'var(--green)')+'">'+missed+'</div><div class="rl">Missed Payments</div></div>'+
+    '<div class="rs"><div class="rv" style="color:'+(outstanding>0?'var(--red)':'var(--green)')+'">&#8358;'+fmt(outstanding)+'</div><div class="rl">Outstanding Balance</div></div>'+
+    '</div>'+
+    '<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px">Registered: <strong>'+(c.regDate||'--')+'</strong> &bull; Last Payment: <strong>'+(last||'--')+'</strong> &bull; Next Due: <strong>'+(next||'--')+'</strong> &bull; Periods Elapsed: <strong>'+periods+'</strong></div>'+
+    '<div class="sh">&#128100; Contributor Details <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openCTBEdit(\''+c.id+'\')">&#9998; Edit</button></div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Full Name</label><p>'+c.name+'</p></div>'+
+    '<div class="iitem"><label>Phone</label><p>'+c.phone+'</p></div>'+
+    '<div class="iitem"><label>Address</label><p>'+(c.address||'--')+'</p></div>'+
+    '<div class="iitem"><label>Contribution Type</label><p>'+c.type+'</p></div>'+
+    '<div class="iitem"><label>Contribution Amount</label><p>&#8358;'+fmt(c.amount)+'</p></div>'+
+    '<div class="iitem"><label>Registration Date</label><p>'+(c.regDate||'--')+'</p></div>'+
+    '<div class="iitem"><label>Branch</label><p>'+getBranchName(c.branchId)+'</p></div>'+
+    '<div class="iitem"><label>Status</label><p>'+c.status+'</p></div>'+
+    '</div>'+
+    '<div class="sh">&#128101; Next of Kin Details</div>'+
+    '<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">'+
+    '<img src="'+((c.nok&&c.nok.photo)||CTB_BLANK)+'" alt="" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:2px solid var(--border)"/>'+
+    '<div style="font-size:.78rem;color:var(--muted)">Next of Kin Photo</div>'+
+    '</div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Full Name</label><p>'+((c.nok&&c.nok.name)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Phone</label><p>'+((c.nok&&c.nok.phone)||'--')+'</p></div>'+
+    '<div class="iitem"><label>Address</label><p>'+((c.nok&&c.nok.address)||'--')+'</p></div>'+
+    '</div>'+
+    '<div class="sh">Contribution History ('+(c.payments||[]).length+')</div>'+
+    ((c.payments||[]).length===0
+      ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No contributions recorded yet.</p>'
+      :'<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Ref</th><th>Amount</th><th>Date</th><th>Note</th><th>By</th></tr></thead><tbody>'+
+      (c.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.note||'--')+'</td><td>'+(p.recordedBy||'--')+'</td></tr>').join('')+
+      '</tbody></table></div>')+
+    '<div class="btn-row no-print">'+
+    '<button class="btn btn-navy" style="background:#16a34a" onclick="openCTBPayModal(\''+c.id+'\');closeModal(\'ctb-profile-modal\')">&#128176; Record Contribution</button>'+
+    '<button class="btn btn-out btn-sm" onclick="printCTBStatement()">&#128424; Print Statement</button>'+
+    '</div>';
+  showModal('ctb-profile-modal');
+}
+
+// ----- Edit contributor / status change -----
+function openCTBEdit(id){
+  const c=allContributions.find(x=>x.id===id);if(!c)return;
+  ctbCurId=id;
+  document.getElementById('ctbe-name').value=c.name||'';
+  document.getElementById('ctbe-phone').value=c.phone||'';
+  document.getElementById('ctbe-address').value=c.address||'';
+  document.getElementById('ctbe-type').value=c.type||'Daily';
+  document.getElementById('ctbe-amount').value=c.amount||'';
+  document.getElementById('ctbe-status').value=c.status||'Active';
+  showModal('ctb-edit-modal');
+}
+function saveCTBEdit(){
+  const name=v('ctbe-name'), phone=v('ctbe-phone'), address=v('ctbe-address'),
+        type=v('ctbe-type'), amount=parseFloat(v('ctbe-amount'))||0, status=v('ctbe-status');
+  if(!name||!phone||!address||!amount){toast('Please fill in all fields','e');return}
+  const c=allContributions.find(x=>x.id===ctbCurId);if(!c)return;
+  const changes=[];
+  if(c.status!==status) changes.push('status changed from '+c.status+' to '+status);
+  if(c.type!==type) changes.push('type changed from '+c.type+' to '+type);
+  if(parseFloat(c.amount)!==amount) changes.push('amount changed from \u20a6'+fmt(c.amount)+' to \u20a6'+fmt(amount));
+  db.collection('contributions').doc(ctbCurId).set({name,phone,address,type,amount,status},{merge:true}).then(()=>{
+    Object.assign(c,{name,phone,address,type,amount,status});
+    closeModal('ctb-edit-modal');
+    logAudit(changes.some(x=>x.startsWith('status'))?'Contributor Status Changed':'Contributor Profile Updated',
+      c.name+' ('+c.ctbId+') updated'+(changes.length?': '+changes.join('; '):'.'));
+    toast('Contributor record updated!','s');
+    renderCTB(scopedCTB());renderCTBStats();renderDashModules();
+    viewCTBProfile(ctbCurId);
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ----- Record contribution payment -----
+function openCTBPayModal(id){
+  ctbCurId=id;
+  const c=allContributions.find(x=>x.id===id);if(!c)return;
+  if(currentSession.role==='staff'&&c.branchId!==currentSession.branchId){toast('Access denied','e');return}
+  document.getElementById('ctb-pay-title').textContent='Record Contribution — '+c.name;
+  document.getElementById('ctb-pay-body').innerHTML=
+    '<div style="background:var(--bg);border-radius:8px;padding:12px;margin-bottom:14px">'+
+    '<div style="font-weight:700;margin-bottom:4px">'+c.name+' &bull; '+c.ctbId+'</div>'+
+    '<div style="font-size:.78rem;color:var(--muted)">'+c.type+' &bull; &#8358;'+fmt(c.amount)+' per cycle &bull; Total Saved: <strong style="color:#16a34a">&#8358;'+fmt(ctbGetPaidTotal(c))+'</strong></div></div>'+
+    '<div class="sh" style="margin-top:4px">Record Contribution Received</div>'+
+    '<div class="form-grid">'+
+    '<div class="fg"><label>Amount Received (&#8358;) *</label><input type="number" id="ctb-pay-amt" value="'+c.amount+'"/></div>'+
+    '<div class="fg"><label>Payment Date *</label><input type="date" id="ctb-pay-date" value="'+td()+'"/></div>'+
+    '<div class="fg"><label>Remarks / Notes</label><input id="ctb-pay-note" placeholder="Optional remarks"/></div>'+
+    '</div>'+
+    '<button class="btn btn-navy" style="background:#16a34a;width:100%;justify-content:center;padding:11px;margin-top:12px" onclick="saveCTBPayment()">Save Contribution</button>'+
+    '<div class="sh" style="margin-top:8px">History ('+(c.payments||[]).length+')</div>'+
+    ((c.payments||[]).length===0?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:10px">No contributions recorded yet.</p>':
+    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Ref</th><th>Amount</th><th>Date</th><th>Del</th></tr></thead><tbody>'+
+    [...(c.payments||[])].reverse().map((p,ri)=>{const idx=(c.payments.length-1)-ri;return '<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td><button class="btn btn-red btn-sm" onclick="delCTBPayment('+idx+')">&#128465;</button></td></tr>';}).join('')+
+    '</tbody></table></div>');
+  showModal('ctb-pay-modal');
+}
+function saveCTBPayment(){
+  const amt=parseFloat(v('ctb-pay-amt')), date=v('ctb-pay-date');
+  if(!amt||amt<=0){toast('Enter a valid amount','e');return}
+  if(!date){toast('Select the payment date','e');return}
+  const c=allContributions.find(x=>x.id===ctbCurId);if(!c)return;
+  const ref=ctbGenRef();
+  const payments=[...(c.payments||[]),{amount:amt,date,note:v('ctb-pay-note'),ref,recordedBy:currentSession.name||currentSession.username,recordedAt:new Date().toISOString()}];
+  db.collection('contributions').doc(ctbCurId).set({payments},{merge:true}).then(()=>{
+    c.payments=payments;
+    logAudit('Contribution Recorded', '\u20a6'+fmt(amt)+' from '+c.name+' ('+c.ctbId+') on '+date+' &bull; Ref: '+ref);
+    renderCTB(scopedCTB());renderCTBStats();renderCTBActivity();renderDashModules();
+    toast('Contribution saved! Ref: '+ref,'s');
+    openCTBPayModal(ctbCurId);
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+function delCTBPayment(idx){
+  if(!confirm('Delete this contribution entry?'))return;
+  const c=allContributions.find(x=>x.id===ctbCurId);if(!c)return;
+  const removed=c.payments[idx];
+  const payments=(c.payments||[]).filter((_,j)=>j!==idx);
+  db.collection('contributions').doc(ctbCurId).set({payments},{merge:true}).then(()=>{
+    c.payments=payments;
+    logAudit('Contribution Entry Deleted', 'Deleted \u20a6'+fmt(removed?removed.amount:0)+' entry ('+(removed?removed.ref:'--')+') for '+c.name+' ('+c.ctbId+')');
+    renderCTB(scopedCTB());renderCTBStats();renderCTBActivity();
+    toast('Contribution entry deleted.','w');
+    openCTBPayModal(ctbCurId);
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ----- Individual contributor statement (print/PDF) -----
+function printCTBStatement(){
+  const c=allContributions.find(x=>x.id===ctbCurId);if(!c)return;
+  const total=ctbGetPaidTotal(c), paidCount=ctbGetPaidCount(c), missed=ctbMissedCount(c), outstanding=ctbOutstanding(c);
+  const now=new Date().toLocaleDateString('en-NG',{day:'2-digit',month:'long',year:'numeric'});
+  const win=window.open('','_blank','width=800,height=900');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>Contribution Statement</title>
+  <style>body{font-family:Arial,sans-serif;padding:32px;color:#1e293b;max-width:700px;margin:0 auto}
+  h1{color:#16a34a;font-size:1.4rem;margin-bottom:4px}.brand{font-size:1.6rem;font-weight:900;color:#0f2342}
+  .brand span{color:#c8973a}.section{margin-top:20px;border-top:1px solid #e2e8f0;padding-top:12px}
+  .section h3{font-size:.85rem;text-transform:uppercase;color:#16a34a;font-weight:800;letter-spacing:.08em;margin-bottom:8px}
+  table{width:100%;border-collapse:collapse;font-size:.85rem;margin-top:8px}
+  td{padding:7px 10px;border-bottom:1px solid #f1f5f9}td:first-child{font-weight:700;color:#64748b;width:40%}
+  .summary-box{background:#f0fdf4;border:2px solid #16a34a;border-radius:8px;padding:14px;margin-top:16px;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:10px;text-align:center}
+  .sv{font-size:1rem;font-weight:800;color:#0f2342}.sl{font-size:.63rem;text-transform:uppercase;color:#64748b;margin-top:2px}
+  .sig-row{display:grid;grid-template-columns:1fr 1fr;gap:40px;margin-top:40px}
+  .sig-line{border-top:2px solid #1e293b;padding-top:6px;font-size:.78rem;color:#64748b}
+  @media print{body{padding:16px}}
+  </style></head><body>
+  <div class="brand">Zmo<span>nie</span> Pro</div>
+  <h1>Contributor Statement</h1>
+  <p style="font-size:.8rem;color:#64748b">Statement Date: ${now} &bull; Ref: ${c.ctbId}</p>
+  <div class="section"><h3>Contributor Information</h3>
+  <table><tr><td>Full Name</td><td>${c.name}</td></tr>
+  <tr><td>Phone</td><td>${c.phone}</td></tr>
+  <tr><td>Address</td><td>${c.address||'--'}</td></tr>
+  <tr><td>Branch</td><td>${getBranchName(c.branchId)}</td></tr></table></div>
+  <div class="section"><h3>Next of Kin</h3>
+  <table><tr><td>Full Name</td><td>${(c.nok&&c.nok.name)||'--'}</td></tr>
+  <tr><td>Phone</td><td>${(c.nok&&c.nok.phone)||'--'}</td></tr>
+  <tr><td>Address</td><td>${(c.nok&&c.nok.address)||'--'}</td></tr></table></div>
+  <div class="section"><h3>Contribution Account</h3>
+  <table><tr><td>Contribution Type</td><td>${c.type}</td></tr>
+  <tr><td>Contribution Amount</td><td>&#8358;${fmt(c.amount)}</td></tr>
+  <tr><td>Registration Date</td><td>${c.regDate||'--'}</td></tr>
+  <tr><td>Status</td><td>${c.status}</td></tr>
+  <tr><td>Payments Made</td><td>${paidCount}</td></tr>
+  <tr><td>Missed Payments</td><td>${missed}</td></tr></table></div>
+  <div class="summary-box">
+  <div><div class="sv" style="color:#16a34a">&#8358;${fmt(total)}</div><div class="sl">Total Saved</div></div>
+  <div><div class="sv">${paidCount}</div><div class="sl">Payments Made</div></div>
+  <div><div class="sv" style="color:#dc2626">${missed}</div><div class="sl">Missed</div></div>
+  <div><div class="sv" style="color:#dc2626">&#8358;${fmt(outstanding)}</div><div class="sl">Outstanding</div></div></div>
+  <div class="section"><h3>Contribution History</h3>
+  ${(c.payments||[]).length===0?'<p style="color:#64748b;font-size:.82rem">No contributions recorded.</p>':
+  '<table><tr style="background:#f0fdf4"><td style="font-weight:800;padding:7px">#</td><td style="font-weight:800;padding:7px">Ref</td><td style="font-weight:800;padding:7px">Date</td><td style="font-weight:800;padding:7px">Amount</td></tr>'+
+  (c.payments||[]).map((p,idx)=>'<tr><td style="padding:6px 8px">'+(idx+1)+'</td><td style="padding:6px 8px">'+(p.ref||'--')+'</td><td style="padding:6px 8px">'+p.date+'</td><td style="padding:6px 8px">&#8358;'+fmt(p.amount)+'</td></tr>').join('')+
+  '</table>'}</div>
+  <div class="sig-row">
+  <div><div style="height:60px"></div><div class="sig-line">Contributor Signature &bull; Date: ___________</div></div>
+  <div><div style="height:60px"></div><div class="sig-line">Authorised Officer &bull; Date: ___________</div></div>
+  </div>
+  <script>setTimeout(()=>window.print(),400)<\/script>
+  </body></html>`);
+  win.document.close();
+}
+
+// ----- Contribution Reports (Daily/Weekly/Monthly Collections, Outstanding, Missed, Summary) -----
+function generateCTBReport(){
+  const type=v('ctbr-type'), from=v('ctbr-from'), to=v('ctbr-to')||td();
+  const list=scopedCTB();
+  let rows=[], headers=[], title='';
+  if(type==='daily'||type==='weekly'||type==='monthly'){
+    const typeMap={daily:'Daily',weekly:'Weekly',monthly:'Monthly'};
+    const wantType=typeMap[type];
+    title=wantType+' Collections Report'+(from?(' ('+from+' to '+to+')'):'');
+    headers=['Ref','Contributor','Contributor ID','Amount','Date','Recorded By'];
+    list.filter(c=>c.type===wantType).forEach(c=>{
+      (c.payments||[]).forEach(p=>{
+        if(from&&p.date<from) return;
+        if(to&&p.date>to) return;
+        rows.push({Ref:p.ref||'--',Contributor:c.name,'Contributor ID':c.ctbId,Amount:p.amount,Date:p.date,'Recorded By':p.recordedBy||'--'});
+      });
+    });
+  } else if(type==='outstanding'){
+    title='Outstanding Contributions Report';
+    headers=['Contributor','Contributor ID','Type','Amount/Cycle','Total Saved','Outstanding Balance','Status'];
+    list.filter(c=>ctbOutstanding(c)>0).forEach(c=>{
+      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Amount/Cycle':c.amount,'Total Saved':ctbGetPaidTotal(c),'Outstanding Balance':ctbOutstanding(c),Status:c.status});
+    });
+  } else if(type==='missed'){
+    title='Missed Contributions Report';
+    headers=['Contributor','Contributor ID','Type','Missed Payments','Next Due Date','Status'];
+    list.filter(c=>ctbMissedCount(c)>0).forEach(c=>{
+      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Missed Payments':ctbMissedCount(c),'Next Due Date':ctbNextDue(c),Status:c.status});
+    });
+  } else {
+    title='Total Contributions Received — All Contributors';
+    headers=['Contributor','Contributor ID','Type','Amount/Cycle','Payments Made','Total Contributed','Outstanding','Status'];
+    list.forEach(c=>{
+      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Amount/Cycle':c.amount,'Payments Made':ctbGetPaidCount(c),'Total Contributed':ctbGetPaidTotal(c),Outstanding:ctbOutstanding(c),Status:c.status});
+    });
+  }
+  ctbLastReport={title,headers,rows};
+  const totalAmt=rows.reduce((s,r)=>{
+    const val=r.Amount!==undefined?r.Amount:(r['Total Contributed']!==undefined?r['Total Contributed']:0);
+    return s+(parseFloat(val)||0);
+  },0);
+  document.getElementById('ctb-report-meta').innerHTML='<div style="background:var(--bg);border-radius:8px;padding:12px"><strong>'+title+'</strong><br/><span style="font-size:.8rem;color:var(--muted)">'+rows.length+' record(s)'+(totalAmt?' &bull; Total: &#8358;'+fmt(totalAmt):'')+'</span></div>';
+  document.getElementById('ctb-report-thead').innerHTML='<tr>'+headers.map(h=>'<th>'+h+'</th>').join('')+'</tr>';
+  document.getElementById('ctb-report-tbody').innerHTML=rows.length?rows.map(r=>'<tr>'+headers.map(h=>{
+    let val=r[h];
+    if(typeof val==='number'&&(h.toLowerCase().includes('amount')||h.toLowerCase().includes('balance')||h.toLowerCase().includes('contributed'))) val='&#8358;'+fmt(val);
+    return '<td>'+(val===undefined||val===null||val===''?'--':val)+'</td>';
+  }).join('')+'</tr>').join(''):'<tr><td colspan="'+headers.length+'" style="text-align:center;color:var(--muted);padding:16px">No records found.</td></tr>';
+  document.getElementById('ctb-report-export-row').style.display=rows.length?'flex':'none';
+  logAudit('Contribution Report Generated', title+' generated with '+rows.length+' record(s).');
+}
+function exportCTBReportPDF(){
+  if(!ctbLastReport||!ctbLastReport.rows.length){toast('Generate a report first','e');return}
+  const {title,headers,rows}=ctbLastReport;
+  const now=new Date().toLocaleDateString('en-NG',{day:'2-digit',month:'long',year:'numeric'});
+  const win=window.open('','_blank','width=900,height=900');
+  win.document.write(`<!DOCTYPE html><html><head><meta charset="UTF-8"/><title>${title}</title>
+  <style>body{font-family:Arial,sans-serif;padding:28px;color:#1e293b}
+  h1{color:#16a34a;font-size:1.2rem;margin-bottom:2px}.brand{font-size:1.4rem;font-weight:900;color:#0f2342}
+  .brand span{color:#c8973a}
+  table{width:100%;border-collapse:collapse;font-size:.78rem;margin-top:14px}
+  th{background:#f0fdf4;text-align:left;padding:7px 8px;border-bottom:2px solid #16a34a;font-size:.68rem;text-transform:uppercase}
+  td{padding:6px 8px;border-bottom:1px solid #f1f5f9}
+  @media print{body{padding:14px}}
+  </style></head><body>
+  <div class="brand">Zmo<span>nie</span> Pro</div>
+  <h1>${title}</h1>
+  <p style="font-size:.78rem;color:#64748b">Generated: ${now} &bull; ${rows.length} record(s)</p>
+  <table><thead><tr>${headers.map(h=>'<th>'+h+'</th>').join('')}</tr></thead><tbody>
+  ${rows.map(r=>'<tr>'+headers.map(h=>'<td>'+((r[h]===undefined||r[h]===null||r[h]==='')?'--':r[h])+'</td>').join('')+'</tr>').join('')}
+  </tbody></table>
+  <script>setTimeout(()=>window.print(),400)<\/script>
+  </body></html>`);
+  win.document.close();
+}
+function exportCTBReportExcel(){
+  if(!ctbLastReport||!ctbLastReport.rows.length){toast('Generate a report first','e');return}
+  if(typeof XLSX==='undefined'){toast('Excel library not loaded','e');return}
+  const ws=XLSX.utils.json_to_sheet(ctbLastReport.rows);
+  const wb=XLSX.utils.book_new();XLSX.utils.book_append_sheet(wb,ws,'Report');
+  XLSX.writeFile(wb,'Contribution_'+ctbLastReport.title.replace(/[^a-z0-9]+/gi,'_')+'_'+td()+'.xlsx');
+  toast('Excel report exported!','s');
+}
+function exportCTBReportCSV(){
+  if(!ctbLastReport||!ctbLastReport.rows.length){toast('Generate a report first','e');return}
+  downloadCSV('Contribution_'+ctbLastReport.title.replace(/[^a-z0-9]+/gi,'_')+'_'+td()+'.csv', ctbLastReport.headers, ctbLastReport.rows);
+  toast('CSV report exported!','s');
+}
+function downloadCSV(filename,headers,rows){
+  const esc=val=>{const s=(val===undefined||val===null)?'':String(val);return '"'+s.replace(/"/g,'""')+'"';};
+  let csv=headers.map(esc).join(',')+'\n';
+  csv+=rows.map(r=>headers.map(h=>esc(r[h])).join(',')).join('\n');
+  const blob=new Blob([csv],{type:'text/csv;charset=utf-8;'});
+  const link=document.createElement('a');
+  link.href=URL.createObjectURL(blob);
+  link.download=filename;
+  document.body.appendChild(link);link.click();document.body.removeChild(link);
+  URL.revokeObjectURL(link.href);
+}
+
+// =====================================================
+// ===== STAFF AUDIT LOG =====
+// Every contributor registration, profile update, contribution entry,
+// contribution edit/delete and status change is recorded here with
+// the staff name, action performed, date and time.
+// =====================================================
+function logAudit(action,details){
+  const entry={
+    staff: currentSession.name||currentSession.username||'Unknown',
+    username: currentSession.username||'',
+    role: currentSession.role||'',
+    action, details: details||'',
+    date: td(),
+    time: new Date().toLocaleTimeString('en-NG',{hour:'2-digit',minute:'2-digit',second:'2-digit'}),
+    ts: new Date().toISOString()
+  };
+  db.collection('auditlogs').add(entry).then(ref=>{
+    allAuditLogs.unshift({id:ref.id,...entry});
+    const pg=document.getElementById('page-auditlog');
+    if(pg&&pg.classList.contains('active')) renderAuditLog();
+  }).catch(()=>{ /* never block the main action if audit logging fails */ });
+}
+function renderAuditLog(){
+  const tb=document.getElementById('al-tbody');if(!tb)return;
+  const q=(document.getElementById('al-srch')?v('al-srch'):'').toLowerCase();
+  let list=[...allAuditLogs].sort((a,b)=>new Date(b.ts)-new Date(a.ts));
+  if(q) list=list.filter(l=>(l.staff||'').toLowerCase().includes(q)||(l.action||'').toLowerCase().includes(q)||(l.details||'').toLowerCase().includes(q));
+  tb.innerHTML=list.slice(0,300).map(l=>'<tr><td>'+l.date+'</td><td>'+l.time+'</td><td>'+l.staff+'</td><td>'+(l.role||'--')+'</td><td>'+l.action+'</td><td style="font-size:.78rem;color:var(--muted)">'+(l.details||'--')+'</td></tr>').join('')||'<tr><td colspan="6" style="text-align:center;color:var(--muted);padding:16px">No audit records yet.</td></tr>';
+}
+
 </script>
 
 <!-- FLOATING ACTION BUTTON -->
@@ -4870,6 +5602,7 @@ function exportFDExcel(){
   <button class="fab-item" onclick="showPage('notifications');toggleFab()">&#128276; Alerts</button>
   <button class="fab-item" onclick="showPage('new-easybuy');toggleFab()">&#128722; New EasyBuy</button>
   <button class="fab-item" onclick="showPage('new-investment');toggleFab()">&#128200; New Investment</button>
+  <button class="fab-item" onclick="showPage('new-contribution');toggleFab()">&#128021; New Contribution</button>
   <button class="fab-item" onclick="exportExcel();toggleFab()">&#128190; Export Excel</button>
 </div>
 <button id="scroll-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Back to top">&#8679;</button>
