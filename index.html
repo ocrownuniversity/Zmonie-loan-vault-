@@ -1649,6 +1649,27 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
   </div>
 </div>
 
+<!-- MARK CONTRIBUTION FULLY PAID / PAYOUT MODAL -->
+<div class="overlay" id="ctb-payout-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="mhead">
+      <h3>&#9989; Mark Fully Paid</h3>
+      <button class="mclose" onclick="closeModal('ctb-payout-modal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <p id="ctb-payout-info" style="font-size:.85rem;color:var(--muted);margin-bottom:12px"></p>
+      <div class="form-grid">
+        <div class="fg"><label>How was the contributor paid? *</label>
+          <select id="ctb-payout-method"><option value="Cash">Cash</option><option value="Transfer">Transfer</option></select>
+        </div>
+        <div class="fg"><label>Payout Note (optional)</label><input id="ctb-payout-note" placeholder="Optional remarks"/></div>
+      </div>
+      <button class="btn btn-navy" style="background:#16a34a;width:100%;justify-content:center;padding:11px;margin-top:12px" onclick="confirmCTBComplete()">&#128190; Confirm & Mark Fully Paid</button>
+    </div>
+  </div>
+</div>
+
+
 <!-- FD PROFILE MODAL -->
 <div class="overlay" id="fd-profile-modal">
   <div class="modal" style="max-width:740px">
@@ -5090,7 +5111,7 @@ function exportFDExcel(){
 // =====================================================
 // ===== STAFF CONTRIBUTION MANAGEMENT SYSTEM =====
 // =====================================================
-let allContributions=[], allAuditLogs=[], ctbCurId=null, ctbLastReport=null;
+let allContributions=[], allAuditLogs=[], ctbCurId=null, ctbLastReport=null, ctbCompleteId=null;
 const CTB_BLANK="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
 
 function scopedCTB(){
@@ -5310,7 +5331,8 @@ function viewCTBProfile(id){
     '<div class="rs"><div class="rv" style="color:'+(missed>0?'var(--red)':'var(--green)')+'">'+missed+'</div><div class="rl">Missed Payments</div></div>'+
     '<div class="rs"><div class="rv" style="color:'+(outstanding>0?'var(--red)':'var(--green)')+'">&#8358;'+fmt(outstanding)+'</div><div class="rl">Outstanding Balance</div></div>'+
     '</div>'+
-    '<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px">Registered: <strong>'+(c.regDate||'--')+'</strong> &bull; Registered By: <strong>'+(c.createdByName||c.createdBy||'--')+'</strong> &bull; Last Payment: <strong>'+(last||'--')+'</strong> &bull; Next Due: <strong>'+(next||'--')+'</strong> &bull; Periods Elapsed: <strong>'+periods+'</strong></div>'+
+    '<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px">Registered: <strong>'+(c.regDate||'--')+'</strong> &bull; Registered By: <strong>'+(c.createdByName||c.createdBy||'--')+'</strong> &bull; Last Payment: <strong>'+(last||'--')+'</strong> &bull; Next Due: <strong>'+(next||'--')+'</strong> &bull; Periods Elapsed: <strong>'+periods+'</strong>'+
+    (c.status==='Completed'&&c.payoutMethod?' &bull; Paid Out By: <strong>'+(c.payoutBy||'--')+'</strong> via <strong>'+c.payoutMethod+'</strong> on <strong>'+(c.payoutAt?c.payoutAt.slice(0,10):'--')+'</strong>':'')+'</div>'+
     '<div class="sh">&#128100; Contributor Details <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openCTBEdit(\''+c.id+'\')">&#9998; Edit</button></div>'+
     '<div class="info-grid" style="margin-top:0">'+
     '<div class="iitem"><label>Full Name</label><p>'+c.name+'</p></div>'+
@@ -5401,7 +5423,7 @@ function openCTBPayModal(id){
     '</div>'+
     (c.status!=='Completed'?'<button class="btn btn-navy" style="background:#16a34a;width:100%;justify-content:center;padding:11px;margin-top:12px" onclick="saveCTBPayment()">Save Contribution</button>':'')+
     '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
-    (c.status!=='Completed'?'<button class="btn btn-out btn-sm" onclick="markCTBComplete(\''+c.id+'\')">&#9989; Mark Fully Paid</button>':'<span class="badge b-ctb-completed">FULLY PAID / COMPLETED</span>')+
+    (c.status!=='Completed'?'<button class="btn btn-out btn-sm" onclick="markCTBComplete(\''+c.id+'\')">&#9989; Mark Fully Paid</button>':'<span class="badge b-ctb-completed">FULLY PAID &mdash; Paid Out via '+(c.payoutMethod||'--')+'</span>')+
     '<button class="btn btn-out btn-sm" onclick="startNewCTBCycle(\''+c.id+'\')">&#128257; Start New Contribution</button>'+
     '</div>'+
     '<div class="sh" style="margin-top:8px">History ('+(c.payments||[]).length+')</div>'+
@@ -5444,14 +5466,24 @@ function delCTBPayment(idx){
 function markCTBComplete(id){
   const c=allContributions.find(x=>x.id===id);if(!c)return;
   if(c.status==='Completed'){toast('Already marked as fully paid.','w');return}
-  if(!confirm('Mark '+c.name+' as FULLY PAID and close this contribution cycle?'))return;
-  db.collection('contributions').doc(id).set({status:'Completed',completedAt:new Date().toISOString()},{merge:true}).then(()=>{
-    c.status='Completed';c.completedAt=new Date().toISOString();
-    logAudit('Contribution Marked Fully Paid', c.name+' ('+c.ctbId+') contribution marked as fully paid/completed by '+(currentSession.name||currentSession.username)+'.');
+  ctbCompleteId=id;
+  document.getElementById('ctb-payout-info').innerHTML='Mark <strong>'+c.name+'</strong>\'s contribution as fully paid. Total saved: <strong style="color:#16a34a">&#8358;'+fmt(ctbGetPaidTotal(c))+'</strong>. Select how this amount was paid out to the contributor.';
+  document.getElementById('ctb-payout-method').value='Cash';
+  document.getElementById('ctb-payout-note').value='';
+  showModal('ctb-payout-modal');
+}
+function confirmCTBComplete(){
+  const c=allContributions.find(x=>x.id===ctbCompleteId);if(!c)return;
+  const payoutMethod=v('ctb-payout-method')||'Cash', payoutNote=v('ctb-payout-note');
+  const payoutBy=currentSession.name||currentSession.username, payoutAt=new Date().toISOString();
+  db.collection('contributions').doc(c.id).set({status:'Completed',completedAt:payoutAt,payoutMethod,payoutNote,payoutBy,payoutAt},{merge:true}).then(()=>{
+    Object.assign(c,{status:'Completed',completedAt:payoutAt,payoutMethod,payoutNote,payoutBy,payoutAt});
+    logAudit('Contribution Marked Fully Paid', c.name+' ('+c.ctbId+') contribution marked as fully paid/completed. Paid out via '+payoutMethod+' by '+payoutBy+'.');
+    closeModal('ctb-payout-modal');
     renderCTB(scopedCTB());renderCTBStats();renderCTBActivity();renderDashModules();
-    toast(c.name+' contribution marked fully paid!','s');
-    if(document.getElementById('ctb-profile-modal').classList.contains('show')) viewCTBProfile(id);
-    if(document.getElementById('ctb-pay-modal').classList.contains('show')) openCTBPayModal(id);
+    toast(c.name+' contribution marked fully paid via '+payoutMethod+'!','s');
+    if(document.getElementById('ctb-profile-modal').classList.contains('show')) viewCTBProfile(c.id);
+    if(document.getElementById('ctb-pay-modal').classList.contains('show')) openCTBPayModal(c.id);
   }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
@@ -5526,7 +5558,9 @@ function printCTBStatement(){
   <tr><td>Registered By</td><td>${c.createdByName||c.createdBy||'--'}</td></tr>
   <tr><td>Status</td><td>${c.status}</td></tr>
   <tr><td>Payments Made</td><td>${paidCount}</td></tr>
-  <tr><td>Missed Payments</td><td>${missed}</td></tr></table></div>
+  <tr><td>Missed Payments</td><td>${missed}</td></tr>
+  ${c.status==='Completed'&&c.payoutMethod?'<tr><td>Paid Out Via</td><td>'+c.payoutMethod+'</td></tr><tr><td>Paid Out By</td><td>'+(c.payoutBy||'--')+'</td></tr><tr><td>Payout Date</td><td>'+(c.payoutAt?c.payoutAt.slice(0,10):'--')+'</td></tr>'+(c.payoutNote?'<tr><td>Payout Note</td><td>'+c.payoutNote+'</td></tr>':''):''}
+  </table></div>
   <div class="summary-box">
   <div><div class="sv" style="color:#16a34a">&#8358;${fmt(total)}</div><div class="sl">Total Saved</div></div>
   <div><div class="sv">${paidCount}</div><div class="sl">Payments Made</div></div>
