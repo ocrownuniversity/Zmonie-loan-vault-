@@ -129,6 +129,10 @@ tbody tr:hover{background:#f8fafc}
 .photo-up{border:2px dashed var(--border);border-radius:10px;padding:14px;text-align:center;cursor:pointer;transition:.2s;background:var(--bg)}
 .photo-up:hover{border-color:var(--navy2);background:#f0f4ff}
 .photo-up img{width:68px;height:68px;object-fit:cover;border-radius:8px;margin-bottom:6px;border:2px solid var(--border)}
+#ctb-photo-prev,#ctb-nok-photo-prev{width:130px;height:130px}
+.ctb-zoom-btn{position:absolute;top:6px;right:6px;background:rgba(15,35,66,.78);color:#fff;border:none;border-radius:7px;width:28px;height:28px;font-size:.9rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:2}
+.ctb-pm-photo-wrap{position:relative;flex-shrink:0}
+.ctb-pm-photo-wrap .ctb-zoom-btn{background:rgba(0,0,0,.5)}
 .photo-up p{font-size:.72rem;color:var(--muted)}
 .tabs{display:flex;gap:2px;border-bottom:2px solid var(--border);margin-bottom:16px;overflow-x:auto}
 .tabbtn{background:none;border:none;padding:8px 14px;font-size:.78rem;font-weight:700;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;transition:.2s;white-space:nowrap;font-family:inherit}
@@ -690,7 +694,8 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
           <div class="sh">&#128247; Contributor Photo</div>
           <div class="form-grid">
             <div class="fg"><label>Passport Photograph</label>
-              <div class="photo-up" onclick="document.getElementById('ctb-photo-file').click()">
+              <div class="photo-up" onclick="document.getElementById('ctb-photo-file').click()" style="position:relative">
+                <button type="button" class="ctb-zoom-btn" onclick="event.stopPropagation();zoomCTBPhotoEl('ctb-photo-prev','Contributor Photo')">&#128269;</button>
                 <img id="ctb-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
                 <p>Click to upload photo</p>
               </div>
@@ -711,7 +716,8 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
             <div class="fg"><label>Phone Number *</label><input required id="ctb-nok-phone" placeholder="08XXXXXXXXX"/></div>
             <div class="fg"><label>Residential Address</label><input id="ctb-nok-addr" placeholder="Next of kin address"/></div>
             <div class="fg"><label>Next of Kin Photo</label>
-              <div class="photo-up" onclick="document.getElementById('ctb-nok-photo-file').click()">
+              <div class="photo-up" onclick="document.getElementById('ctb-nok-photo-file').click()" style="position:relative">
+                <button type="button" class="ctb-zoom-btn" onclick="event.stopPropagation();zoomCTBPhotoEl('ctb-nok-photo-prev','Next of Kin Photo')">&#128269;</button>
                 <img id="ctb-nok-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
                 <p>Click to upload photo</p>
               </div>
@@ -1626,6 +1632,19 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
         <div class="fg"><label>Status *</label><select id="ctbe-status"><option value="Active">Active</option><option value="Suspended">Suspended</option><option value="Completed">Completed</option></select></div>
       </div>
       <button class="btn btn-navy" style="background:#16a34a;width:100%;justify-content:center;padding:11px;margin-top:12px" onclick="saveCTBEdit()">&#128190; Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- CONTRIBUTOR PHOTO ZOOM MODAL -->
+<div class="overlay" id="ctb-zoom-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="mhead">
+      <h3 id="ctb-zoom-title">Photo</h3>
+      <button class="mclose" onclick="closeModal('ctb-zoom-modal')">&times;</button>
+    </div>
+    <div class="mbody" style="text-align:center">
+      <img id="ctb-zoom-img" src="" alt="" style="max-width:100%;max-height:70vh;border-radius:10px;object-fit:contain"/>
     </div>
   </div>
 </div>
@@ -5275,7 +5294,8 @@ function viewCTBProfile(id){
   document.getElementById('ctb-pm-title').textContent='Contributor — '+c.name;
   document.getElementById('ctb-pm-body').innerHTML=
     '<div class="prof-hd" style="background:linear-gradient(135deg,#16a34a,#14532d)">'+
-    '<img class="prof-photo" src="'+(c.photo||CTB_BLANK)+'" alt="" style="border-color:#86efac"/>'+
+    '<div class="ctb-pm-photo-wrap"><button type="button" class="ctb-zoom-btn" onclick="zoomCTBPhotoEl(\'ctb-pm-photo\',\'Contributor Photo\')">&#128269;</button>'+
+    '<img id="ctb-pm-photo" class="prof-photo" src="'+(c.photo||CTB_BLANK)+'" alt="" style="border-color:#86efac;width:110px;height:110px;cursor:zoom-in" onclick="zoomCTBPhotoEl(\'ctb-pm-photo\',\'Contributor Photo\')"/></div>'+
     '<div style="flex:1"><div style="font-size:1.05rem;font-weight:800">'+c.name+'</div>'+
     '<div style="opacity:.75;font-size:.81rem">'+c.phone+' &bull; '+c.type+' Contributor</div>'+
     '<div style="opacity:.65;font-size:.73rem;margin-top:3px">&#127970; '+getBranchName(c.branchId)+'</div>'+
@@ -5305,7 +5325,8 @@ function viewCTBProfile(id){
     '</div>'+
     '<div class="sh">&#128101; Next of Kin Details</div>'+
     '<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">'+
-    '<img src="'+((c.nok&&c.nok.photo)||CTB_BLANK)+'" alt="" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:2px solid var(--border)"/>'+
+    '<div class="ctb-pm-photo-wrap"><button type="button" class="ctb-zoom-btn" onclick="zoomCTBPhotoEl(\'ctb-pm-nok-photo\',\'Next of Kin Photo\')">&#128269;</button>'+
+    '<img id="ctb-pm-nok-photo" src="'+((c.nok&&c.nok.photo)||CTB_BLANK)+'" alt="" style="width:110px;height:110px;object-fit:cover;border-radius:10px;border:3px solid var(--border);cursor:zoom-in" onclick="zoomCTBPhotoEl(\'ctb-pm-nok-photo\',\'Next of Kin Photo\')"/></div>'+
     '<div style="font-size:.78rem;color:var(--muted)">Next of Kin Photo</div>'+
     '</div>'+
     '<div class="info-grid" style="margin-top:0">'+
@@ -5316,8 +5337,8 @@ function viewCTBProfile(id){
     '<div class="sh">Contribution History ('+(c.payments||[]).length+')</div>'+
     ((c.payments||[]).length===0
       ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No contributions recorded yet.</p>'
-      :'<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Ref</th><th>Amount</th><th>Date</th><th>Note</th><th>By</th></tr></thead><tbody>'+
-      (c.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.note||'--')+'</td><td>'+(p.recordedBy||'--')+'</td></tr>').join('')+
+      :'<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Ref</th><th>Amount</th><th>Date</th><th>Method</th><th>Note</th><th>By</th></tr></thead><tbody>'+
+      (c.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.method||'--')+'</td><td>'+(p.note||'--')+'</td><td>'+(p.recordedBy||'--')+'</td></tr>').join('')+
       '</tbody></table></div>')+
     '<div class="btn-row no-print">'+
     (c.status!=='Completed'
@@ -5375,6 +5396,7 @@ function openCTBPayModal(id){
     '<div class="form-grid">'+
     '<div class="fg"><label>Amount Received (&#8358;) *</label><input type="number" id="ctb-pay-amt" value="'+c.amount+'"/></div>'+
     '<div class="fg"><label>Payment Date *</label><input type="date" id="ctb-pay-date" value="'+td()+'"/></div>'+
+    '<div class="fg"><label>Mode of Payment *</label><select id="ctb-pay-mth"><option value="Cash">Cash</option><option value="Transfer">Transfer</option></select></div>'+
     '<div class="fg"><label>Remarks / Notes</label><input id="ctb-pay-note" placeholder="Optional remarks"/></div>'+
     '</div>'+
     (c.status!=='Completed'?'<button class="btn btn-navy" style="background:#16a34a;width:100%;justify-content:center;padding:11px;margin-top:12px" onclick="saveCTBPayment()">Save Contribution</button>':'')+
@@ -5384,8 +5406,8 @@ function openCTBPayModal(id){
     '</div>'+
     '<div class="sh" style="margin-top:8px">History ('+(c.payments||[]).length+')</div>'+
     ((c.payments||[]).length===0?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:10px">No contributions recorded yet.</p>':
-    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Ref</th><th>Amount</th><th>Date</th><th>Recorded By</th><th>Del</th></tr></thead><tbody>'+
-    [...(c.payments||[])].reverse().map((p,ri)=>{const idx=(c.payments.length-1)-ri;return '<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td style="font-size:.75rem">'+(p.recordedBy||'--')+'</td><td><button class="btn btn-red btn-sm" onclick="delCTBPayment('+idx+')">&#128465;</button></td></tr>';}).join('')+
+    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Ref</th><th>Amount</th><th>Date</th><th>Method</th><th>Recorded By</th><th>Del</th></tr></thead><tbody>'+
+    [...(c.payments||[])].reverse().map((p,ri)=>{const idx=(c.payments.length-1)-ri;return '<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.method||'--')+'</td><td style="font-size:.75rem">'+(p.recordedBy||'--')+'</td><td><button class="btn btn-red btn-sm" onclick="delCTBPayment('+idx+')">&#128465;</button></td></tr>';}).join('')+
     '</tbody></table></div>');
   showModal('ctb-pay-modal');
 }
@@ -5395,10 +5417,10 @@ function saveCTBPayment(){
   if(!date){toast('Select the payment date','e');return}
   const c=allContributions.find(x=>x.id===ctbCurId);if(!c)return;
   const ref=ctbGenRef();
-  const payments=[...(c.payments||[]),{amount:amt,date,note:v('ctb-pay-note'),ref,recordedBy:currentSession.name||currentSession.username,recordedAt:new Date().toISOString()}];
+  const payments=[...(c.payments||[]),{amount:amt,date,method:v('ctb-pay-mth')||'Cash',note:v('ctb-pay-note'),ref,recordedBy:currentSession.name||currentSession.username,recordedAt:new Date().toISOString()}];
   db.collection('contributions').doc(ctbCurId).set({payments},{merge:true}).then(()=>{
     c.payments=payments;
-    logAudit('Contribution Recorded', '\u20a6'+fmt(amt)+' from '+c.name+' ('+c.ctbId+') on '+date+' &bull; Ref: '+ref);
+    logAudit('Contribution Recorded', '\u20a6'+fmt(amt)+' ('+(v('ctb-pay-mth')||'Cash')+') from '+c.name+' ('+c.ctbId+') on '+date+' &bull; Ref: '+ref);
     renderCTB(scopedCTB());renderCTBStats();renderCTBActivity();renderDashModules();
     toast('Contribution saved! Ref: '+ref,'s');
     openCTBPayModal(ctbCurId);
@@ -5453,6 +5475,19 @@ function startNewCTBCycle(id){
   toast('Details pre-filled from '+c.name+' \u2014 pick a plan & amount, then save!','s');
 }
 
+// ----- Zoom/view a contributor or next-of-kin photo full-size -----
+function zoomCTBPhoto(src,label){
+  if(!src||src.indexOf('image/svg+xml')>-1){toast('No photo uploaded yet','w');return}
+  document.getElementById('ctb-zoom-title').textContent=label||'Photo';
+  document.getElementById('ctb-zoom-img').src=src;
+  showModal('ctb-zoom-modal');
+}
+function zoomCTBPhotoEl(imgId,label){
+  const img=document.getElementById(imgId);
+  if(!img)return;
+  zoomCTBPhoto(img.src,label);
+}
+
 // ----- Individual contributor statement (print/PDF) -----
 function printCTBStatement(){
   const c=allContributions.find(x=>x.id===ctbCurId);if(!c)return;
@@ -5499,8 +5534,8 @@ function printCTBStatement(){
   <div><div class="sv" style="color:#dc2626">&#8358;${fmt(outstanding)}</div><div class="sl">Outstanding</div></div></div>
   <div class="section"><h3>Contribution History</h3>
   ${(c.payments||[]).length===0?'<p style="color:#64748b;font-size:.82rem">No contributions recorded.</p>':
-  '<table><tr style="background:#f0fdf4"><td style="font-weight:800;padding:7px">#</td><td style="font-weight:800;padding:7px">Ref</td><td style="font-weight:800;padding:7px">Date</td><td style="font-weight:800;padding:7px">Amount</td><td style="font-weight:800;padding:7px">Recorded By</td></tr>'+
-  (c.payments||[]).map((p,idx)=>'<tr><td style="padding:6px 8px">'+(idx+1)+'</td><td style="padding:6px 8px">'+(p.ref||'--')+'</td><td style="padding:6px 8px">'+p.date+'</td><td style="padding:6px 8px">&#8358;'+fmt(p.amount)+'</td><td style="padding:6px 8px">'+(p.recordedBy||'--')+'</td></tr>').join('')+
+  '<table><tr style="background:#f0fdf4"><td style="font-weight:800;padding:7px">#</td><td style="font-weight:800;padding:7px">Ref</td><td style="font-weight:800;padding:7px">Date</td><td style="font-weight:800;padding:7px">Amount</td><td style="font-weight:800;padding:7px">Method</td><td style="font-weight:800;padding:7px">Recorded By</td></tr>'+
+  (c.payments||[]).map((p,idx)=>'<tr><td style="padding:6px 8px">'+(idx+1)+'</td><td style="padding:6px 8px">'+(p.ref||'--')+'</td><td style="padding:6px 8px">'+p.date+'</td><td style="padding:6px 8px">&#8358;'+fmt(p.amount)+'</td><td style="padding:6px 8px">'+(p.method||'--')+'</td><td style="padding:6px 8px">'+(p.recordedBy||'--')+'</td></tr>').join('')+
   '</table>'}</div>
   <div class="sig-row">
   <div><div style="height:60px"></div><div class="sig-line">Contributor Signature &bull; Date: ___________</div></div>
@@ -5520,12 +5555,12 @@ function generateCTBReport(){
     const typeMap={daily:'Daily',weekly:'Weekly',monthly:'Monthly'};
     const wantType=typeMap[type];
     title=wantType+' Collections Report'+(from?(' ('+from+' to '+to+')'):'');
-    headers=['Ref','Contributor','Contributor ID','Amount','Date','Recorded By'];
+    headers=['Ref','Contributor','Contributor ID','Amount','Date','Method','Recorded By'];
     list.filter(c=>c.type===wantType).forEach(c=>{
       (c.payments||[]).forEach(p=>{
         if(from&&p.date<from) return;
         if(to&&p.date>to) return;
-        rows.push({Ref:p.ref||'--',Contributor:c.name,'Contributor ID':c.ctbId,Amount:p.amount,Date:p.date,'Recorded By':p.recordedBy||'--'});
+        rows.push({Ref:p.ref||'--',Contributor:c.name,'Contributor ID':c.ctbId,Amount:p.amount,Date:p.date,Method:p.method||'--','Recorded By':p.recordedBy||'--'});
       });
     });
   } else if(type==='outstanding'){
