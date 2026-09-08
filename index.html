@@ -664,7 +664,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
           <select id="ctb-fbr" onchange="searchCTB()" style="display:none"><option value="">All Branches</option></select>
         </div>
         <div class="tbl-wrap"><table>
-          <thead><tr><th>ID</th><th>Contributor</th><th>Phone</th><th>Branch</th><th>Type</th><th>Amount</th><th>Total Saved</th><th>Missed</th><th>Next Due</th><th>Status</th><th>Actions</th></tr></thead>
+          <thead><tr><th>ID</th><th>Contributor</th><th>Phone</th><th>Branch</th><th>Type</th><th>Amount</th><th>Total Saved</th><th>Missed</th><th>Next Due</th><th>Status</th><th>Registered By</th><th>Actions</th></tr></thead>
           <tbody id="ctb-tbody"></tbody>
         </table></div>
       </div>
@@ -5145,10 +5145,13 @@ function renderCTBStats(){
   const today=td();
   const todaysCollections=list.reduce((s,c)=>s+(c.payments||[]).filter(p=>p.date===today).reduce((a,p)=>a+(parseFloat(p.amount)||0),0),0);
   const now=new Date(); const weekStart=new Date(now); weekStart.setDate(now.getDate()-now.getDay()); weekStart.setHours(0,0,0,0);
-  const weekStartStr=weekStart.toISOString().slice(0,10);
-  const weekCollections=list.reduce((s,c)=>s+(c.payments||[]).filter(p=>p.date>=weekStartStr&&p.date<=today).reduce((a,p)=>a+(parseFloat(p.amount)||0),0),0);
+  const weekEnd=new Date(weekStart); weekEnd.setDate(weekStart.getDate()+6);
+  const weekStartStr=weekStart.toISOString().slice(0,10), weekEndStr=weekEnd.toISOString().slice(0,10);
+  const weekCollections=list.reduce((s,c)=>s+(c.payments||[]).filter(p=>p.date>=weekStartStr&&p.date<=weekEndStr).reduce((a,p)=>a+(parseFloat(p.amount)||0),0),0);
   const monthStartStr=today.slice(0,7)+'-01';
-  const monthCollections=list.reduce((s,c)=>s+(c.payments||[]).filter(p=>p.date>=monthStartStr&&p.date<=today).reduce((a,p)=>a+(parseFloat(p.amount)||0),0),0);
+  const monthEnd=new Date(now.getFullYear(),now.getMonth()+1,0);
+  const monthEndStr=monthEnd.toISOString().slice(0,10);
+  const monthCollections=list.reduce((s,c)=>s+(c.payments||[]).filter(p=>p.date>=monthStartStr&&p.date<=monthEndStr).reduce((a,p)=>a+(parseFloat(p.amount)||0),0),0);
   const el=document.getElementById('ctb-stat-grid');if(!el)return;
   el.innerHTML=
     '<div class="stat-card" style="border-color:#16a34a"><div class="stat-val">'+list.length+'</div><div class="stat-lbl">Total Contributors</div></div>'+
@@ -5195,12 +5198,15 @@ function renderCTB(list){
       '<td style="color:'+(missed>0?'var(--red)':'var(--muted)')+'">'+missed+'</td>'+
       '<td>'+(next||'--')+'</td>'+
       '<td>'+ctbBdg(c.status)+(od?'<span class="ndot" title="Overdue"></span>':'')+'</td>'+
+      '<td style="font-size:.75rem">'+(c.createdByName||c.createdBy||'--')+'</td>'+
       '<td><div style="display:flex;gap:3px;flex-wrap:wrap">'+
         '<button class="btn btn-out btn-sm" onclick="viewCTBProfile(\''+c.id+'\')">&#128100;</button>'+
-        '<button class="btn btn-sm" style="background:#16a34a;color:#fff" onclick="openCTBPayModal(\''+c.id+'\')">&#128176;</button>'+
+        (c.status==='Completed'
+          ?'<button class="btn btn-sm" style="background:#0f2342;color:#fff" onclick="startNewCTBCycle(\''+c.id+'\')" title="Start New Contribution">&#128257;</button>'
+          :'<button class="btn btn-sm" style="background:#16a34a;color:#fff" onclick="openCTBPayModal(\''+c.id+'\')" title="Record Contribution">&#128176;</button>')+
         '<button class="btn btn-red btn-sm" onclick="delCTB(\''+c.id+'\')">&#128465;</button>'+
       '</div></td></tr>';
-  }).join('')||'<tr><td colspan="11" style="text-align:center;color:var(--muted);padding:20px">No contributor records found.</td></tr>';
+  }).join('')||'<tr><td colspan="12" style="text-align:center;color:var(--muted);padding:20px">No contributor records found.</td></tr>';
 }
 function searchCTB(){
   const q=v('ctb-srch').toLowerCase(), type=v('ctb-ftype'), st=v('ctb-fst'), br=v('ctb-fbr');
@@ -5284,7 +5290,7 @@ function viewCTBProfile(id){
     '<div class="rs"><div class="rv" style="color:'+(missed>0?'var(--red)':'var(--green)')+'">'+missed+'</div><div class="rl">Missed Payments</div></div>'+
     '<div class="rs"><div class="rv" style="color:'+(outstanding>0?'var(--red)':'var(--green)')+'">&#8358;'+fmt(outstanding)+'</div><div class="rl">Outstanding Balance</div></div>'+
     '</div>'+
-    '<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px">Registered: <strong>'+(c.regDate||'--')+'</strong> &bull; Last Payment: <strong>'+(last||'--')+'</strong> &bull; Next Due: <strong>'+(next||'--')+'</strong> &bull; Periods Elapsed: <strong>'+periods+'</strong></div>'+
+    '<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px">Registered: <strong>'+(c.regDate||'--')+'</strong> &bull; Registered By: <strong>'+(c.createdByName||c.createdBy||'--')+'</strong> &bull; Last Payment: <strong>'+(last||'--')+'</strong> &bull; Next Due: <strong>'+(next||'--')+'</strong> &bull; Periods Elapsed: <strong>'+periods+'</strong></div>'+
     '<div class="sh">&#128100; Contributor Details <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openCTBEdit(\''+c.id+'\')">&#9998; Edit</button></div>'+
     '<div class="info-grid" style="margin-top:0">'+
     '<div class="iitem"><label>Full Name</label><p>'+c.name+'</p></div>'+
@@ -5295,6 +5301,7 @@ function viewCTBProfile(id){
     '<div class="iitem"><label>Registration Date</label><p>'+(c.regDate||'--')+'</p></div>'+
     '<div class="iitem"><label>Branch</label><p>'+getBranchName(c.branchId)+'</p></div>'+
     '<div class="iitem"><label>Status</label><p>'+c.status+'</p></div>'+
+    '<div class="iitem"><label>Registered By</label><p>'+(c.createdByName||c.createdBy||'--')+'</p></div>'+
     '</div>'+
     '<div class="sh">&#128101; Next of Kin Details</div>'+
     '<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">'+
@@ -5313,7 +5320,10 @@ function viewCTBProfile(id){
       (c.payments||[]).map((p,idx)=>'<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td>'+(p.note||'--')+'</td><td>'+(p.recordedBy||'--')+'</td></tr>').join('')+
       '</tbody></table></div>')+
     '<div class="btn-row no-print">'+
-    '<button class="btn btn-navy" style="background:#16a34a" onclick="openCTBPayModal(\''+c.id+'\');closeModal(\'ctb-profile-modal\')">&#128176; Record Contribution</button>'+
+    (c.status!=='Completed'
+      ?'<button class="btn btn-navy" style="background:#16a34a" onclick="openCTBPayModal(\''+c.id+'\');closeModal(\'ctb-profile-modal\')">&#128176; Record Contribution</button>'+
+       '<button class="btn btn-out btn-sm" onclick="markCTBComplete(\''+c.id+'\')">&#9989; Mark Fully Paid</button>'
+      :'<button class="btn btn-navy" style="background:#0f2342" onclick="startNewCTBCycle(\''+c.id+'\')">&#128257; Start New Contribution</button>')+
     '<button class="btn btn-out btn-sm" onclick="printCTBStatement()">&#128424; Print Statement</button>'+
     '</div>';
   showModal('ctb-profile-modal');
@@ -5367,11 +5377,15 @@ function openCTBPayModal(id){
     '<div class="fg"><label>Payment Date *</label><input type="date" id="ctb-pay-date" value="'+td()+'"/></div>'+
     '<div class="fg"><label>Remarks / Notes</label><input id="ctb-pay-note" placeholder="Optional remarks"/></div>'+
     '</div>'+
-    '<button class="btn btn-navy" style="background:#16a34a;width:100%;justify-content:center;padding:11px;margin-top:12px" onclick="saveCTBPayment()">Save Contribution</button>'+
+    (c.status!=='Completed'?'<button class="btn btn-navy" style="background:#16a34a;width:100%;justify-content:center;padding:11px;margin-top:12px" onclick="saveCTBPayment()">Save Contribution</button>':'')+
+    '<div style="display:flex;gap:8px;margin-top:10px;flex-wrap:wrap">'+
+    (c.status!=='Completed'?'<button class="btn btn-out btn-sm" onclick="markCTBComplete(\''+c.id+'\')">&#9989; Mark Fully Paid</button>':'<span class="badge b-ctb-completed">FULLY PAID / COMPLETED</span>')+
+    '<button class="btn btn-out btn-sm" onclick="startNewCTBCycle(\''+c.id+'\')">&#128257; Start New Contribution</button>'+
+    '</div>'+
     '<div class="sh" style="margin-top:8px">History ('+(c.payments||[]).length+')</div>'+
     ((c.payments||[]).length===0?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:10px">No contributions recorded yet.</p>':
-    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Ref</th><th>Amount</th><th>Date</th><th>Del</th></tr></thead><tbody>'+
-    [...(c.payments||[])].reverse().map((p,ri)=>{const idx=(c.payments.length-1)-ri;return '<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td><button class="btn btn-red btn-sm" onclick="delCTBPayment('+idx+')">&#128465;</button></td></tr>';}).join('')+
+    '<div class="tbl-wrap"><table><thead><tr><th>#</th><th>Ref</th><th>Amount</th><th>Date</th><th>Recorded By</th><th>Del</th></tr></thead><tbody>'+
+    [...(c.payments||[])].reverse().map((p,ri)=>{const idx=(c.payments.length-1)-ri;return '<tr><td>'+(idx+1)+'</td><td>'+(p.ref||'--')+'</td><td style="color:#16a34a;font-weight:700">&#8358;'+fmt(p.amount)+'</td><td>'+p.date+'</td><td style="font-size:.75rem">'+(p.recordedBy||'--')+'</td><td><button class="btn btn-red btn-sm" onclick="delCTBPayment('+idx+')">&#128465;</button></td></tr>';}).join('')+
     '</tbody></table></div>');
   showModal('ctb-pay-modal');
 }
@@ -5402,6 +5416,41 @@ function delCTBPayment(idx){
     toast('Contribution entry deleted.','w');
     openCTBPayModal(ctbCurId);
   }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ----- Mark contribution as fully paid / completed (any time, regardless of outstanding balance) -----
+function markCTBComplete(id){
+  const c=allContributions.find(x=>x.id===id);if(!c)return;
+  if(c.status==='Completed'){toast('Already marked as fully paid.','w');return}
+  if(!confirm('Mark '+c.name+' as FULLY PAID and close this contribution cycle?'))return;
+  db.collection('contributions').doc(id).set({status:'Completed',completedAt:new Date().toISOString()},{merge:true}).then(()=>{
+    c.status='Completed';c.completedAt=new Date().toISOString();
+    logAudit('Contribution Marked Fully Paid', c.name+' ('+c.ctbId+') contribution marked as fully paid/completed by '+(currentSession.name||currentSession.username)+'.');
+    renderCTB(scopedCTB());renderCTBStats();renderCTBActivity();renderDashModules();
+    toast(c.name+' contribution marked fully paid!','s');
+    if(document.getElementById('ctb-profile-modal').classList.contains('show')) viewCTBProfile(id);
+    if(document.getElementById('ctb-pay-modal').classList.contains('show')) openCTBPayModal(id);
+  }).catch(e=>toast('Error: '+e.message,'e'));
+}
+
+// ----- Start a fresh contribution cycle for an existing contributor without re-entering their details -----
+function startNewCTBCycle(id){
+  const c=allContributions.find(x=>x.id===id);if(!c)return;
+  closeModal('ctb-profile-modal');closeModal('ctb-pay-modal');
+  showPage('new-contribution');
+  document.getElementById('ctb-name').value=c.name||'';
+  document.getElementById('ctb-phone').value=c.phone||'';
+  document.getElementById('ctb-address').value=c.address||'';
+  document.getElementById('ctb-photo-prev').src=c.photo||CTB_BLANK;
+  document.getElementById('ctb-photo-data').value=c.photo||'';
+  document.getElementById('ctb-nok-name').value=(c.nok&&c.nok.name)||'';
+  document.getElementById('ctb-nok-phone').value=(c.nok&&c.nok.phone)||'';
+  document.getElementById('ctb-nok-addr').value=(c.nok&&c.nok.address)||'';
+  document.getElementById('ctb-nok-photo-prev').src=(c.nok&&c.nok.photo)||CTB_BLANK;
+  document.getElementById('ctb-nok-photo-data').value=(c.nok&&c.nok.photo)||'';
+  const brEl=document.getElementById('ctb-branch');if(brEl)brEl.value=c.branchId||'';
+  document.getElementById('ctb-regdate').value=td();
+  toast('Details pre-filled from '+c.name+' \u2014 pick a plan & amount, then save!','s');
 }
 
 // ----- Individual contributor statement (print/PDF) -----
@@ -5439,6 +5488,7 @@ function printCTBStatement(){
   <table><tr><td>Contribution Type</td><td>${c.type}</td></tr>
   <tr><td>Contribution Amount</td><td>&#8358;${fmt(c.amount)}</td></tr>
   <tr><td>Registration Date</td><td>${c.regDate||'--'}</td></tr>
+  <tr><td>Registered By</td><td>${c.createdByName||c.createdBy||'--'}</td></tr>
   <tr><td>Status</td><td>${c.status}</td></tr>
   <tr><td>Payments Made</td><td>${paidCount}</td></tr>
   <tr><td>Missed Payments</td><td>${missed}</td></tr></table></div>
@@ -5449,8 +5499,8 @@ function printCTBStatement(){
   <div><div class="sv" style="color:#dc2626">&#8358;${fmt(outstanding)}</div><div class="sl">Outstanding</div></div></div>
   <div class="section"><h3>Contribution History</h3>
   ${(c.payments||[]).length===0?'<p style="color:#64748b;font-size:.82rem">No contributions recorded.</p>':
-  '<table><tr style="background:#f0fdf4"><td style="font-weight:800;padding:7px">#</td><td style="font-weight:800;padding:7px">Ref</td><td style="font-weight:800;padding:7px">Date</td><td style="font-weight:800;padding:7px">Amount</td></tr>'+
-  (c.payments||[]).map((p,idx)=>'<tr><td style="padding:6px 8px">'+(idx+1)+'</td><td style="padding:6px 8px">'+(p.ref||'--')+'</td><td style="padding:6px 8px">'+p.date+'</td><td style="padding:6px 8px">&#8358;'+fmt(p.amount)+'</td></tr>').join('')+
+  '<table><tr style="background:#f0fdf4"><td style="font-weight:800;padding:7px">#</td><td style="font-weight:800;padding:7px">Ref</td><td style="font-weight:800;padding:7px">Date</td><td style="font-weight:800;padding:7px">Amount</td><td style="font-weight:800;padding:7px">Recorded By</td></tr>'+
+  (c.payments||[]).map((p,idx)=>'<tr><td style="padding:6px 8px">'+(idx+1)+'</td><td style="padding:6px 8px">'+(p.ref||'--')+'</td><td style="padding:6px 8px">'+p.date+'</td><td style="padding:6px 8px">&#8358;'+fmt(p.amount)+'</td><td style="padding:6px 8px">'+(p.recordedBy||'--')+'</td></tr>').join('')+
   '</table>'}</div>
   <div class="sig-row">
   <div><div style="height:60px"></div><div class="sig-line">Contributor Signature &bull; Date: ___________</div></div>
@@ -5480,21 +5530,21 @@ function generateCTBReport(){
     });
   } else if(type==='outstanding'){
     title='Outstanding Contributions Report';
-    headers=['Contributor','Contributor ID','Type','Amount/Cycle','Total Saved','Outstanding Balance','Status'];
+    headers=['Contributor','Contributor ID','Type','Amount/Cycle','Total Saved','Outstanding Balance','Status','Registered By'];
     list.filter(c=>ctbOutstanding(c)>0).forEach(c=>{
-      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Amount/Cycle':c.amount,'Total Saved':ctbGetPaidTotal(c),'Outstanding Balance':ctbOutstanding(c),Status:c.status});
+      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Amount/Cycle':c.amount,'Total Saved':ctbGetPaidTotal(c),'Outstanding Balance':ctbOutstanding(c),Status:c.status,'Registered By':c.createdByName||c.createdBy||'--'});
     });
   } else if(type==='missed'){
     title='Missed Contributions Report';
-    headers=['Contributor','Contributor ID','Type','Missed Payments','Next Due Date','Status'];
+    headers=['Contributor','Contributor ID','Type','Missed Payments','Next Due Date','Status','Registered By'];
     list.filter(c=>ctbMissedCount(c)>0).forEach(c=>{
-      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Missed Payments':ctbMissedCount(c),'Next Due Date':ctbNextDue(c),Status:c.status});
+      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Missed Payments':ctbMissedCount(c),'Next Due Date':ctbNextDue(c),Status:c.status,'Registered By':c.createdByName||c.createdBy||'--'});
     });
   } else {
     title='Total Contributions Received — All Contributors';
-    headers=['Contributor','Contributor ID','Type','Amount/Cycle','Payments Made','Total Contributed','Outstanding','Status'];
+    headers=['Contributor','Contributor ID','Type','Amount/Cycle','Payments Made','Total Contributed','Outstanding','Status','Registered By'];
     list.forEach(c=>{
-      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Amount/Cycle':c.amount,'Payments Made':ctbGetPaidCount(c),'Total Contributed':ctbGetPaidTotal(c),Outstanding:ctbOutstanding(c),Status:c.status});
+      rows.push({Contributor:c.name,'Contributor ID':c.ctbId,Type:c.type,'Amount/Cycle':c.amount,'Payments Made':ctbGetPaidCount(c),'Total Contributed':ctbGetPaidTotal(c),Outstanding:ctbOutstanding(c),Status:c.status,'Registered By':c.createdByName||c.createdBy||'--'});
     });
   }
   ctbLastReport={title,headers,rows};
