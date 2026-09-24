@@ -459,6 +459,14 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
             <div class="fg"><label>Occupation / Business</label><input id="eb-occ" placeholder="Job title or business"/></div>
             <div class="fg"><label>ID Type</label><select id="eb-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
             <div class="fg"><label>ID Number</label><input id="eb-idnum" placeholder="ID number"/></div>
+            <div class="fg"><label>Means of Identification (Upload)</label>
+              <div class="photo-up" onclick="document.getElementById('eb-idpic-file').click()">
+                <img id="eb-idpic-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%AA%AA%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload ID</p>
+              </div>
+              <input type="file" id="eb-idpic-file" accept="image/*" style="display:none" onchange="ebImgUp(this,'eb-idpic-prev','eb-idpic-data')"/>
+              <input type="hidden" id="eb-idpic-data"/>
+            </div>
           </div>
           <div class="sh">&#127970; Branch</div>
           <div class="form-grid">
@@ -524,6 +532,14 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
             <div class="fg"><label>Relationship with Customer</label><input id="eb-g1-rel" placeholder="e.g. Brother, Colleague"/></div>
             <div class="fg"><label>ID Type</label><select id="eb-g1-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
             <div class="fg"><label>ID Number</label><input id="eb-g1-idnum" placeholder="ID number"/></div>
+            <div class="fg"><label>Guarantor Means of Identification (Upload)</label>
+              <div class="photo-up" onclick="document.getElementById('eb-g1-idpic-file').click()">
+                <img id="eb-g1-idpic-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%AA%AA%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to upload ID</p>
+              </div>
+              <input type="file" id="eb-g1-idpic-file" accept="image/*" style="display:none" onchange="ebImgUp(this,'eb-g1-idpic-prev','eb-g1-idpic-data')"/>
+              <input type="hidden" id="eb-g1-idpic-data"/>
+            </div>
           </div>
           <div class="fg" style="margin-top:10px">
             <label>Guarantor Passport Photo</label>
@@ -1546,6 +1562,14 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
         <div class="fg"><label>Occupation / Business</label><input id="ebe-occ"/></div>
         <div class="fg"><label>ID Type</label><select id="ebe-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
         <div class="fg"><label>ID Number</label><input id="ebe-idnum"/></div>
+        <div class="fg"><label>Means of Identification</label>
+              <div class="photo-up" onclick="document.getElementById('ebe-idpic-file').click()">
+                <img id="ebe-idpic-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%AA%AA%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to change</p>
+              </div>
+              <input type="file" id="ebe-idpic-file" accept="image/*" style="display:none" onchange="ebImgUp(this,'ebe-idpic-prev','ebe-idpic-data')"/>
+              <input type="hidden" id="ebe-idpic-data"/>
+            </div>
       </div>
       <div class="fg" style="margin-top:10px">
         <label>Customer Photo</label>
@@ -1565,6 +1589,14 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
         <div class="fg"><label>Relationship with Customer</label><input id="ebe-g1-rel"/></div>
         <div class="fg"><label>ID Type</label><select id="ebe-g1-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
         <div class="fg"><label>ID Number</label><input id="ebe-g1-idnum"/></div>
+        <div class="fg"><label>Guarantor Means of Identification</label>
+              <div class="photo-up" onclick="document.getElementById('ebe-g1-idpic-file').click()">
+                <img id="ebe-g1-idpic-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%AA%AA%3C/text%3E%3C/svg%3E" alt=""/>
+                <p>Click to change</p>
+              </div>
+              <input type="file" id="ebe-g1-idpic-file" accept="image/*" style="display:none" onchange="ebImgUp(this,'ebe-g1-idpic-prev','ebe-g1-idpic-data')"/>
+              <input type="hidden" id="ebe-g1-idpic-data"/>
+            </div>
       </div>
       <div class="fg" style="margin-top:10px">
         <label>Guarantor Passport Photo</label>
@@ -3746,7 +3778,7 @@ function submitEasyBuy(e){
   const price=parseFloat(v('eb-price'))||0, init=parseFloat(v('eb-initial'))||0;
   const data={
     ebId:ebGenId(), name:v('eb-name'), phone:v('eb-phone'), address:v('eb-address'), officeAddress:v('eb-office'),
-    occupation:v('eb-occ'), idtype:v('eb-idtype'), idnum:v('eb-idnum'),
+    occupation:v('eb-occ'), idtype:v('eb-idtype'), idnum:v('eb-idnum'), idpic:v('eb-idpic-data'),
     branchId, branchName:getBranchName(branchId), officer:v('eb-officer'),
     product:v('eb-product'), proddesc:v('eb-proddesc'),
     price, initial:init, plan:v('eb-plan'),
@@ -3772,6 +3804,7 @@ function resetEBForm(){
   const dl=document.getElementById('eb-docs-list');if(dl)dl.innerHTML='';
   const box=document.getElementById('eb-calc-box');if(box)box.style.display='none';
   ['eb-g1-photo'].forEach(id=>{const im=document.getElementById(id+'-prev');if(im)im.src=blank;const dt=document.getElementById(id+'-data');if(dt)dt.value='';});
+  ['eb-idpic','eb-g1-idpic'].forEach(id=>{const im=document.getElementById(id+'-prev');if(im)im.src=EB_ID_BLANK;const dt=document.getElementById(id+'-data');if(dt)dt.value='';});
   // Clear date dropdowns
   ['eb-agrdate-d','eb-agrdate-m','eb-agrdate-y'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('eb-agrdate').value='';
@@ -3788,8 +3821,35 @@ function delEB(id){
 
 // ===== EASYBUY GUARANTORS & EDIT =====
 const EB_BLANK="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+const EB_ID_BLANK="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%AA%AA%3C/text%3E%3C/svg%3E";
+// Compress ID image (keeps Firestore document small)
+function ebImgUp(inp,prevId,dataId){
+  const f=inp.files[0];if(!f)return;
+  const r=new FileReader();
+  r.onload=ev=>{
+    const img=new Image();
+    img.onload=()=>{
+      const max=1100,sc=Math.min(1,max/Math.max(img.width,img.height));
+      const c=document.createElement('canvas');c.width=Math.round(img.width*sc);c.height=Math.round(img.height*sc);
+      c.getContext('2d').drawImage(img,0,0,c.width,c.height);
+      const d=c.toDataURL('image/jpeg',0.72);
+      document.getElementById(prevId).src=d;document.getElementById(dataId).value=d;
+    };
+    img.onerror=()=>toast('Could not read image','e');
+    img.src=ev.target.result;
+  };
+  r.readAsDataURL(f);
+}
+function ebShowImg(src){
+  const w=window.open('','_blank');if(!w)return;
+  w.document.write('<title>Means of Identification</title><body style="margin:0;background:#111;display:flex;align-items:center;justify-content:center;min-height:100vh"><img src="'+src+'" style="max-width:100%;max-height:100vh"/></body>');
+  w.document.close();
+}
+function ebIdImg(src){
+  return src?'<img src="'+src+'" alt="ID" style="max-width:100%;max-height:150px;border-radius:8px;border:1px solid var(--border);cursor:pointer" onclick="ebShowImg(this.src)"/>':'<p>--</p>';
+}
 function ebReadG(p){
-  return {name:v(p+'name'),phone:v(p+'phone'),address:v(p+'addr'),officeAddress:v(p+'office'),occupation:v(p+'occ'),relationship:v(p+'rel'),idtype:v(p+'idtype'),idnum:v(p+'idnum'),photo:v(p+'photo-data'),docs:[]};
+  return {name:v(p+'name'),phone:v(p+'phone'),address:v(p+'addr'),officeAddress:v(p+'office'),occupation:v(p+'occ'),relationship:v(p+'rel'),idtype:v(p+'idtype'),idnum:v(p+'idnum'),photo:v(p+'photo-data'),idpic:v(p+'idpic-data'),docs:[]};
 }
 function ebGCard(e,n){
   const g=e['g'+n]||{};
@@ -3802,6 +3862,7 @@ function ebGCard(e,n){
     '<div class="iitem"><label>Office Address</label><p>'+(g.officeAddress||'--')+'</p></div>'+
     '<div class="iitem"><label>Occupation</label><p>'+(g.occupation||'--')+'</p></div>'+
     '<div class="iitem"><label>ID</label><p>'+((g.idtype||'')+' '+(g.idnum||'')).trim()+(g.idtype||g.idnum?'':'--')+'</p></div>'+
+    '<div class="iitem"><label>Means of Identification</label>'+ebIdImg(g.idpic)+'</div>'+
     '</div></div>';
 }
 function openEBEdit(id){
@@ -3811,11 +3872,13 @@ function openEBEdit(id){
   set('ebe-name',e.name);set('ebe-phone',e.phone);set('ebe-address',e.address);set('ebe-office',e.officeAddress);
   set('ebe-occ',e.occupation);set('ebe-idtype',e.idtype);set('ebe-idnum',e.idnum);
   set('ebe-photo-data',e.photo);document.getElementById('ebe-photo-prev').src=e.photo||EB_BLANK;
+  set('ebe-idpic-data',e.idpic);document.getElementById('ebe-idpic-prev').src=e.idpic||EB_ID_BLANK;
   [1].forEach(n=>{
     const g=e['g'+n]||{},p='ebe-g'+n+'-';
     set(p+'name',g.name);set(p+'phone',g.phone);set(p+'addr',g.address);set(p+'office',g.officeAddress);
     set(p+'occ',g.occupation);set(p+'rel',g.relationship);set(p+'idtype',g.idtype);set(p+'idnum',g.idnum);
     set(p+'photo-data',g.photo);document.getElementById(p+'photo-prev').src=g.photo||EB_BLANK;
+    set(p+'idpic-data',g.idpic);document.getElementById(p+'idpic-prev').src=g.idpic||EB_ID_BLANK;
   });
   closeModal('eb-profile-modal');
   showModal('eb-edit-modal');
@@ -3825,7 +3888,7 @@ function saveEBEdit(){
   if(!v('ebe-name')||!v('ebe-phone')||!v('ebe-address')){toast('Name, phone and address are required','e');return}
   const upd={
     name:v('ebe-name'),phone:v('ebe-phone'),address:v('ebe-address'),officeAddress:v('ebe-office'),
-    occupation:v('ebe-occ'),idtype:v('ebe-idtype'),idnum:v('ebe-idnum'),photo:v('ebe-photo-data'),
+    occupation:v('ebe-occ'),idtype:v('ebe-idtype'),idnum:v('ebe-idnum'),idpic:v('ebe-idpic-data'),photo:v('ebe-photo-data'),
     g1:{...(e.g1||{}),...ebReadG('ebe-g1-')}
   };
   db.collection('easybuy').doc(ebCurId).set(upd,{merge:true}).then(()=>{
@@ -3875,6 +3938,7 @@ function viewEBProfile(id){
     '<div class="iitem"><label>Occupation</label><p>'+(e.occupation||'--')+'</p></div>'+
     '<div class="iitem"><label>ID Type</label><p>'+(e.idtype||'--')+'</p></div>'+
     '<div class="iitem"><label>ID Number</label><p>'+(e.idnum||'--')+'</p></div>'+
+    '<div class="iitem"><label>Means of Identification</label>'+ebIdImg(e.idpic)+'</div>'+
     '<div class="iitem"><label>Agreement Date</label><p>'+(e.agrdate||'--')+'</p></div>'+
     '<div class="iitem"><label>Due Date</label><p>'+(e.dueDate||'--')+'</p></div>'+
     '<div class="iitem"><label>Branch</label><p>'+getBranchName(e.branchId)+'</p></div>'+
