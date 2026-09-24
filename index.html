@@ -455,7 +455,7 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
             <div class="fg"><label>Full Name *</label><input required id="eb-name" placeholder="Customer full name"/></div>
             <div class="fg"><label>Phone Number *</label><input required id="eb-phone" placeholder="08XXXXXXXXX"/></div>
             <div class="fg"><label>Address *</label><input required id="eb-address" placeholder="Residential address"/></div>
-            <div class="fg"><label>Office Address</label><input id="eb-office-address" placeholder="Office / place of work address"/></div>
+            <div class="fg"><label>Office Address</label><input id="eb-office" placeholder="Office / business address"/></div>
             <div class="fg"><label>Occupation / Business</label><input id="eb-occ" placeholder="Job title or business"/></div>
             <div class="fg"><label>ID Type</label><select id="eb-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
             <div class="fg"><label>ID Number</label><input id="eb-idnum" placeholder="ID number"/></div>
@@ -514,23 +514,25 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
               <div class="calc-item"><div class="cv" id="eb-c-inst">--</div><div class="cl">Installment</div></div>
             </div>
           </div>
-          <div class="sh">&#128101; Next of Kin Details</div>
+          <div class="sh">&#128101; Guarantor</div>
           <div class="form-grid">
-            <div class="fg"><label>Next of Kin Full Name *</label><input required id="eb-nok-name" placeholder="Full name of next of kin"/></div>
-            <div class="fg"><label>Relationship *</label><input required id="eb-nok-rel" placeholder="e.g. Wife, Brother, Son"/></div>
-            <div class="fg"><label>Phone Number *</label><input required id="eb-nok-phone" placeholder="08XXXXXXXXX"/></div>
-            <div class="fg"><label>Address</label><input id="eb-nok-addr" placeholder="Next of kin address"/></div>
-            <div class="fg"><label>Occupation</label><input id="eb-nok-occ" placeholder="Next of kin occupation"/></div>
-            <div class="fg"><label>ID Type</label><select id="eb-nok-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
-            <div class="fg"><label>ID Number</label><input id="eb-nok-idnum" placeholder="Next of kin ID number"/></div>
-            <div class="fg"><label>Next of Kin Photo</label>
-              <div class="photo-up" onclick="document.getElementById('eb-nok-photo-file').click()">
-                <img id="eb-nok-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
-                <p>Click to upload photo</p>
-              </div>
-              <input type="file" id="eb-nok-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'eb-nok-photo-prev','eb-nok-photo-data')"/>
-              <input type="hidden" id="eb-nok-photo-data"/>
+            <div class="fg"><label>Full Name *</label><input required id="eb-g1-name" placeholder="Guarantor full name"/></div>
+            <div class="fg"><label>Phone Number *</label><input required id="eb-g1-phone" placeholder="08XXXXXXXXX"/></div>
+            <div class="fg"><label>Home Address</label><input id="eb-g1-addr" placeholder="Guarantor home address"/></div>
+            <div class="fg"><label>Office Address</label><input id="eb-g1-office" placeholder="Guarantor office address"/></div>
+            <div class="fg"><label>Occupation</label><input id="eb-g1-occ" placeholder="Occupation"/></div>
+            <div class="fg"><label>Relationship with Customer</label><input id="eb-g1-rel" placeholder="e.g. Brother, Colleague"/></div>
+            <div class="fg"><label>ID Type</label><select id="eb-g1-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
+            <div class="fg"><label>ID Number</label><input id="eb-g1-idnum" placeholder="ID number"/></div>
+          </div>
+          <div class="fg" style="margin-top:10px">
+            <label>Guarantor Passport Photo</label>
+            <div class="photo-up" onclick="document.getElementById('eb-g1-photo').click()" style="max-width:200px">
+              <img id="eb-g1-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
+              <p>Click to upload</p>
             </div>
+            <input type="file" id="eb-g1-photo" accept="image/*" style="display:none" onchange="prevPhoto(this,'eb-g1-photo-prev','eb-g1-photo-data')"/>
+            <input type="hidden" id="eb-g1-photo-data"/>
           </div>
           <div class="btn-row">
             <button type="submit" class="btn btn-navy">&#128190; Save EasyBuy Record</button>
@@ -1527,6 +1529,56 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
   </div>
 </div>
 
+<!-- EASYBUY EDIT MODAL -->
+<div class="overlay" id="eb-edit-modal">
+  <div class="modal" style="max-width:640px">
+    <div class="mhead">
+      <h3>&#9998; Edit Customer &amp; Guarantor</h3>
+      <button class="mclose" onclick="closeModal('eb-edit-modal')">&times;</button>
+    </div>
+    <div class="mbody">
+      <div class="sh" style="margin-top:0">&#128100; Customer Information</div>
+      <div class="form-grid">
+        <div class="fg"><label>Full Name *</label><input id="ebe-name"/></div>
+        <div class="fg"><label>Phone Number *</label><input id="ebe-phone"/></div>
+        <div class="fg"><label>Address *</label><input id="ebe-address"/></div>
+        <div class="fg"><label>Office Address</label><input id="ebe-office"/></div>
+        <div class="fg"><label>Occupation / Business</label><input id="ebe-occ"/></div>
+        <div class="fg"><label>ID Type</label><select id="ebe-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
+        <div class="fg"><label>ID Number</label><input id="ebe-idnum"/></div>
+      </div>
+      <div class="fg" style="margin-top:10px">
+        <label>Customer Photo</label>
+        <div class="photo-up" onclick="document.getElementById('ebe-photo').click()" style="max-width:200px">
+          <img id="ebe-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/><p>Click to change</p>
+        </div>
+        <input type="file" id="ebe-photo" accept="image/*" style="display:none" onchange="prevPhoto(this,'ebe-photo-prev','ebe-photo-data')"/>
+        <input type="hidden" id="ebe-photo-data"/>
+      </div>
+      <div class="sh">&#128101; Guarantor</div>
+      <div class="form-grid">
+        <div class="fg"><label>Full Name</label><input id="ebe-g1-name"/></div>
+        <div class="fg"><label>Phone Number</label><input id="ebe-g1-phone"/></div>
+        <div class="fg"><label>Home Address</label><input id="ebe-g1-addr"/></div>
+        <div class="fg"><label>Office Address</label><input id="ebe-g1-office"/></div>
+        <div class="fg"><label>Occupation</label><input id="ebe-g1-occ"/></div>
+        <div class="fg"><label>Relationship with Customer</label><input id="ebe-g1-rel"/></div>
+        <div class="fg"><label>ID Type</label><select id="ebe-g1-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
+        <div class="fg"><label>ID Number</label><input id="ebe-g1-idnum"/></div>
+      </div>
+      <div class="fg" style="margin-top:10px">
+        <label>Guarantor Passport Photo</label>
+        <div class="photo-up" onclick="document.getElementById('ebe-g1-photo').click()" style="max-width:200px">
+          <img id="ebe-g1-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/><p>Click to change</p>
+        </div>
+        <input type="file" id="ebe-g1-photo" accept="image/*" style="display:none" onchange="prevPhoto(this,'ebe-g1-photo-prev','ebe-g1-photo-data')"/>
+        <input type="hidden" id="ebe-g1-photo-data"/>
+      </div>
+      <button class="btn btn-navy" onclick="saveEBEdit()" style="width:100%;justify-content:center;padding:11px;margin-top:14px">&#128190; Save Changes</button>
+    </div>
+  </div>
+</div>
+
 <!-- EASYBUY PAYMENT MODAL -->
 <div class="overlay" id="eb-pay-modal">
   <div class="modal" style="max-width:540px">
@@ -1535,72 +1587,6 @@ mark{background:#fef08a;border-radius:3px;padding:0 2px}
       <button class="mclose" onclick="closeModal('eb-pay-modal')">&times;</button>
     </div>
     <div class="mbody" id="eb-pay-body"></div>
-  </div>
-</div>
-
-<!-- EDIT EASYBUY CUSTOMER DETAILS MODAL -->
-<div class="overlay" id="eb-details-edit-modal">
-  <div class="modal" style="max-width:520px">
-    <div class="mhead">
-      <h3>&#9998; Edit Customer Details</h3>
-      <button class="mclose" onclick="closeModal('eb-details-edit-modal')">&times;</button>
-    </div>
-    <div class="mbody">
-      <div class="form-grid">
-        <div class="fg"><label>Full Name *</label><input id="ebd-name"/></div>
-        <div class="fg"><label>Phone *</label><input id="ebd-phone"/></div>
-        <div class="fg"><label>Address *</label><input id="ebd-address"/></div>
-        <div class="fg"><label>Office Address</label><input id="ebd-officeaddr"/></div>
-        <div class="fg"><label>Occupation</label><input id="ebd-occ"/></div>
-        <div class="fg"><label>ID Type</label><select id="ebd-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
-        <div class="fg"><label>ID Number</label><input id="ebd-idnum"/></div>
-      </div>
-      <button class="btn btn-navy" onclick="saveEBDetailsEdit()" style="width:100%;justify-content:center;padding:11px;margin-top:12px">&#128190; Save Changes</button>
-    </div>
-  </div>
-</div>
-
-<!-- EASYBUY NEXT OF KIN PHOTO EDIT MODAL -->
-<div class="overlay" id="eb-nok-photo-modal">
-  <div class="modal" style="max-width:380px">
-    <div class="mhead">
-      <h3>&#128101; Next of Kin Photo</h3>
-      <button class="mclose" onclick="closeModal('eb-nok-photo-modal')">&times;</button>
-    </div>
-    <div class="mbody">
-      <div class="fg">
-        <label>Next of Kin Photo</label>
-        <div class="photo-up" onclick="document.getElementById('ebn-photo-file').click()">
-          <img id="ebn-photo-prev" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E" alt=""/>
-          <p>Click to upload photo</p>
-        </div>
-        <input type="file" id="ebn-photo-file" accept="image/*" style="display:none" onchange="prevPhoto(this,'ebn-photo-prev','ebn-photo-data')"/>
-        <input type="hidden" id="ebn-photo-data"/>
-      </div>
-      <button class="btn btn-navy" onclick="saveEBNokPhoto()" style="width:100%;justify-content:center;padding:11px;margin-top:12px">&#128190; Save Photo</button>
-    </div>
-  </div>
-</div>
-
-<!-- EDIT EASYBUY NEXT OF KIN DETAILS MODAL -->
-<div class="overlay" id="eb-nok-edit-modal">
-  <div class="modal" style="max-width:520px">
-    <div class="mhead">
-      <h3>&#9998; Edit Next of Kin Details</h3>
-      <button class="mclose" onclick="closeModal('eb-nok-edit-modal')">&times;</button>
-    </div>
-    <div class="mbody">
-      <div class="form-grid">
-        <div class="fg"><label>Full Name *</label><input id="ebnk-name"/></div>
-        <div class="fg"><label>Relationship</label><input id="ebnk-rel"/></div>
-        <div class="fg"><label>Phone *</label><input id="ebnk-phone"/></div>
-        <div class="fg"><label>Address</label><input id="ebnk-addr"/></div>
-        <div class="fg"><label>Occupation</label><input id="ebnk-occ"/></div>
-        <div class="fg"><label>ID Type</label><select id="ebnk-idtype"><option value="">Select</option><option>National ID (NIN)</option><option>Voter's Card</option><option>Driver's Licence</option><option>International Passport</option></select></div>
-        <div class="fg"><label>ID Number</label><input id="ebnk-idnum"/></div>
-      </div>
-      <button class="btn btn-navy" onclick="saveEBNokEdit()" style="width:100%;justify-content:center;padding:11px;margin-top:12px">&#128190; Save Changes</button>
-    </div>
   </div>
 </div>
 
@@ -3759,22 +3745,16 @@ function submitEasyBuy(e){
   const dueDate=ebGetMaturity(agrdate,dn,du);
   const price=parseFloat(v('eb-price'))||0, init=parseFloat(v('eb-initial'))||0;
   const data={
-    ebId:ebGenId(), name:v('eb-name'), phone:v('eb-phone'), address:v('eb-address'),
-    officeAddress:v('eb-office-address'),
+    ebId:ebGenId(), name:v('eb-name'), phone:v('eb-phone'), address:v('eb-address'), officeAddress:v('eb-office'),
     occupation:v('eb-occ'), idtype:v('eb-idtype'), idnum:v('eb-idnum'),
     branchId, branchName:getBranchName(branchId), officer:v('eb-officer'),
     product:v('eb-product'), proddesc:v('eb-proddesc'),
     price, initial:init, plan:v('eb-plan'),
     duration:dn+' '+du, durationNum:dn, durationUnit:du,
     agrdate, dueDate, status:v('eb-status'),
-    nok:{
-      name:v('eb-nok-name'), relationship:v('eb-nok-rel'),
-      phone:v('eb-nok-phone'), address:v('eb-nok-addr'),
-      occupation:v('eb-nok-occ'), idtype:v('eb-nok-idtype'), idnum:v('eb-nok-idnum'),
-      photo:document.getElementById('eb-nok-photo-data').value
-    },
     photo:document.getElementById('eb-photo-data').value,
     docs:sjd(document.getElementById('eb-docs-data').value),
+    g1:ebReadG('eb-g1-'),
     payments:[], createdBy:currentSession.username||'admin',
     createdAt:new Date().toISOString()
   };
@@ -3788,11 +3768,10 @@ function resetEBForm(){
   const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
   const pp=document.getElementById('eb-photo-prev');if(pp)pp.src=blank;
   const pd=document.getElementById('eb-photo-data');if(pd)pd.value='';
-  const nokpp=document.getElementById('eb-nok-photo-prev');if(nokpp)nokpp.src=blank;
-  const nokpd=document.getElementById('eb-nok-photo-data');if(nokpd)nokpd.value='';
   const dd=document.getElementById('eb-docs-data');if(dd)dd.value='[]';
   const dl=document.getElementById('eb-docs-list');if(dl)dl.innerHTML='';
   const box=document.getElementById('eb-calc-box');if(box)box.style.display='none';
+  ['eb-g1-photo'].forEach(id=>{const im=document.getElementById(id+'-prev');if(im)im.src=blank;const dt=document.getElementById(id+'-data');if(dt)dt.value='';});
   // Clear date dropdowns
   ['eb-agrdate-d','eb-agrdate-m','eb-agrdate-y'].forEach(id=>{const el=document.getElementById(id);if(el)el.value='';});
   document.getElementById('eb-agrdate').value='';
@@ -3807,82 +3786,55 @@ function delEB(id){
   }).catch(e=>toast('Error: '+e.message,'e'));
 }
 
-// ===== EDIT EASYBUY CUSTOMER DETAILS =====
-function openEBDetailsEdit(id){
+// ===== EASYBUY GUARANTORS & EDIT =====
+const EB_BLANK="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
+function ebReadG(p){
+  return {name:v(p+'name'),phone:v(p+'phone'),address:v(p+'addr'),officeAddress:v(p+'office'),occupation:v(p+'occ'),relationship:v(p+'rel'),idtype:v(p+'idtype'),idnum:v(p+'idnum'),photo:v(p+'photo-data'),docs:[]};
+}
+function ebGCard(e,n){
+  const g=e['g'+n]||{};
+  const head='<div class="sh">Guarantor <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openEBEdit(\''+e.id+'\')">&#9998; '+(g.name?'Edit':'Add')+'</button></div>';
+  if(!g.name)return head+'<p style="color:var(--muted);font-size:.82rem;padding:6px 0 10px">No guarantor added.</p>';
+  return head+'<div class="gcard"><div class="ghd"><img class="gphoto" src="'+(g.photo||EB_BLANK)+'" alt=""/>'+
+    '<div><div style="font-weight:700">'+g.name+'</div><div style="font-size:.78rem;color:var(--muted)">'+(g.phone||'')+' &bull; '+(g.relationship||'')+'</div></div></div>'+
+    '<div class="info-grid" style="margin-top:0">'+
+    '<div class="iitem"><label>Home Address</label><p>'+(g.address||'--')+'</p></div>'+
+    '<div class="iitem"><label>Office Address</label><p>'+(g.officeAddress||'--')+'</p></div>'+
+    '<div class="iitem"><label>Occupation</label><p>'+(g.occupation||'--')+'</p></div>'+
+    '<div class="iitem"><label>ID</label><p>'+((g.idtype||'')+' '+(g.idnum||'')).trim()+(g.idtype||g.idnum?'':'--')+'</p></div>'+
+    '</div></div>';
+}
+function openEBEdit(id){
   const e=allEasyBuys.find(x=>x.id===id);if(!e)return;
   ebCurId=id;
-  document.getElementById('ebd-name').value=e.name||'';
-  document.getElementById('ebd-phone').value=e.phone||'';
-  document.getElementById('ebd-address').value=e.address||'';
-  document.getElementById('ebd-officeaddr').value=e.officeAddress||'';
-  document.getElementById('ebd-occ').value=e.occupation||'';
-  document.getElementById('ebd-idtype').value=e.idtype||'';
-  document.getElementById('ebd-idnum').value=e.idnum||'';
-  showModal('eb-details-edit-modal');
+  const set=(k,val)=>{const el=document.getElementById(k);if(el)el.value=val||''};
+  set('ebe-name',e.name);set('ebe-phone',e.phone);set('ebe-address',e.address);set('ebe-office',e.officeAddress);
+  set('ebe-occ',e.occupation);set('ebe-idtype',e.idtype);set('ebe-idnum',e.idnum);
+  set('ebe-photo-data',e.photo);document.getElementById('ebe-photo-prev').src=e.photo||EB_BLANK;
+  [1].forEach(n=>{
+    const g=e['g'+n]||{},p='ebe-g'+n+'-';
+    set(p+'name',g.name);set(p+'phone',g.phone);set(p+'addr',g.address);set(p+'office',g.officeAddress);
+    set(p+'occ',g.occupation);set(p+'rel',g.relationship);set(p+'idtype',g.idtype);set(p+'idnum',g.idnum);
+    set(p+'photo-data',g.photo);document.getElementById(p+'photo-prev').src=g.photo||EB_BLANK;
+  });
+  closeModal('eb-profile-modal');
+  showModal('eb-edit-modal');
 }
-function saveEBDetailsEdit(){
-  const name=v('ebd-name'), phone=v('ebd-phone'), address=v('ebd-address'),
-        officeAddress=v('ebd-officeaddr'),
-        occupation=v('ebd-occ'), idtype=v('ebd-idtype'), idnum=v('ebd-idnum');
-  if(!name||!phone||!address){toast('Please fill in all required fields','e');return}
+function saveEBEdit(){
   const e=allEasyBuys.find(x=>x.id===ebCurId);if(!e)return;
-  db.collection('easybuy').doc(ebCurId).set({name,phone,address,officeAddress,occupation,idtype,idnum},{merge:true}).then(()=>{
-    Object.assign(e,{name,phone,address,officeAddress,occupation,idtype,idnum});
-    closeModal('eb-details-edit-modal');
-    toast('Customer details updated!','s');
+  if(!v('ebe-name')||!v('ebe-phone')||!v('ebe-address')){toast('Name, phone and address are required','e');return}
+  const upd={
+    name:v('ebe-name'),phone:v('ebe-phone'),address:v('ebe-address'),officeAddress:v('ebe-office'),
+    occupation:v('ebe-occ'),idtype:v('ebe-idtype'),idnum:v('ebe-idnum'),photo:v('ebe-photo-data'),
+    g1:{...(e.g1||{}),...ebReadG('ebe-g1-')}
+  };
+  db.collection('easybuy').doc(ebCurId).set(upd,{merge:true}).then(()=>{
+    Object.assign(e,upd);
+    closeModal('eb-edit-modal');
+    toast('EasyBuy details updated!','s');
     renderEB(scopedEB());
     viewEBProfile(ebCurId);
-  }).catch(ex=>toast('Error: '+ex.message,'e'));
-}
-
-// ===== ADD/CHANGE NEXT OF KIN PHOTO FOR EXISTING EASYBUY =====
-function openEBNokPhotoEdit(id){
-  const e=allEasyBuys.find(x=>x.id===id);if(!e)return;
-  ebCurId=id;
-  const blank="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 80 80'%3E%3Crect width='80' height='80' fill='%23e2e8f0'/%3E%3Ctext x='50%25' y='55%25' font-size='28' text-anchor='middle' fill='%2394a3b8'%3E%F0%9F%91%A4%3C/text%3E%3C/svg%3E";
-  document.getElementById('ebn-photo-prev').src=(e.nok&&e.nok.photo)||blank;
-  document.getElementById('ebn-photo-data').value=(e.nok&&e.nok.photo)||'';
-  showModal('eb-nok-photo-modal');
-}
-function saveEBNokPhoto(){
-  const photo=v('ebn-photo-data');
-  if(!photo){toast('Please upload a photo','e');return}
-  const e=allEasyBuys.find(x=>x.id===ebCurId);if(!e)return;
-  const nok={...(e.nok||{}),photo};
-  db.collection('easybuy').doc(ebCurId).set({nok},{merge:true}).then(()=>{
-    e.nok=nok;
-    closeModal('eb-nok-photo-modal');
-    toast('Next of kin photo saved!','s');
-    viewEBProfile(ebCurId);
-  }).catch(ex=>toast('Error: '+ex.message,'e'));
-}
-
-// ===== EDIT NEXT OF KIN DETAILS FOR EASYBUY =====
-function openEBNokEdit(id){
-  const e=allEasyBuys.find(x=>x.id===id);if(!e)return;
-  ebCurId=id;
-  const nok=e.nok||{};
-  document.getElementById('ebnk-name').value=nok.name||'';
-  document.getElementById('ebnk-rel').value=nok.relationship||'';
-  document.getElementById('ebnk-phone').value=nok.phone||'';
-  document.getElementById('ebnk-addr').value=nok.address||'';
-  document.getElementById('ebnk-occ').value=nok.occupation||'';
-  document.getElementById('ebnk-idtype').value=nok.idtype||'';
-  document.getElementById('ebnk-idnum').value=nok.idnum||'';
-  showModal('eb-nok-edit-modal');
-}
-function saveEBNokEdit(){
-  const name=v('ebnk-name'), relationship=v('ebnk-rel'), phone=v('ebnk-phone'),
-        address=v('ebnk-addr'), occupation=v('ebnk-occ'), idtype=v('ebnk-idtype'), idnum=v('ebnk-idnum');
-  if(!name||!phone){toast('Please fill in the next of kin name and phone','e');return}
-  const e=allEasyBuys.find(x=>x.id===ebCurId);if(!e)return;
-  const nok={...(e.nok||{}),name,relationship,phone,address,occupation,idtype,idnum};
-  db.collection('easybuy').doc(ebCurId).set({nok},{merge:true}).then(()=>{
-    e.nok=nok;
-    closeModal('eb-nok-edit-modal');
-    toast('Next of kin details updated!','s');
-    viewEBProfile(ebCurId);
-  }).catch(ex=>toast('Error: '+ex.message,'e'));
+  }).catch(err=>toast('Error: '+err.message,'e'));
 }
 
 // ===== EASYBUY PROFILE =====
@@ -3914,7 +3866,7 @@ function viewEBProfile(id){
     '</div>'+
     '<div class="pbar-wrap"><div class="pbar-fill '+cls+'" style="width:'+pct+'%;background:#0d9488"></div></div>'+
     '<div style="font-size:.72rem;color:var(--muted);margin-bottom:12px">'+pct+'% paid &bull; Plan: <strong>'+(e.plan||'--')+'</strong> &bull; Due: <strong>'+(e.dueDate||'--')+'</strong></div>'+
-    '<div class="sh">Customer Details <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openEBDetailsEdit(\''+e.id+'\')">&#9998; Edit</button></div>'+
+    '<div class="sh">Customer Details <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openEBEdit(\''+e.id+'\')">&#9998; Edit</button></div>'+
     '<div class="info-grid" style="margin-top:0">'+
     '<div class="iitem"><label>Full Name</label><p>'+e.name+'</p></div>'+
     '<div class="iitem"><label>Phone</label><p>'+(e.phone||'--')+'</p></div>'+
@@ -3927,20 +3879,7 @@ function viewEBProfile(id){
     '<div class="iitem"><label>Due Date</label><p>'+(e.dueDate||'--')+'</p></div>'+
     '<div class="iitem"><label>Branch</label><p>'+getBranchName(e.branchId)+'</p></div>'+
     '</div>'+
-    '<div class="sh">&#128101; Next of Kin Details <button class="btn btn-out btn-sm no-print" style="margin-left:8px" onclick="openEBNokEdit(\''+e.id+'\')">&#9998; Edit</button> <button class="btn btn-out btn-sm no-print" onclick="openEBNokPhotoEdit(\''+e.id+'\')">&#9998; '+((e.nok&&e.nok.photo)?'Change Photo':'Add Photo')+'</button></div>'+
-    '<div style="display:flex;gap:12px;align-items:center;margin-bottom:10px">'+
-    '<img src="'+((e.nok&&e.nok.photo)||blank)+'" alt="" style="width:68px;height:68px;object-fit:cover;border-radius:8px;border:2px solid var(--border)"/>'+
-    '<div style="font-size:.78rem;color:var(--muted)">Next of Kin Photo</div>'+
-    '</div>'+
-    '<div class="info-grid" style="margin-top:0">'+
-    '<div class="iitem"><label>Full Name</label><p>'+((e.nok&&e.nok.name)||'--')+'</p></div>'+
-    '<div class="iitem"><label>Relationship</label><p>'+((e.nok&&e.nok.relationship)||'--')+'</p></div>'+
-    '<div class="iitem"><label>Phone</label><p>'+((e.nok&&e.nok.phone)||'--')+'</p></div>'+
-    '<div class="iitem"><label>Address</label><p>'+((e.nok&&e.nok.address)||'--')+'</p></div>'+
-    '<div class="iitem"><label>Occupation</label><p>'+((e.nok&&e.nok.occupation)||'--')+'</p></div>'+
-    '<div class="iitem"><label>ID Type</label><p>'+((e.nok&&e.nok.idtype)||'--')+'</p></div>'+
-    '<div class="iitem"><label>ID Number</label><p>'+((e.nok&&e.nok.idnum)||'--')+'</p></div>'+
-    '</div>'+
+    ebGCard(e,1)+
     '<div class="sh">Payment History ('+(e.payments||[]).length+' records)</div>'+
     ((e.payments||[]).length===0
       ?'<p style="color:var(--muted);font-size:.82rem;text-align:center;padding:14px">No instalment payments yet.</p>'
@@ -4035,20 +3974,10 @@ function printEBAgreement(){
   <table><tr><td>Full Name</td><td>${e.name}</td></tr>
   <tr><td>Phone</td><td>${e.phone}</td></tr>
   <tr><td>Address</td><td>${e.address||'--'}</td></tr>
-  <tr><td>Office Address</td><td>${e.officeAddress||'--'}</td></tr>
   <tr><td>Occupation</td><td>${e.occupation||'--'}</td></tr>
   <tr><td>ID Type</td><td>${e.idtype||'--'}</td></tr>
   <tr><td>ID Number</td><td>${e.idnum||'--'}</td></tr>
   <tr><td>Branch</td><td>${getBranchName(e.branchId)}</td></tr></table></div>
-  <div class="section"><h3>Next of Kin Information</h3>
-  <table>
-  <tr><td>Full Name</td><td>${(e.nok&&e.nok.name)||'--'}</td></tr>
-  <tr><td>Relationship</td><td>${(e.nok&&e.nok.relationship)||'--'}</td></tr>
-  <tr><td>Phone</td><td>${(e.nok&&e.nok.phone)||'--'}</td></tr>
-  <tr><td>Address</td><td>${(e.nok&&e.nok.address)||'--'}</td></tr>
-  <tr><td>Occupation</td><td>${(e.nok&&e.nok.occupation)||'--'}</td></tr>
-  <tr><td>ID</td><td>${(e.nok&&e.nok.idtype)||''} ${(e.nok&&e.nok.idnum)||''}</td></tr>
-  </table></div>
   <div class="section"><h3>Product Details</h3>
   <table><tr><td>Product Name</td><td>${e.product}</td></tr>
   <tr><td>Description</td><td>${e.proddesc||'--'}</td></tr>
@@ -4080,17 +4009,12 @@ function exportEasyBuyExcel(){
   if(typeof XLSX==='undefined'){toast('Excel library not loaded','e');return}
   const rows=scopedEB().map(e=>({
     'EasyBuy ID':e.ebId,'Name':e.name,'Phone':e.phone,'Address':e.address,
-    'Office Address':e.officeAddress,
     'Occupation':e.occupation,'ID Type':e.idtype,'ID Number':e.idnum,
     'Branch':getBranchName(e.branchId),'Product':e.product,'Description':e.proddesc,
     'Price':e.price,'Initial Payment':e.initial,
     'Total Paid':parseFloat(e.initial||0)+ebGetPaid(e),
     'Balance':ebGetBal(e),'Plan':e.plan,'Duration':e.duration,
     'Agreement Date':e.agrdate,'Due Date':e.dueDate,'Status':e.status,
-    'NOK Name':e.nok&&e.nok.name,'NOK Relationship':e.nok&&e.nok.relationship,
-    'NOK Phone':e.nok&&e.nok.phone,'NOK Address':e.nok&&e.nok.address,
-    'NOK Occupation':e.nok&&e.nok.occupation,
-    'NOK ID Type':e.nok&&e.nok.idtype,'NOK ID Number':e.nok&&e.nok.idnum,
     'Created By':e.createdBy
   }));
   const ws=XLSX.utils.json_to_sheet(rows);
